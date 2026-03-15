@@ -144,8 +144,8 @@ describe('Workspace packages', () => {
       expect(pkg.name).toBe('@fillit/shared');
     });
 
-    it('has main pointing to dist/index.js', () => {
-      expect(pkg.main).toBe('dist/index.js');
+    it('has main pointing to src/index.ts', () => {
+      expect(pkg.main).toBe('src/index.ts');
     });
 
     it('has types entry', () => {
