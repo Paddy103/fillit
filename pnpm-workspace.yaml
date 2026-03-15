@@ -1,4 +1,4 @@
 packages:
   - 'apps/mobile'
   - 'packages/shared'
-  - 'server'
+  - 'apps/server'

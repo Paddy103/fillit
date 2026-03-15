@@ -39,8 +39,8 @@ describe('Workspace structure', () => {
     'packages/shared/package.json',
     'packages/shared/tsconfig.json',
     'packages/shared/src/index.ts',
-    'server/package.json',
-    'server/tsconfig.json',
+    'apps/server/package.json',
+    'apps/server/tsconfig.json',
   ];
 
   it.each(requiredFiles)('file exists: %s', (file) => {
@@ -112,8 +112,8 @@ describe('pnpm workspace', () => {
     expect(workspaceYaml).toContain('packages/shared');
   });
 
-  it('declares server workspace', () => {
-    expect(workspaceYaml).toContain('server');
+  it('declares apps/server workspace', () => {
+    expect(workspaceYaml).toContain('apps/server');
   });
 });
 
@@ -158,8 +158,8 @@ describe('Workspace packages', () => {
     });
   });
 
-  describe('server', () => {
-    const pkg = readJson('server/package.json');
+  describe('apps/server', () => {
+    const pkg = readJson('apps/server/package.json');
 
     it('has name fillit-server', () => {
       expect(pkg.name).toBe('fillit-server');
@@ -239,9 +239,9 @@ describe('TypeScript configuration', () => {
       expect(tsconfig.extends).toBe('../../tsconfig.base.json');
     });
 
-    it('server extends ../tsconfig.base.json', () => {
-      const tsconfig = readJson('server/tsconfig.json');
-      expect(tsconfig.extends).toBe('../tsconfig.base.json');
+    it('apps/server extends ../../tsconfig.base.json', () => {
+      const tsconfig = readJson('apps/server/tsconfig.json');
+      expect(tsconfig.extends).toBe('../../tsconfig.base.json');
     });
 
     it('apps/mobile tsconfig enables JSX', () => {
