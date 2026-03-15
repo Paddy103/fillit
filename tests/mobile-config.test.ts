@@ -2,7 +2,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const mobileRoot = resolve(__dirname, '..');
+const mobileRoot = resolve(__dirname, '..', 'apps', 'mobile');
 
 function readJson(relativePath: string): Record<string, unknown> {
   const content = readFileSync(resolve(mobileRoot, relativePath), 'utf-8');
@@ -77,10 +77,7 @@ describe('Expo project configuration', () => {
 
   describe('TypeScript config', () => {
     const tsconfig = readJson('tsconfig.json') as Record<string, unknown>;
-    const compilerOptions = tsconfig['compilerOptions'] as Record<
-      string,
-      unknown
-    >;
+    const compilerOptions = tsconfig['compilerOptions'] as Record<string, unknown>;
 
     it('should extend expo/tsconfig.base', () => {
       expect(tsconfig['extends']).toBe('expo/tsconfig.base');

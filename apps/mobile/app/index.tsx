@@ -4,9 +4,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>FillIt</Text>
-      <Text style={styles.subtitle}>
-        Scan, fill, and export documents with ease.
-      </Text>
+      <Text style={styles.subtitle}>Scan, fill, and export documents with ease.</Text>
     </View>
   );
 }
