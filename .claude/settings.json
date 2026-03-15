@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit",
+      "Write",
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash(pnpm *)",
+      "Bash(npx *)",
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git branch*)",
+      "Bash(git checkout*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git rebase*)",
+      "Bash(git merge*)",
+      "Bash(./scripts/*)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(mkdir *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "command": "npx prettier --write \"$CLAUDE_FILE_PATH\" 2>/dev/null || true"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "command": "echo \"$CLAUDE_FILE_PATH\" | grep -qE '(\\.env|\\.lock$|pnpm-lock|implementation-plan/)' && echo 'BLOCKED: Cannot edit protected file' && exit 1 || exit 0"
+      }
+    ]
+  }
+}

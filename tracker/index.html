@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FillIt Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <button id="sidebar-toggle" class="icon-btn" title="Toggle sidebar">&#9776;</button>
+      <h1 class="logo">FillIt <span class="logo-sub">Tracker</span></h1>
+    </div>
+    <div class="header-center">
+      <div class="view-toggle">
+        <button id="view-board" class="view-btn active" title="Board view">Board</button>
+        <button id="view-list" class="view-btn" title="List view">List</button>
+      </div>
+    </div>
+    <div class="header-right">
+      <button id="btn-new-item" class="btn btn-primary">+ New Item</button>
+      <button id="btn-export" class="btn btn-ghost" title="Export JSON">Export</button>
+      <button id="btn-import" class="btn btn-ghost" title="Import JSON">Import</button>
+      <input type="file" id="import-file" accept=".json" hidden>
+    </div>
+  </header>
+
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label for="filter-epic">Epic</label>
+      <select id="filter-epic"><option value="">All Epics</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="filter-type">Type</label>
+      <select id="filter-type">
+        <option value="">All Types</option>
+        <option value="Epic">Epic</option>
+        <option value="Feature">Feature</option>
+        <option value="UserStory">User Story</option>
+        <option value="Task">Task</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="filter-assignee">Assignee</label>
+      <select id="filter-assignee"><option value="">All Assignees</option></select>
+    </div>
+    <div class="filter-group filter-search">
+      <label for="filter-search">Search</label>
+      <input type="text" id="filter-search" placeholder="Search items...">
+    </div>
+    <div class="filter-stats" id="filter-stats"></div>
+  </div>
+
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2>Hierarchy</h2>
+      </div>
+      <div class="sidebar-tree" id="sidebar-tree"></div>
+    </aside>
+
+    <main class="board" id="board">
+      <div class="column" data-status="Backlog">
+        <div class="column-header">
+          <span class="column-dot backlog"></span>
+          <h3>Backlog</h3>
+          <span class="column-count" id="count-Backlog">0</span>
+        </div>
+        <div class="column-body" id="col-Backlog"></div>
+      </div>
+      <div class="column" data-status="ToDo">
+        <div class="column-header">
+          <span class="column-dot todo"></span>
+          <h3>To Do</h3>
+          <span class="column-count" id="count-ToDo">0</span>
+        </div>
+        <div class="column-body" id="col-ToDo"></div>
+      </div>
+      <div class="column" data-status="InProgress">
+        <div class="column-header">
+          <span class="column-dot inprogress"></span>
+          <h3>In Progress</h3>
+          <span class="column-count" id="count-InProgress">0</span>
+        </div>
+        <div class="column-body" id="col-InProgress"></div>
+      </div>
+      <div class="column" data-status="Review">
+        <div class="column-header">
+          <span class="column-dot review"></span>
+          <h3>Review</h3>
+          <span class="column-count" id="count-Review">0</span>
+        </div>
+        <div class="column-body" id="col-Review"></div>
+      </div>
+      <div class="column" data-status="Done">
+        <div class="column-header">
+          <span class="column-dot done"></span>
+          <h3>Done</h3>
+          <span class="column-count" id="count-Done">0</span>
+        </div>
+        <div class="column-body" id="col-Done"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Item Detail Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <h2 id="modal-title">Edit Item</h2>
+        <button class="icon-btn modal-close" id="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <label for="item-title">Title</label>
+          <input type="text" id="item-title" placeholder="Item title">
+        </div>
+        <div class="form-row">
+          <label for="item-description">Description</label>
+          <textarea id="item-description" rows="4" placeholder="Description..."></textarea>
+        </div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="item-type">Type</label>
+            <select id="item-type">
+              <option value="Epic">Epic</option>
+              <option value="Feature">Feature</option>
+              <option value="UserStory">User Story</option>
+              <option value="Task">Task</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="item-status">Status</label>
+            <select id="item-status">
+              <option value="Backlog">Backlog</option>
+              <option value="ToDo">To Do</option>
+              <option value="InProgress">In Progress</option>
+              <option value="Review">Review</option>
+              <option value="Done">Done</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="item-priority">Priority</label>
+            <select id="item-priority">
+              <option value="Medium">Medium</option>
+              <option value="Critical">Critical</option>
+              <option value="High">High</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="item-parent">Parent</label>
+            <select id="item-parent"><option value="">None</option></select>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="item-assignee">Assignee</label>
+            <input type="text" id="item-assignee" placeholder="Assignee name">
+          </div>
+          <div class="form-row">
+            <label for="item-pipeline">Pipeline Stage</label>
+            <select id="item-pipeline">
+              <option value="none">None</option>
+              <option value="building">Building</option>
+              <option value="testing">Testing</option>
+              <option value="reviewing">Code Review</option>
+              <option value="qa">QA</option>
+              <option value="awaiting-approval">Awaiting Approval</option>
+              <option value="merging">Merging</option>
+              <option value="deployed">Deployed</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="item-tags">Tags (comma-separated)</label>
+          <input type="text" id="item-tags" placeholder="e.g., mobile, backend">
+        </div>
+        <div class="form-row form-meta" id="item-meta"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="btn-delete-item">Delete</button>
+        <div class="modal-footer-right">
+          <button class="btn btn-ghost" id="btn-cancel">Cancel</button>
+          <button class="btn btn-primary" id="btn-save">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
