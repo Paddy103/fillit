@@ -26,27 +26,27 @@ Example: `/new-story S-15 sqlite-schema`
 
 ### 2. Look Up Story Details
 
-Search the tracker seed data and implementation plan for the story:
+Look up the story from the GitHub issue:
 
 ```bash
-# Check tracker for story details
-grep -r "${STORY_ID}" tracker/ --include="*.html" --include="*.js" --include="*.json" -l
-# Check implementation plan for context
+# Find the issue by story ID prefix
+gh issue list --search "${STORY_ID}:" --state open --json number,title,body --jq ".[] | select(.title | startswith(\"${STORY_ID}:\"))"
+# Check implementation plan for additional context
 grep -r "${STORY_ID}" implementation-plan/ --include="*.md" -A 5
 ```
 
-Read the matched files to extract:
+Read the issue body to extract:
 
 - Story title and description
 - Acceptance criteria
-- Dependencies (`[Depends: S-XX]`)
-- Which epic/feature this belongs to
+- Dependencies (`**Depends on:** #N`)
+- Which epic/feature this belongs to (from labels)
 
 ### 3. Validate Dependencies
 
 For each dependency listed:
 
-- Check if it has been merged to main: `git log --oneline main | grep "S-XX"`
+- Check if it has been completed: `gh issue view <number> --json state -q '.state'`
 - If not merged, warn the user and ask whether to proceed
 
 ### 4. Scaffold Initial Files

@@ -10,10 +10,10 @@ You receive a user story or task from the pipeline and implement it completely o
 
 ### 1. Understand the Story
 
-- Read the story/task description carefully, including acceptance criteria
+- Read the story/task description from the GitHub issue (find by title: `gh issue list --search "S-XX:"`)
 - Read `implementation-plan/README.md` for full project context if needed
 - Identify which files need to be created or modified
-- Check for dependency stories mentioned in the description (e.g., `[Depends: S-01]`)
+- Check for dependency stories — verify dependency issues are closed (`gh issue view <number> --json state`)
 - If dependencies aren't merged yet, flag this immediately
 
 ### 2. Create Feature Branch

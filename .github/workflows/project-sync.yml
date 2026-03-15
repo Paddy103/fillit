@@ -1,0 +1,135 @@
+name: Sync Issues to Project Board
+
+on:
+  pull_request:
+    types: [opened, closed]
+
+permissions:
+  issues: write
+  pull-requests: read
+
+jobs:
+  # ─── When a PR is opened, label the linked issue ───
+  pr-opened:
+    name: PR Opened → Label Issue
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    steps:
+      - name: Extract story ID from branch name
+        id: story
+        run: |
+          BRANCH="$HEAD_REF"
+          STORY_ID=$(echo "$BRANCH" | grep -oP 'S-\d+' | head -1)
+          if [ -z "$STORY_ID" ]; then
+            echo "No story ID found in branch: $BRANCH"
+            exit 0
+          fi
+          echo "story_id=$STORY_ID" >> "$GITHUB_OUTPUT"
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+
+      - name: Label issue and add PR link comment
+        if: steps.story.outputs.story_id
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const storyId = '${{ steps.story.outputs.story_id }}';
+
+            // Find the issue by title prefix
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            });
+
+            const issue = issues.data.find(i => i.title.startsWith(`${storyId}:`));
+            if (!issue) {
+              console.log(`No issue found for ${storyId}`);
+              return;
+            }
+
+            // Link PR to issue
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: `PR #${{ github.event.pull_request.number }} opened for this story.`,
+            });
+
+            console.log(`Labeled ${storyId} (issue #${issue.number})`);
+
+  # ─── When a PR is merged, clean up labels and close the issue ───
+  pr-merged:
+    name: PR Merged → Close Issue
+    runs-on: ubuntu-latest
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    steps:
+      - name: Extract story ID from branch name
+        id: story
+        run: |
+          BRANCH="$HEAD_REF"
+          STORY_ID=$(echo "$BRANCH" | grep -oP 'S-\d+' | head -1)
+          if [ -z "$STORY_ID" ]; then
+            echo "No story ID found in branch: $BRANCH"
+            exit 0
+          fi
+          echo "story_id=$STORY_ID" >> "$GITHUB_OUTPUT"
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+
+      - name: Close issue and remove pipeline labels
+        if: steps.story.outputs.story_id
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const storyId = '${{ steps.story.outputs.story_id }}';
+
+            // Find the issue (check all states — may already be closed by "Closes #N")
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              per_page: 100,
+              sort: 'created',
+              direction: 'desc',
+            });
+
+            const issue = issues.data.find(i => i.title.startsWith(`${storyId}:`));
+            if (!issue) {
+              console.log(`No issue found for ${storyId}`);
+              return;
+            }
+
+            // Remove all pipeline: labels
+            const pipelineLabels = issue.labels
+              .filter(l => l.name.startsWith('pipeline:'))
+              .map(l => l.name);
+
+            for (const label of pipelineLabels) {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                name: label,
+              }).catch(() => {});
+            }
+
+            // Close the issue
+            // GitHub Projects built-in workflow will auto-move to "Done"
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              state: 'closed',
+              state_reason: 'completed',
+            });
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: `Completed — merged via PR #${{ github.event.pull_request.number }}.`,
+            });
+
+            console.log(`Closed ${storyId} (issue #${issue.number})`);

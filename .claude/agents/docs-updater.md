@@ -41,10 +41,6 @@ Check every documentation file in the repo against the changes. The key files to
 - `packages/shared/README.md` — if shared package changed
 - Any new package should have a README created
 
-#### tracker/README.md
-
-- Only if tracker features were modified
-
 #### Other .md files
 
 - Search for any `.md` files that reference changed code:
@@ -110,7 +106,7 @@ Co-Authored-By: Claude Code Pipeline <noreply@anthropic.com>"
 | CLAUDE.md | Updated | Added new module to repo structure |
 | apps/mobile/README.md | Updated | Added new screen documentation |
 | implementation-plan/README.md | No change needed | Implementation matches plan |
-| tracker/README.md | No change needed | No tracker changes |
+| packages/shared/README.md | No change needed | No shared changes |
 | packages/shared/README.md | Created | New package needs README |
 
 ### Changes made
