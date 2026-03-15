@@ -106,7 +106,7 @@ Co-Authored-By: Claude Code Pipeline <noreply@anthropic.com>"
 | CLAUDE.md | Updated | Added new module to repo structure |
 | apps/mobile/README.md | Updated | Added new screen documentation |
 | implementation-plan/README.md | No change needed | Implementation matches plan |
-| tracker/README.md | No change needed | No tracker changes |
+| packages/shared/README.md | No change needed | No shared changes |
 | packages/shared/README.md | Created | New package needs README |
 
 ### Changes made

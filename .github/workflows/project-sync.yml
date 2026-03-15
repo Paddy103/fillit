@@ -49,14 +49,6 @@ jobs:
               return;
             }
 
-            // Add pipeline:building label
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issue.number,
-              labels: ['pipeline:building'],
-            });
-
             // Link PR to issue
             await github.rest.issues.createComment({
               owner: context.repo.owner,
@@ -93,17 +85,19 @@ jobs:
           script: |
             const storyId = '${{ steps.story.outputs.story_id }}';
 
-            // Find the issue (check open issues)
+            // Find the issue (check all states — may already be closed by "Closes #N")
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              state: 'open',
+              state: 'all',
               per_page: 100,
+              sort: 'created',
+              direction: 'desc',
             });
 
             const issue = issues.data.find(i => i.title.startsWith(`${storyId}:`));
             if (!issue) {
-              console.log(`No open issue found for ${storyId}`);
+              console.log(`No issue found for ${storyId}`);
               return;
             }
 

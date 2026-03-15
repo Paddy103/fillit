@@ -33,6 +33,10 @@ fi
 
 echo "Found issue #${ISSUE_NUM} for ${STORY_ID}"
 
+# Cache repo owner/name to avoid repeated API calls
+REPO_OWNER=$(gh repo view --json owner -q '.owner.login')
+REPO_NAME=$(gh repo view --json name -q '.name')
+
 # Pipeline labels to manage
 PIPELINE_LABELS=("pipeline:building" "pipeline:testing" "pipeline:reviewing" "pipeline:qa" "pipeline:docs" "pipeline:ready-to-merge")
 
@@ -53,7 +57,7 @@ move_to_status() {
   local item_info
   item_info=$(gh api graphql -f query="
     query {
-      repository(owner: \"$(gh repo view --json owner -q '.owner.login')\", name: \"$(gh repo view --json name -q '.name')\") {
+      repository(owner: \"${REPO_OWNER}\", name: \"${REPO_NAME}\") {
         issue(number: ${ISSUE_NUM}) {
           projectItems(first: 10) {
             nodes {

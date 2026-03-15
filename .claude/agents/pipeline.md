@@ -34,7 +34,7 @@ The user will tell you which story or task to work on. They might say:
 1. Identify the story from user input
 2. Read the story details from the GitHub issue (find by title prefix `S-XX:`)
 3. Check for dependencies — are prerequisite stories completed? (check if dependency issues are closed)
-4. Update issue status: `bash scripts/update-issue-status.sh S-XX building`
+4. Update issue status: `bash scripts/update-issue-status.sh S-XX start`
 5. Summarize the story for the user and confirm before proceeding:
 
 ```
@@ -173,7 +173,6 @@ Launch the Docs Updater Agent on the feature branch.
    - `CLAUDE.md` — project conventions, repo structure, any new patterns
    - `README.md` files — any package/app README that covers changed functionality
    - `implementation-plan/README.md` — if the implementation deviates from the plan
-   - `tracker/README.md` — if tracker features changed
    - Any other `.md` files in the repo that reference changed code
 4. Commit the documentation updates to the feature branch
 
