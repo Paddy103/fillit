@@ -13,10 +13,10 @@ describe('GET /health', () => {
     expect(body.status).toBe('ok');
   });
 
-  it('should include package name from @fillit/shared', async () => {
+  it('should include app name from @fillit/shared', async () => {
     const res = await app.request('/health');
     const body = await res.json();
-    expect(body.package).toBe('@fillit/shared');
+    expect(body.app).toBe('FillIt');
   });
 });
 

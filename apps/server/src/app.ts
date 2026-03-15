@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
-import { PACKAGE_NAME } from '@fillit/shared';
+import { APP_NAME } from '@fillit/shared';
 
 const app = new Hono();
 
 app.get('/health', (c) => {
-  return c.json({ status: 'ok', package: PACKAGE_NAME });
+  return c.json({ status: 'ok', app: APP_NAME });
 });
 
 app.get('/', (c) => {
