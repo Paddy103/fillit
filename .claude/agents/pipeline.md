@@ -32,9 +32,10 @@ The user will tell you which story or task to work on. They might say:
 ### Stage 0: Story Preparation
 
 1. Identify the story from user input
-2. Read the story details from the tracker seed data or user description
-3. Check for dependencies — are prerequisite stories completed?
-4. Summarize the story for the user and confirm before proceeding:
+2. Read the story details from the GitHub issue (find by title prefix `S-XX:`)
+3. Check for dependencies — are prerequisite stories completed? (check if dependency issues are closed)
+4. Update issue status: `bash scripts/update-issue-status.sh S-XX building`
+5. Summarize the story for the user and confirm before proceeding:
 
 ```
 ## Story: <ID> — <Title>
@@ -49,11 +50,13 @@ Ready to start the pipeline? (Y/n)
 
 ### Stage 1: BUILD
 
+Update issue status: `bash scripts/update-issue-status.sh S-XX building`
+
 Launch the Builder Agent in a worktree to implement the feature.
 
 **Instructions to Builder:**
 
-- Story ID, title, description, acceptance criteria
+- Story ID, title, description, acceptance criteria (from the GitHub issue body)
 - Parent context (which feature/epic this belongs to)
 - Any relevant existing code to reference
 - Dependencies that are already implemented
@@ -63,6 +66,8 @@ Launch the Builder Agent in a worktree to implement the feature.
 **Checkpoint:** Verify the builder completed all acceptance criteria items. If not, send back with specific gaps.
 
 ### Stage 2: TEST
+
+Update issue status: `bash scripts/update-issue-status.sh S-XX testing`
 
 Launch the Tester Agent on the same feature branch.
 
@@ -77,6 +82,8 @@ Launch the Tester Agent on the same feature branch.
 **Checkpoint:** Verify all tests pass and coverage meets thresholds (80%+ statements, 75%+ branches). If not, send back with specific gaps.
 
 ### Stage 3: REVIEW
+
+Update issue status: `bash scripts/update-issue-status.sh S-XX reviewing`
 
 Launch up to three review agents **in parallel** on the feature branch:
 
@@ -133,6 +140,8 @@ Wait for all launched reviewers to complete, then:
 
 ### Stage 4: QA
 
+Update issue status: `bash scripts/update-issue-status.sh S-XX qa`
+
 Launch the QA Agent on the feature branch.
 
 **Instructions to QA:**
@@ -151,6 +160,8 @@ Launch the QA Agent on the feature branch.
 **Max iterations:** 2 QA cycles. If not passed after 2 rounds, escalate to user.
 
 ### Stage 5: DOCS UPDATE
+
+Update issue status: `bash scripts/update-issue-status.sh S-XX docs`
 
 Launch the Docs Updater Agent on the feature branch.
 
@@ -177,6 +188,8 @@ Launch the Docs Updater Agent on the feature branch.
 **Checkpoint:** Verify all relevant docs are updated. If the agent missed something, send it back. This stage should not require more than 1 iteration.
 
 ### Stage 6: USER APPROVAL
+
+Update issue status: `bash scripts/update-issue-status.sh S-XX ready`
 
 Present the final package to the user:
 
@@ -210,7 +223,7 @@ Present the final package to the user:
 **Approve merge? (Y/n)**
 ```
 
-### Stage 7: MERGE
+### Stage 7: CREATE PR
 
 On user approval:
 
@@ -220,32 +233,37 @@ On user approval:
    git rebase main
    ```
 2. If conflicts, resolve them and re-run tests
-3. Create a proper merge commit:
+3. Push the branch and create a GitHub PR:
 
    ```bash
-   git checkout main
-   git merge --no-ff feature/<branch> -m "feat(<scope>): <story title>
+   git push -u origin feature/<branch>
+   gh pr create --title "feat(<scope>): <story title>" --body "$(cat <<'EOF'
+   ## Summary
+   <Builder's summary — what was implemented>
 
-   Story: <Story ID>
+   ## Story: <Story ID>
+   Closes #<issue-number>
 
-   <Brief description of what was implemented>
-
-   Acceptance criteria:
+   ## Acceptance Criteria
    - [x] Criterion 1
    - [x] Criterion 2
 
-   Test coverage: X% statements, Y% branches
-   Review: Approved after N iterations
-   QA: Passed
+   ## Pipeline Results
+   | Stage | Status | Iterations |
+   |-------|--------|------------|
+   | Build | ✓ Complete | X |
+   | Test | ✓ X tests, Y% coverage | X |
+   | Review | ✓ Approved | X |
+   | QA | ✓ Passed | X |
+   | Docs | ✓ Updated | X files |
 
-   Co-Authored-By: Claude Code Pipeline <noreply@anthropic.com>"
+   🤖 Generated with [Claude Code Pipeline](https://claude.com/claude-code)
+   EOF
+   )"
    ```
 
-4. Delete the feature branch:
-   ```bash
-   git branch -d feature/<branch>
-   ```
-5. Notify user that merge is complete and CI/CD pipeline should trigger
+4. The `Closes #<issue-number>` keyword in the PR body will automatically close the issue and move it to Done on the project board when the PR is merged.
+5. Share the PR URL with the user for final review and merge.
 
 ## Pipeline State Tracking
 

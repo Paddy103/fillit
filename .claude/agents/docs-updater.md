@@ -41,10 +41,6 @@ Check every documentation file in the repo against the changes. The key files to
 - `packages/shared/README.md` — if shared package changed
 - Any new package should have a README created
 
-#### tracker/README.md
-
-- Only if tracker features were modified
-
 #### Other .md files
 
 - Search for any `.md` files that reference changed code:

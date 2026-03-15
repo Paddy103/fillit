@@ -23,7 +23,6 @@ fillit/
 │   └── shared/          # Shared types, validation, constants
 ├── tests/               # Project-wide tests (infrastructure, integration)
 ├── implementation-plan/ # Full project spec (source of truth)
-├── tracker/             # Kanban board (static HTML/CSS/JS)
 ├── scripts/             # Pipeline and utility scripts
 ├── .github/workflows/   # CI/CD pipelines
 ├── .claude/
@@ -41,7 +40,8 @@ fillit/
 - **Testing**: Jest + React Native Testing Library (mobile), Vitest (server/shared)
 - **Commits**: Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `docs:`, `chore:`)
 - **Branches**: `feature/<story-id>-<short-name>` (e.g., `feature/S-01-pnpm-monorepo`)
-- **PRs**: One PR per user story, linked to tracker item
+- **PRs**: One PR per user story, linked to GitHub Issue (use `Closes #N` in PR body)
+- **Tracking**: GitHub Issues + GitHub Projects board (project #2). Stories are issues titled `S-XX: <title>`. Pipeline agents update issue labels and board status automatically via `scripts/update-issue-status.sh`.
 
 ## Development Pipeline
 
@@ -50,12 +50,15 @@ This project uses a multi-agent Claude Code pipeline for development. See `.clau
 ### Pipeline Flow
 
 ```
-User kicks off story → Builder Agent (feature branch + implementation)
+User kicks off story → Issue moved to "In Progress" on project board
+                     → Builder Agent (feature branch + implementation)
                      → Tester Agent (writes comprehensive tests)
                      → Reviewer Agent (senior engineer code review)
                      → QA Agent (functional + bug verification)
                      → Docs Updater Agent (updates all READMEs + CLAUDE.md)
-                     → User Final Approval → Merge to main
+                     → Issue moved to "In Review", PR created
+                     → User Final Approval → Merge PR
+                     → Issue auto-closed, moved to "Done"
                      → CI/CD Build + Deploy
 ```
 
@@ -113,7 +116,8 @@ User kicks off story → Builder Agent (feature branch + implementation)
 ## Key Files
 
 - `implementation-plan/README.md` — Full project specification (source of truth)
-- `tracker/index.html` — Open in browser for Kanban board
 - `.claude/agents/pipeline.md` — Main pipeline orchestrator
 - `.claude/settings.json` — Permissions, hooks (auto-format + file protection)
 - `.mcp.json` — Team-shared MCP servers (context7 for docs, GitHub for PRs/issues)
+- `scripts/update-issue-status.sh` — Pipeline helper to sync issue status on project board
+- `.github/workflows/project-sync.yml` — Auto-syncs PRs/issues to GitHub Projects board
