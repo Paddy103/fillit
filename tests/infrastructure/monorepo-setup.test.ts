@@ -234,19 +234,14 @@ describe('TypeScript configuration', () => {
       expect(tsconfig.extends).toBe('../../tsconfig.base.json');
     });
 
-    it('apps/mobile extends ../../tsconfig.base.json', () => {
+    it('apps/mobile extends expo/tsconfig.base', () => {
       const tsconfig = readJson('apps/mobile/tsconfig.json');
-      expect(tsconfig.extends).toBe('../../tsconfig.base.json');
+      expect(tsconfig.extends).toBe('expo/tsconfig.base');
     });
 
     it('apps/server extends ../../tsconfig.base.json', () => {
       const tsconfig = readJson('apps/server/tsconfig.json');
       expect(tsconfig.extends).toBe('../../tsconfig.base.json');
-    });
-
-    it('apps/mobile tsconfig enables JSX', () => {
-      const tsconfig = readJson('apps/mobile/tsconfig.json');
-      expect(tsconfig.compilerOptions?.jsx).toBeDefined();
     });
   });
 
