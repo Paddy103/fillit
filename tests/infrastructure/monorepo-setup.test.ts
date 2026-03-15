@@ -144,8 +144,8 @@ describe('Workspace packages', () => {
       expect(pkg.name).toBe('@fillit/shared');
     });
 
-    it('has main pointing to src/index.ts', () => {
-      expect(pkg.main).toBe('src/index.ts');
+    it('has main pointing to dist/index.js', () => {
+      expect(pkg.main).toBe('dist/index.js');
     });
 
     it('has types entry', () => {
@@ -379,11 +379,15 @@ describe('pnpm workspace resolution', () => {
 describe('@fillit/shared barrel export', () => {
   const indexContent = readFile('packages/shared/src/index.ts');
 
-  it('exports PACKAGE_NAME constant', () => {
-    expect(indexContent).toContain('PACKAGE_NAME');
+  it('re-exports types', () => {
+    expect(indexContent).toContain('./types/index.js');
   });
 
-  it('PACKAGE_NAME value is @fillit/shared', () => {
-    expect(indexContent).toContain("'@fillit/shared'");
+  it('re-exports constants', () => {
+    expect(indexContent).toContain('./constants/index.js');
+  });
+
+  it('re-exports validation', () => {
+    expect(indexContent).toContain('./validation/index.js');
   });
 });
