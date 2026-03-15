@@ -6,7 +6,6 @@ on:
 
 env:
   NODE_VERSION: '20'
-  PNPM_VERSION: '9'
 
 jobs:
   pr-validation:
@@ -90,6 +89,7 @@ jobs:
     name: Auto-label PR
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pull-requests: write
     steps:
       - uses: actions/checkout@v4

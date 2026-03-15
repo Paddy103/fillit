@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Expo
+.expo/
+*.hbc
+
+# Environment variables
+.env
+.env.*
+.env.local
+.env.development
+.env.production
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Android
+apps/mobile/android/
+
+# iOS
+apps/mobile/ios/
+*.xcworkspace
+*.xcodeproj
+
+# Misc
+*.tgz
+.cache/
+.claude/worktrees/

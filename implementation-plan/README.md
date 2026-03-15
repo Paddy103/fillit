@@ -48,17 +48,17 @@
 
 ## 2. Key Decisions
 
-| Decision | Choice | Rationale |
-|---|---|---|
-| App name | FillIt (working name) | Pending trademark/CIPC research |
-| Platform priority | Mobile first (iOS/Android) | Web deferred to Phase 6 |
-| API architecture | Backend proxy server | Protects Claude API key, enables caching and analytics |
-| AI processing | Cloud AI (Claude) + offline heuristic | Best accuracy online, graceful degradation offline |
-| Authentication | OAuth (Google + Apple Sign-In) | No password management, enables per-user quotas |
-| Repo structure | Monorepo (pnpm workspaces) | Shared types, single CI config, easier to keep in sync |
-| Hosting | Fly.io | Best free tier, Docker-based, cost-optimized |
-| Package manager | pnpm | Fast, disk-efficient, great workspace support |
-| Mobile distribution | EAS Build + TestFlight/Play Console | Proper beta testing pipeline |
+| Decision            | Choice                                | Rationale                                              |
+| ------------------- | ------------------------------------- | ------------------------------------------------------ |
+| App name            | FillIt (working name)                 | Pending trademark/CIPC research                        |
+| Platform priority   | Mobile first (iOS/Android)            | Web deferred to Phase 6                                |
+| API architecture    | Backend proxy server                  | Protects Claude API key, enables caching and analytics |
+| AI processing       | Cloud AI (Claude) + offline heuristic | Best accuracy online, graceful degradation offline     |
+| Authentication      | OAuth (Google + Apple Sign-In)        | No password management, enables per-user quotas        |
+| Repo structure      | Monorepo (pnpm workspaces)            | Shared types, single CI config, easier to keep in sync |
+| Hosting             | Fly.io                                | Best free tier, Docker-based, cost-optimized           |
+| Package manager     | pnpm                                  | Fast, disk-efficient, great workspace support          |
+| Mobile distribution | EAS Build + TestFlight/Play Console   | Proper beta testing pipeline                           |
 
 ---
 
@@ -66,38 +66,38 @@
 
 ### Mobile App
 
-| Category | Library | Purpose |
-|---|---|---|
-| Framework | React Native + Expo (SDK 55+) | Cross-platform mobile + web |
-| Navigation | Expo Router (file-based) | Modern Expo standard |
-| State management | Zustand | Lightweight, TypeScript-friendly |
-| Database | expo-sqlite | Local SQLite, works on all platforms |
-| Camera/Scanner | @infinitered/react-native-mlkit-document-scanner | Native document scanning with auto-edge-detection |
-| OCR (native) | @infinitered/react-native-mlkit-text-recognition | On-device ML Kit text recognition |
-| OCR (web) | tesseract.js | WASM-based fallback for web platform |
-| File picker | expo-document-picker | Import PDFs/images from device |
-| File system | expo-file-system | Read/write local files |
-| PDF creation | pdf-lib | Fill form fields + draw text/images on PDFs |
-| PDF viewing | react-native-pdf | Render PDFs for preview |
-| Signature drawing | react-native-signature-canvas | Freehand signature capture |
-| Image processing | expo-image-manipulator | Crop, rotate, resize scanned images |
-| Sharing | expo-sharing + expo-print | Share/print filled documents |
-| Network detection | @react-native-community/netinfo | Online/offline detection for AI fallback |
-| Secure storage | expo-secure-store | Store encryption keys (Keychain/Keystore) |
-| Crypto | expo-crypto | Hashing, random bytes for encryption |
-| Biometric auth | expo-local-authentication | Face ID / fingerprint / PIN lock |
-| Fonts | expo-font | Load signature-style fonts |
+| Category          | Library                                          | Purpose                                           |
+| ----------------- | ------------------------------------------------ | ------------------------------------------------- |
+| Framework         | React Native + Expo (SDK 55+)                    | Cross-platform mobile + web                       |
+| Navigation        | Expo Router (file-based)                         | Modern Expo standard                              |
+| State management  | Zustand                                          | Lightweight, TypeScript-friendly                  |
+| Database          | expo-sqlite                                      | Local SQLite, works on all platforms              |
+| Camera/Scanner    | @infinitered/react-native-mlkit-document-scanner | Native document scanning with auto-edge-detection |
+| OCR (native)      | @infinitered/react-native-mlkit-text-recognition | On-device ML Kit text recognition                 |
+| OCR (web)         | tesseract.js                                     | WASM-based fallback for web platform              |
+| File picker       | expo-document-picker                             | Import PDFs/images from device                    |
+| File system       | expo-file-system                                 | Read/write local files                            |
+| PDF creation      | pdf-lib                                          | Fill form fields + draw text/images on PDFs       |
+| PDF viewing       | react-native-pdf                                 | Render PDFs for preview                           |
+| Signature drawing | react-native-signature-canvas                    | Freehand signature capture                        |
+| Image processing  | expo-image-manipulator                           | Crop, rotate, resize scanned images               |
+| Sharing           | expo-sharing + expo-print                        | Share/print filled documents                      |
+| Network detection | @react-native-community/netinfo                  | Online/offline detection for AI fallback          |
+| Secure storage    | expo-secure-store                                | Store encryption keys (Keychain/Keystore)         |
+| Crypto            | expo-crypto                                      | Hashing, random bytes for encryption              |
+| Biometric auth    | expo-local-authentication                        | Face ID / fingerprint / PIN lock                  |
+| Fonts             | expo-font                                        | Load signature-style fonts                        |
 
 ### Backend Proxy
 
-| Category | Library | Purpose |
-|---|---|---|
-| Runtime | Node.js | Server runtime |
-| Framework | Hono | Lightweight, fast HTTP framework |
-| AI SDK | @anthropic-ai/sdk | Claude API client |
-| Auth | google-auth-library, apple-signin-auth | OAuth token verification |
-| Cache | Redis (Upstash) or in-memory | Template response caching |
-| Containerization | Docker | Deployment packaging |
+| Category         | Library                                | Purpose                          |
+| ---------------- | -------------------------------------- | -------------------------------- |
+| Runtime          | Node.js                                | Server runtime                   |
+| Framework        | Hono                                   | Lightweight, fast HTTP framework |
+| AI SDK           | @anthropic-ai/sdk                      | Claude API client                |
+| Auth             | google-auth-library, apple-signin-auth | OAuth token verification         |
+| Cache            | Redis (Upstash) or in-memory           | Template response caching        |
+| Containerization | Docker                                 | Deployment packaging             |
 
 ### Shared Package (@fillit/shared)
 
@@ -262,7 +262,7 @@ fillit/
 
 ```typescript
 interface UserProfile {
-  id: string;                          // UUID
+  id: string; // UUID
   isPrimary: boolean;
   relationship?: 'spouse' | 'child' | 'parent' | 'other';
 
@@ -271,13 +271,13 @@ interface UserProfile {
   middleName?: string;
   lastName: string;
   maidenName?: string;
-  dateOfBirth: string;                 // ISO 8601
+  dateOfBirth: string; // ISO 8601
   gender?: 'male' | 'female' | 'other';
-  nationality: string;                 // Default: "South African"
+  nationality: string; // Default: "South African"
   maritalStatus?: 'single' | 'married' | 'divorced' | 'widowed' | 'other';
 
   // SA-specific
-  saIdNumber?: string;                 // 13-digit, validated with Luhn
+  saIdNumber?: string; // 13-digit, validated with Luhn
   citizenship?: 'citizen' | 'permanent_resident';
 
   // Contact
@@ -307,7 +307,7 @@ interface UserProfile {
   documents: IdentityDocument[];
 
   // Emergency contacts
-  emergencyContacts: EmergencyContact[];  // Max 2
+  emergencyContacts: EmergencyContact[]; // Max 2
 
   // Signatures
   signatures: StoredSignature[];
@@ -323,43 +323,43 @@ interface UserProfile {
 ```typescript
 interface Address {
   id: string;
-  label: string;              // "Home", "Work", "Mailing", "Postal", custom
+  label: string; // "Home", "Work", "Mailing", "Postal", custom
   street1: string;
   street2?: string;
-  suburb?: string;            // SA-specific
+  suburb?: string; // SA-specific
   city: string;
-  province: string;           // SA provinces
+  province: string; // SA provinces
   postalCode: string;
-  country: string;            // Default: "South Africa"
+  country: string; // Default: "South Africa"
   isDefault: boolean;
 }
 ```
 
 ### 5.3 Identity Documents (SA-focused)
 
-| Category | Document Types |
-|---|---|
-| **Core ID** | SA ID Book (green book), SA Smart ID Card, Passport |
-| **Driving** | Driver's license (card), PrDP (Professional Driving Permit) |
-| **Tax & Finance** | SARS Tax number, bank account details |
-| **Medical** | Medical aid (scheme + member number + plan), hospital plan |
-| **Vehicle** | Vehicle registration (eNatis), license disc |
-| **Work** | Work permit, refugee permit, asylum seeker permit |
-| **Education** | Matric certificate, degree/diploma, student card |
-| **Professional** | HPCSA, SACAP, ECSA, SAICA, Law Society, SACE registrations |
-| **Government** | Birth certificate, marriage certificate, COIDA, UIF number |
-| **Custom** | User-defined type with custom label and fields |
+| Category          | Document Types                                              |
+| ----------------- | ----------------------------------------------------------- |
+| **Core ID**       | SA ID Book (green book), SA Smart ID Card, Passport         |
+| **Driving**       | Driver's license (card), PrDP (Professional Driving Permit) |
+| **Tax & Finance** | SARS Tax number, bank account details                       |
+| **Medical**       | Medical aid (scheme + member number + plan), hospital plan  |
+| **Vehicle**       | Vehicle registration (eNatis), license disc                 |
+| **Work**          | Work permit, refugee permit, asylum seeker permit           |
+| **Education**     | Matric certificate, degree/diploma, student card            |
+| **Professional**  | HPCSA, SACAP, ECSA, SAICA, Law Society, SACE registrations  |
+| **Government**    | Birth certificate, marriage certificate, COIDA, UIF number  |
+| **Custom**        | User-defined type with custom label and fields              |
 
 ```typescript
 interface IdentityDocument {
   id: string;
-  type: DocumentType;           // Enum of all types above + 'custom'
-  label: string;                // User-friendly label
-  number: string;               // Encrypted at rest
+  type: DocumentType; // Enum of all types above + 'custom'
+  label: string; // User-friendly label
+  number: string; // Encrypted at rest
   issueDate?: string;
   expiryDate?: string;
   issuingAuthority?: string;
-  additionalFields: Record<string, string>;  // Type-specific data (encrypted)
+  additionalFields: Record<string, string>; // Type-specific data (encrypted)
 }
 ```
 
@@ -375,13 +375,14 @@ interface IdentityDocument {
 
 function parseRSAId(idNumber: string): {
   valid: boolean;
-  dateOfBirth?: string;          // ISO 8601
+  dateOfBirth?: string; // ISO 8601
   gender?: 'male' | 'female';
   citizenship?: 'citizen' | 'permanent_resident';
-}
+};
 ```
 
 When a user enters their SA ID number, the app:
+
 1. Validates format (13 digits) and Luhn checksum
 2. Auto-populates date of birth, gender, and citizenship on the profile
 3. Shows validation feedback in real-time as they type
@@ -396,7 +397,7 @@ interface ProcessedDocument {
   fields: DetectedField[];
   status: 'scanned' | 'ocr_complete' | 'fields_detected' | 'matched' | 'reviewed' | 'exported';
   sourceType: 'camera' | 'import';
-  documentType?: string;         // AI-detected: "medical form", "tax return", etc.
+  documentType?: string; // AI-detected: "medical form", "tax return", etc.
   createdAt: string;
   updatedAt: string;
   exportedPdfUri?: string;
@@ -418,10 +419,10 @@ interface DetectedField {
   label: string;
   normalizedLabel: string;
   fieldType: 'text' | 'date' | 'checkbox' | 'signature' | 'initial' | 'number';
-  bounds: { x: number; y: number; width: number; height: number };  // Relative 0-1
-  matchedProfileField?: string;   // e.g., "primary.firstName"
+  bounds: { x: number; y: number; width: number; height: number }; // Relative 0-1
+  matchedProfileField?: string; // e.g., "primary.firstName"
   matchedProfileId?: string;
-  matchConfidence: number;        // 0.0-1.0
+  matchConfidence: number; // 0.0-1.0
   value: string;
   originalValue?: string;
   isConfirmed: boolean;
@@ -437,11 +438,11 @@ interface StoredSignature {
   id: string;
   profileId: string;
   type: 'drawn' | 'typed';
-  label: string;                  // "Full signature", "Initials"
-  imageUri?: string;              // PNG (for drawn)
-  svgPath?: string;               // Vector (for drawn)
-  text?: string;                  // (for typed)
-  fontFamily?: string;            // (for typed)
+  label: string; // "Full signature", "Initials"
+  imageUri?: string; // PNG (for drawn)
+  svgPath?: string; // Vector (for drawn)
+  text?: string; // (for typed)
+  fontFamily?: string; // (for typed)
   createdAt: string;
   isDefault: boolean;
 }
@@ -590,18 +591,18 @@ CREATE TABLE signatures (
 
 ### 6.2 Color Palette: Purple-based
 
-| Token | Dark Mode | Light Mode | Usage |
-|---|---|---|---|
-| Primary | #7C3AED (violet-600) | #7C3AED | Buttons, active states, brand |
-| Primary variant | #A78BFA (violet-400) | #A78BFA | Highlights, secondary actions |
-| Background | #0F0D15 | #FAFAF9 | App background |
-| Surface | #1C1A27 | #FFFFFF | Cards, inputs, sheets |
-| Text primary | #FFFFFF | #1A1A1A | Headings, body text |
-| Text secondary | #9CA3AF (gray-400) | #6B7280 (gray-500) | Labels, hints |
-| Success | #22C55E | #22C55E | Confirmed fields, high confidence |
-| Warning | #F59E0B | #F59E0B | Medium confidence, needs review |
-| Error | #EF4444 | #EF4444 | Low confidence, missing data |
-| Accent | #06B6D4 (cyan) | #06B6D4 | Interactive highlights |
+| Token           | Dark Mode            | Light Mode         | Usage                             |
+| --------------- | -------------------- | ------------------ | --------------------------------- |
+| Primary         | #7C3AED (violet-600) | #7C3AED            | Buttons, active states, brand     |
+| Primary variant | #A78BFA (violet-400) | #A78BFA            | Highlights, secondary actions     |
+| Background      | #0F0D15              | #FAFAF9            | App background                    |
+| Surface         | #1C1A27              | #FFFFFF            | Cards, inputs, sheets             |
+| Text primary    | #FFFFFF              | #1A1A1A            | Headings, body text               |
+| Text secondary  | #9CA3AF (gray-400)   | #6B7280 (gray-500) | Labels, hints                     |
+| Success         | #22C55E              | #22C55E            | Confirmed fields, high confidence |
+| Warning         | #F59E0B              | #F59E0B            | Medium confidence, needs review   |
+| Error           | #EF4444              | #EF4444            | Low confidence, missing data      |
+| Accent          | #06B6D4 (cyan)       | #06B6D4            | Interactive highlights            |
 
 ### 6.3 Dark Mode
 
@@ -614,14 +615,14 @@ CREATE TABLE signatures (
 
 The document processing pipeline **auto-advances** through steps, only pausing when user input is required:
 
-| Step | Auto/Pause | What Happens |
-|---|---|---|
-| Scan/Import | User action | User takes photo or picks file |
-| OCR | Auto | Progress bar, auto-advances when done |
-| Field Detection | Auto | Sends to AI, shows progress |
-| Field Matching | **Pause** | User reviews detected fields, confirms/edits |
-| Signature Consent | **Pause** | User approves signature placement |
-| Export Preview | **Pause** | User reviews final PDF, chooses export action |
+| Step              | Auto/Pause  | What Happens                                  |
+| ----------------- | ----------- | --------------------------------------------- |
+| Scan/Import       | User action | User takes photo or picks file                |
+| OCR               | Auto        | Progress bar, auto-advances when done         |
+| Field Detection   | Auto        | Sends to AI, shows progress                   |
+| Field Matching    | **Pause**   | User reviews detected fields, confirms/edits  |
+| Signature Consent | **Pause**   | User approves signature placement             |
+| Export Preview    | **Pause**   | User reviews final PDF, chooses export action |
 
 **Confidence-based UI**: High-confidence matches are pre-filled and collapsed. Low-confidence fields (<0.7) are expanded and highlighted for review.
 
@@ -632,12 +633,14 @@ The document processing pipeline **auto-advances** through steps, only pausing w
 ### 6.5 Key Screens
 
 **Home Dashboard**:
+
 - Large "Scan" FAB (floating action button) — the primary CTA
 - Secondary "Import" button
 - Recent documents as cards with status chips (matched, exported, etc.)
 - Profile completeness indicator (encourages filling in more data for better matching)
 
 **Field Review Screen** (core interaction):
+
 - Document image fills the screen with semi-transparent field overlays
 - Tap a field → bottom sheet with: matched value, confidence %, profile source, edit option
 - Pinch to zoom on document
@@ -645,29 +648,32 @@ The document processing pipeline **auto-advances** through steps, only pausing w
 - Unmatched/low-confidence fields in a collapsible panel at bottom
 
 **Signature Consent Screen**:
+
 - Document preview with signature locations highlighted in purple
 - Clear count: "3 signatures needed"
 - Options: "Sign All" (blanket) or "Review Each"
 - Signature preview shown before applying
 
 **Export Preview**:
+
 - Full filled PDF preview
 - Bottom action bar: Share, Print, Save
 - "Looks wrong?" link → back to field review
 
 ### 6.6 Typography
 
-| Usage | Font | Weight |
-|---|---|---|
-| Headings | Inter | Bold / Semibold |
-| Body text | Inter | Regular / Medium |
-| Monospace (ID numbers, codes) | JetBrains Mono | Regular |
-| Signature (drawn) | N/A | Freehand |
-| Signature (typed) | Dancing Script, Great Vibes, Alex Brush, Pacifico | Regular |
+| Usage                         | Font                                              | Weight           |
+| ----------------------------- | ------------------------------------------------- | ---------------- |
+| Headings                      | Inter                                             | Bold / Semibold  |
+| Body text                     | Inter                                             | Regular / Medium |
+| Monospace (ID numbers, codes) | JetBrains Mono                                    | Regular          |
+| Signature (drawn)             | N/A                                               | Freehand         |
+| Signature (typed)             | Dancing Script, Great Vibes, Alex Brush, Pacifico | Regular          |
 
 ### 6.7 Animations
 
 Purposeful, not decorative:
+
 - **Page transitions**: Shared element transitions for document images
 - **Field detection**: Fields fade + scale in from their detected location
 - **Signature apply**: Brief "stamp" animation
@@ -680,12 +686,14 @@ Purposeful, not decorative:
 ### Stage 1: Document Input
 
 **Camera scanning (iOS/Android)**:
+
 - `@infinitered/react-native-mlkit-document-scanner` with `launchDocumentScannerAsync()`
 - Auto edge detection, perspective correction, multi-page support
 - Config: `pageLimit` up to 20, `galleryImportAllowed: true`
 - Returns cropped, corrected images saved to `expo-file-system` documentDirectory
 
 **Digital import**:
+
 - `expo-document-picker` with `type: ['application/pdf', 'image/*']`
 - For PDFs: render each page to image for OCR, keep original for form-field-aware filling
 - Copy imported file to app's document directory
@@ -693,6 +701,7 @@ Purposeful, not decorative:
 ### Stage 2: OCR
 
 **Native (iOS/Android)**:
+
 - `@infinitered/react-native-mlkit-text-recognition`
 - Returns structured results: text blocks → lines → elements, each with bounding boxes + confidence
 - Stored per page in SQLite
@@ -776,14 +785,14 @@ Rules:
 interface AnalyzeRequest {
   pages: Array<{
     pageNumber: number;
-    imageBase64: string;                // Compressed JPEG, max 1500px
+    imageBase64: string; // Compressed JPEG, max 1500px
     ocrBlocks: Array<{
       text: string;
       bounds: { x: number; y: number; width: number; height: number };
       confidence: number;
     }>;
   }>;
-  availableFields: ProfileFieldSchema;  // Field names + types only, no values
+  availableFields: ProfileFieldSchema; // Field names + types only, no values
 }
 ```
 
@@ -794,15 +803,15 @@ interface AnalyzeResponse {
   fields: Array<{
     id: string;
     pageNumber: number;
-    label: string;                      // "Full Name", "ID Nommer", etc.
+    label: string; // "Full Name", "ID Nommer", etc.
     fieldType: 'text' | 'date' | 'checkbox' | 'signature' | 'initial' | 'number';
     bounds: { x: number; y: number; width: number; height: number };
-    matchedField: string | null;        // "primary.firstName", "dependent.0.lastName"
-    matchConfidence: number;            // 0.0-1.0
-    notes?: string;                     // AI reasoning
+    matchedField: string | null; // "primary.firstName", "dependent.0.lastName"
+    matchConfidence: number; // 0.0-1.0
+    notes?: string; // AI reasoning
   }>;
-  documentType?: string;                // "medical form", "tax return", etc.
-  documentLanguage?: string;            // "English", "Afrikaans", "bilingual"
+  documentType?: string; // "medical form", "tax return", etc.
+  documentLanguage?: string; // "English", "Afrikaans", "bilingual"
 }
 ```
 
@@ -859,11 +868,11 @@ When offline, the app uses a local matcher:
 
 ### 8.9 Error Handling
 
-| Error | Response |
-|---|---|
-| Timeout (30s) | Fall back to heuristic |
-| Rate limit (429) | Show "busy" state, queue retry |
-| Malformed JSON | Retry once, then fall back to heuristic |
+| Error            | Response                                    |
+| ---------------- | ------------------------------------------- |
+| Timeout (30s)    | Fall back to heuristic                      |
+| Rate limit (429) | Show "busy" state, queue retry              |
+| Malformed JSON   | Retry once, then fall back to heuristic     |
 | Partial response | Use parsed fields + heuristic for remainder |
 
 ---
@@ -896,11 +905,11 @@ When offline, the app uses a local matcher:
 
 ### 9.4 Analytics (No PII)
 
-| Scope | Metrics |
-|---|---|
-| Per-user | Documents processed count, last active timestamp |
+| Scope       | Metrics                                                                    |
+| ----------- | -------------------------------------------------------------------------- |
+| Per-user    | Documents processed count, last active timestamp                           |
 | Per-request | Latency, token count, cache hit/miss, field count, confidence distribution |
-| Global | DAU, popular document types, error rates |
+| Global      | DAU, popular document types, error rates                                   |
 
 Storage: Simple PostgreSQL table or structured logging. Dashboard: log queries initially, Grafana later.
 
@@ -952,13 +961,13 @@ GET  /usage           # User's own usage stats
 
 ## 11. Offline-First Architecture
 
-| Principle | Implementation |
-|---|---|
-| Local-first data | SQLite is source of truth; all reads/writes go to local DB |
-| Network is optional | Only Claude API requires network; everything else works offline |
+| Principle            | Implementation                                                    |
+| -------------------- | ----------------------------------------------------------------- |
+| Local-first data     | SQLite is source of truth; all reads/writes go to local DB        |
+| Network is optional  | Only Claude API requires network; everything else works offline   |
 | Graceful degradation | Heuristic matcher auto-selected when offline; banner informs user |
-| Queued operations | Cloud backup syncs queued when offline, executed on reconnect |
-| Cached AI results | Template cache prevents redundant API calls for similar forms |
+| Queued operations    | Cloud backup syncs queued when offline, executed on reconnect     |
+| Cached AI results    | Template cache prevents redundant API calls for similar forms     |
 
 Network detection: `@react-native-community/netinfo` with `addEventListener`. Status stored in `settingsStore`.
 
@@ -970,45 +979,45 @@ Network detection: `@react-native-community/netinfo` with `addEventListener`. St
 
 ### 12.1 Test Framework
 
-| Tool | Purpose |
-|---|---|
-| Jest | Unit + integration tests across monorepo |
-| React Native Testing Library | Component tests |
-| Supertest | HTTP endpoint tests for server |
-| Maestro (or Detox) | E2E mobile tests |
+| Tool                         | Purpose                                  |
+| ---------------------------- | ---------------------------------------- |
+| Jest                         | Unit + integration tests across monorepo |
+| React Native Testing Library | Component tests                          |
+| Supertest                    | HTTP endpoint tests for server           |
+| Maestro (or Detox)           | E2E mobile tests                         |
 
 ### 12.2 Unit Tests
 
-| Module | What to Test |
-|---|---|
-| `shared/validation/saId.ts` | SA ID parsing, Luhn checksum, DOB/gender extraction, edge cases |
-| `shared/types/` | Type guard functions, validation helpers |
-| `mobile/services/ocr/` | OCR result normalization, bounding box calculations |
-| `mobile/services/ai/heuristic.ts` | Offline label matching, fuzzy match accuracy |
-| `mobile/services/pdf/generator.ts` | PDF field filling, coordinate mapping, signature embedding |
-| `mobile/utils/encryption.ts` | Encrypt/decrypt roundtrip, key generation |
-| `mobile/store/` | Zustand store actions and state transitions |
-| `server/services/claude.ts` | Prompt construction, response parsing, error handling |
-| `server/services/cache.ts` | Cache hit/miss, fingerprint hashing, TTL expiry |
-| `server/middleware/auth.ts` | OAuth token verification, invalid token rejection |
+| Module                             | What to Test                                                    |
+| ---------------------------------- | --------------------------------------------------------------- |
+| `shared/validation/saId.ts`        | SA ID parsing, Luhn checksum, DOB/gender extraction, edge cases |
+| `shared/types/`                    | Type guard functions, validation helpers                        |
+| `mobile/services/ocr/`             | OCR result normalization, bounding box calculations             |
+| `mobile/services/ai/heuristic.ts`  | Offline label matching, fuzzy match accuracy                    |
+| `mobile/services/pdf/generator.ts` | PDF field filling, coordinate mapping, signature embedding      |
+| `mobile/utils/encryption.ts`       | Encrypt/decrypt roundtrip, key generation                       |
+| `mobile/store/`                    | Zustand store actions and state transitions                     |
+| `server/services/claude.ts`        | Prompt construction, response parsing, error handling           |
+| `server/services/cache.ts`         | Cache hit/miss, fingerprint hashing, TTL expiry                 |
+| `server/middleware/auth.ts`        | OAuth token verification, invalid token rejection               |
 
 ### 12.3 Integration Tests
 
-| Area | What to Test |
-|---|---|
-| SQLite database | Schema migrations, CRUD ops, encrypted field roundtrip |
-| Backend API | Full flow: auth → analyze → Claude mock → response |
+| Area              | What to Test                                           |
+| ----------------- | ------------------------------------------------------ |
+| SQLite database   | Schema migrations, CRUD ops, encrypted field roundtrip |
+| Backend API       | Full flow: auth → analyze → Claude mock → response     |
 | OCR → AI pipeline | OCR output → heuristic matcher → verify field mappings |
-| PDF generation | Fields + signature → valid PDF output |
+| PDF generation    | Fields + signature → valid PDF output                  |
 
 ### 12.4 E2E Tests (Maestro or Detox)
 
-| Flow | Scenario |
-|---|---|
-| Onboarding | Create profile, add SA ID (verify auto-fill DOB/gender), add address |
-| Import + fill | Import test PDF, verify fields detected, confirm all, export PDF |
-| Signature flow | Create drawn signature, apply to document, verify in export |
-| Offline mode | Disable network, import doc, verify heuristic matching works |
+| Flow              | Scenario                                                              |
+| ----------------- | --------------------------------------------------------------------- |
+| Onboarding        | Create profile, add SA ID (verify auto-fill DOB/gender), add address  |
+| Import + fill     | Import test PDF, verify fields detected, confirm all, export PDF      |
+| Signature flow    | Create drawn signature, apply to document, verify in export           |
+| Offline mode      | Disable network, import doc, verify heuristic matching works          |
 | Profile switching | Add dependent, scan form, switch fields between primary and dependent |
 
 ### 12.5 Server Tests
@@ -1066,12 +1075,12 @@ Network detection: `@react-native-community/netinfo` with `addEventListener`. St
 
 ### Branch Strategy
 
-| Branch | Purpose |
-|---|---|
-| `main` | Production-ready, auto-deploys server |
-| `develop` | Integration branch (optional) |
-| `feature/*` | Feature branches, PR to main |
-| `release/*` | Release prep for mobile versions |
+| Branch      | Purpose                               |
+| ----------- | ------------------------------------- |
+| `main`      | Production-ready, auto-deploys server |
+| `develop`   | Integration branch (optional)         |
+| `feature/*` | Feature branches, PR to main          |
+| `release/*` | Release prep for mobile versions      |
 
 ---
 
@@ -1157,32 +1166,32 @@ Network detection: `@react-native-community/netinfo` with `addEventListener`. St
 
 ## 15. Risks & Mitigations
 
-| Risk | Impact | Mitigation |
-|---|---|---|
-| Poor OCR on bad scans | Incorrect field detection | Pre-OCR image enhancement, retake/recrop, show confidence |
-| AI field detection errors | Wrong fields filled | Always require user review, confidence thresholds, bounding box validation |
-| PDF coordinate misalignment | Text at wrong positions | Relative coords (0-1) throughout, convert at export, preview step |
-| Claude API latency/cost | Slow UX, high costs | Combined call, image compression, template caching, Haiku for simple forms |
-| ML Kit scanner iOS support | Scanner may behave differently | Test early in Phase 2, have expo-camera fallback ready |
-| Memory pressure on large docs | App crashes | Sequential page processing, thumbnails in UI, full-res only at export |
-| PII data breach | Legal/trust impact | Encryption at rest, biometric lock, no PII in analytics, no data leaves device without consent |
-| App name trademark conflict | Forced rebrand | Name defined in one place (app.json + constants), easy to change |
+| Risk                          | Impact                         | Mitigation                                                                                     |
+| ----------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------- |
+| Poor OCR on bad scans         | Incorrect field detection      | Pre-OCR image enhancement, retake/recrop, show confidence                                      |
+| AI field detection errors     | Wrong fields filled            | Always require user review, confidence thresholds, bounding box validation                     |
+| PDF coordinate misalignment   | Text at wrong positions        | Relative coords (0-1) throughout, convert at export, preview step                              |
+| Claude API latency/cost       | Slow UX, high costs            | Combined call, image compression, template caching, Haiku for simple forms                     |
+| ML Kit scanner iOS support    | Scanner may behave differently | Test early in Phase 2, have expo-camera fallback ready                                         |
+| Memory pressure on large docs | App crashes                    | Sequential page processing, thumbnails in UI, full-res only at export                          |
+| PII data breach               | Legal/trust impact             | Encryption at rest, biometric lock, no PII in analytics, no data leaves device without consent |
+| App name trademark conflict   | Forced rebrand                 | Name defined in one place (app.json + constants), easy to change                               |
 
 ---
 
 ## 16. Verification Plan
 
-| # | Test | How to Verify |
-|---|---|---|
-| 1 | Profiles | Create primary + dependent, restart app, verify data persists. Inspect SQLite — document numbers must be encrypted. |
-| 2 | SA ID Smart Fill | Enter valid SA ID, verify DOB/gender/citizenship auto-populate. Enter invalid ID, verify error shown. |
-| 3 | Scanning | Scan a multi-page paper form, verify pages captured with edge detection and perspective correction. |
-| 4 | Import | Import a PDF, verify pages extracted as images for OCR. |
-| 5 | OCR | Verify extracted text matches document content. Check bounding boxes overlay correctly. |
-| 6 | Field Detection | Verify Claude returns structured field list. Bounding boxes must overlay correctly on document image. |
-| 7 | Field Matching | Verify fields auto-populate with correct profile data. Test switching between primary and dependent. |
-| 8 | Signatures | Draw and type signatures. Verify they render correctly in exported PDF at the right size and position. |
-| 9 | Export | Verify filled PDF has text at correct positions, signatures embedded, and is shareable via system share sheet. |
-| 10 | Offline | Disable network. Import doc. Verify heuristic matcher works, banner shows "offline mode". |
-| 11 | Security | Verify biometric lock blocks access. Inspect SQLite DB — encrypted fields must not be readable as plaintext. |
-| 12 | Template Cache | Scan same form type twice. Second scan should return instantly (cache hit logged on server). |
+| #   | Test             | How to Verify                                                                                                       |
+| --- | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 1   | Profiles         | Create primary + dependent, restart app, verify data persists. Inspect SQLite — document numbers must be encrypted. |
+| 2   | SA ID Smart Fill | Enter valid SA ID, verify DOB/gender/citizenship auto-populate. Enter invalid ID, verify error shown.               |
+| 3   | Scanning         | Scan a multi-page paper form, verify pages captured with edge detection and perspective correction.                 |
+| 4   | Import           | Import a PDF, verify pages extracted as images for OCR.                                                             |
+| 5   | OCR              | Verify extracted text matches document content. Check bounding boxes overlay correctly.                             |
+| 6   | Field Detection  | Verify Claude returns structured field list. Bounding boxes must overlay correctly on document image.               |
+| 7   | Field Matching   | Verify fields auto-populate with correct profile data. Test switching between primary and dependent.                |
+| 8   | Signatures       | Draw and type signatures. Verify they render correctly in exported PDF at the right size and position.              |
+| 9   | Export           | Verify filled PDF has text at correct positions, signatures embedded, and is shareable via system share sheet.      |
+| 10  | Offline          | Disable network. Import doc. Verify heuristic matcher works, banner shows "offline mode".                           |
+| 11  | Security         | Verify biometric lock blocks access. Inspect SQLite DB — encrypted fields must not be readable as plaintext.        |
+| 12  | Template Cache   | Scan same form type twice. Second scan should return instantly (cache hit logged on server).                        |
