@@ -48,3 +48,4 @@ apps/mobile/ios/
 # Misc
 *.tgz
 .cache/
+.claude/worktrees/
