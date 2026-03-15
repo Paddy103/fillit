@@ -8,8 +8,6 @@ on:
 
 permissions:
   contents: read
-  issues: write
-  pull-requests: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -86,7 +84,7 @@ jobs:
         continue-on-error: true
 
       - name: Check for secrets
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@d17df4845197a68cbc37d33ad0e7f325b45c0033 # main
         with:
           extra_args: --only-verified
 
@@ -124,7 +122,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - uses: superfly/flyctl-actions/setup-flyctl@63da3ecc5e2793b98a3f2519b3d75d4f4c11cec2 # master
 
       - name: Deploy to Fly.io
         run: cd apps/server && flyctl deploy --remote-only
@@ -190,6 +188,8 @@ jobs:
   pr-failure-alert:
     name: PR Failure Alert
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     needs: [lint, test, security, build]
     if: always() && github.event_name == 'pull_request' && contains(needs.*.result, 'failure')
     steps:
@@ -265,6 +265,8 @@ jobs:
   main-failure-alert:
     name: Main Branch Failure Alert
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     needs: [lint, test, security, build]
     if: always() && github.ref == 'refs/heads/main' && github.event_name == 'push' && contains(needs.*.result, 'failure')
     steps:
@@ -347,6 +349,8 @@ jobs:
   deploy-failure-alert:
     name: Deploy Failure Alert
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     needs: [deploy-server, smoke-test]
     if: always() && github.ref == 'refs/heads/main' && github.event_name == 'push' && (needs.deploy-server.result == 'failure' || needs.smoke-test.result == 'failure')
     steps:

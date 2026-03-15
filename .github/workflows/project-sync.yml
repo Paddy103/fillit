@@ -18,13 +18,15 @@ jobs:
       - name: Extract story ID from branch name
         id: story
         run: |
-          BRANCH="${{ github.event.pull_request.head.ref }}"
+          BRANCH="$HEAD_REF"
           STORY_ID=$(echo "$BRANCH" | grep -oP 'S-\d+' | head -1)
           if [ -z "$STORY_ID" ]; then
             echo "No story ID found in branch: $BRANCH"
             exit 0
           fi
           echo "story_id=$STORY_ID" >> "$GITHUB_OUTPUT"
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
 
       - name: Label issue and add PR link comment
         if: steps.story.outputs.story_id
@@ -74,13 +76,15 @@ jobs:
       - name: Extract story ID from branch name
         id: story
         run: |
-          BRANCH="${{ github.event.pull_request.head.ref }}"
+          BRANCH="$HEAD_REF"
           STORY_ID=$(echo "$BRANCH" | grep -oP 'S-\d+' | head -1)
           if [ -z "$STORY_ID" ]; then
             echo "No story ID found in branch: $BRANCH"
             exit 0
           fi
           echo "story_id=$STORY_ID" >> "$GITHUB_OUTPUT"
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
 
       - name: Close issue and remove pipeline labels
         if: steps.story.outputs.story_id

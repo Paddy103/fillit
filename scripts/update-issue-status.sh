@@ -17,10 +17,16 @@ set -euo pipefail
 STORY_ID="${1:?Usage: update-issue-status.sh <story-id> <action>}"
 ACTION="${2:?Usage: update-issue-status.sh <story-id> <action>}"
 
+# Validate inputs
+if ! [[ "$STORY_ID" =~ ^S-[0-9]+$ ]]; then
+  echo "ERROR: Invalid story ID format: $STORY_ID (expected S-XX)"
+  exit 1
+fi
+
 # Find issue number by title prefix
 ISSUE_NUM=$(gh issue list --search "${STORY_ID}:" --state all --json number,title -q ".[] | select(.title | startswith(\"${STORY_ID}:\")) | .number" | head -1)
 
-if [ -z "$ISSUE_NUM" ]; then
+if ! [[ "$ISSUE_NUM" =~ ^[0-9]+$ ]]; then
   echo "ERROR: No issue found for ${STORY_ID}"
   exit 1
 fi
