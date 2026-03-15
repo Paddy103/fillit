@@ -161,8 +161,8 @@ describe('Workspace packages', () => {
   describe('apps/server', () => {
     const pkg = readJson('apps/server/package.json');
 
-    it('has name fillit-server', () => {
-      expect(pkg.name).toBe('fillit-server');
+    it('has name @fillit/server', () => {
+      expect(pkg.name).toBe('@fillit/server');
     });
 
     it('is marked private', () => {
@@ -369,7 +369,7 @@ describe('pnpm workspace resolution', () => {
     expect(output).toContain('fillit');
     expect(output).toContain('fillit-mobile');
     expect(output).toContain('@fillit/shared');
-    expect(output).toContain('fillit-server');
+    expect(output).toContain('@fillit/server');
   });
 });
 
