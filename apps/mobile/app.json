@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "FillIt",
+    "slug": "fillit",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "fillit",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "platforms": ["ios", "android"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fillit.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.fillit.app"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
