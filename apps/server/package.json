@@ -1,9 +1,9 @@
 {
-  "name": "fillit-server",
+  "name": "@fillit/server",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
@@ -11,9 +11,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@fillit/shared": "workspace:*",
+    "@hono/node-server": "^1.13.0",
     "hono": "^4.7.0"
   },
   "devDependencies": {
+    "@types/node": "^22.0.0",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0"
   }
