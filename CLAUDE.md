@@ -1,9 +1,11 @@
 # FillIt Project
 
 ## Overview
+
 FillIt is a cross-platform mobile app (React Native + Expo) that scans/imports documents, uses Claude AI for field detection, auto-fills from user profiles, supports signatures, and exports completed PDFs. Target market: South Africa.
 
 ## Tech Stack
+
 - **Mobile**: React Native + Expo SDK 55+, Expo Router, Zustand, expo-sqlite
 - **Backend**: Hono on Node.js, deployed to Fly.io
 - **AI**: @anthropic-ai/sdk (Claude API via backend proxy)
@@ -11,6 +13,7 @@ FillIt is a cross-platform mobile app (React Native + Expo) that scans/imports d
 - **Monorepo**: pnpm workspaces
 
 ## Repository Structure
+
 ```
 fillit/
 ├── apps/
@@ -30,6 +33,7 @@ fillit/
 ```
 
 ## Conventions
+
 - **Language**: TypeScript everywhere (strict mode)
 - **Formatting**: Prettier (2-space indent, single quotes, trailing commas)
 - **Linting**: ESLint with @typescript-eslint
@@ -39,9 +43,11 @@ fillit/
 - **PRs**: One PR per user story, linked to tracker item
 
 ## Development Pipeline
+
 This project uses a multi-agent Claude Code pipeline for development. See `.claude/agents/` for agent definitions.
 
 ### Pipeline Flow
+
 ```
 User kicks off story → Builder Agent (feature branch + implementation)
                      → Tester Agent (writes comprehensive tests)
@@ -53,6 +59,7 @@ User kicks off story → Builder Agent (feature branch + implementation)
 ```
 
 ### Running the Pipeline
+
 ```bash
 # From Claude Code, invoke the pipeline orchestrator:
 /agents/pipeline
@@ -68,28 +75,32 @@ User kicks off story → Builder Agent (feature branch + implementation)
 ```
 
 ### Skills
+
 ```bash
 /pipeline-status S-01    # Check pipeline stage progress for a story
 /new-story S-15 sqlite   # Bootstrap a new story (branch + scaffold)
 ```
 
 ### Agent Roles
-| Agent | Role | When it runs |
-|-------|------|--------------|
-| **pipeline** | Orchestrator — coordinates the full flow | User kicks off a story |
-| **builder** | Implements the feature on a feature branch | Stage 1 |
-| **tester** | Writes unit, integration, and e2e tests | Stage 2 |
-| **reviewer** | Reviews code as a world-class senior engineer | Stage 3 |
+
+| Agent                 | Role                                                              | When it runs                     |
+| --------------------- | ----------------------------------------------------------------- | -------------------------------- |
+| **pipeline**          | Orchestrator — coordinates the full flow                          | User kicks off a story           |
+| **builder**           | Implements the feature on a feature branch                        | Stage 1                          |
+| **tester**            | Writes unit, integration, and e2e tests                           | Stage 2                          |
+| **reviewer**          | Reviews code as a world-class senior engineer                     | Stage 3                          |
 | **security-reviewer** | Deep security audit (OWASP Mobile, data protection, API security) | Stage 3 (parallel with reviewer) |
-| **ux-reviewer** | Accessibility, offline UX, performance on low-end devices | Stage 3 (optional, UI stories) |
-| **qa** | Verifies functionality, checks for bugs | Stage 4 |
-| **docs-updater** | Updates all READMEs and CLAUDE.md to match code changes | Stage 5 |
+| **ux-reviewer**       | Accessibility, offline UX, performance on low-end devices         | Stage 3 (optional, UI stories)   |
+| **qa**                | Verifies functionality, checks for bugs                           | Stage 4                          |
+| **docs-updater**      | Updates all READMEs and CLAUDE.md to match code changes           | Stage 5                          |
 
 ### Hooks (auto-configured in .claude/settings.json)
+
 - **PostToolUse**: Auto-formats files with Prettier on every edit
 - **PreToolUse**: Blocks edits to `.env`, lock files, and `implementation-plan/` (source of truth)
 
 ### Quality Gates
+
 - **Reviewer** only accepts code that meets production standards. Will iterate with builder/tester until satisfied. Also flags documentation impact.
 - **Security Reviewer** blocks merge on critical/high security findings. Mandatory for auth, encryption, and PII-handling stories.
 - **UX Reviewer** blocks merge on accessibility violations and missing offline fallbacks. Runs for UI-heavy stories.
@@ -99,6 +110,7 @@ User kicks off story → Builder Agent (feature branch + implementation)
 - **CI/CD** runs full test suite (unit, integration, security, load) on merge.
 
 ## Key Files
+
 - `implementation-plan/README.md` — Full project specification (source of truth)
 - `tracker/index.html` — Open in browser for Kanban board
 - `.claude/agents/pipeline.md` — Main pipeline orchestrator

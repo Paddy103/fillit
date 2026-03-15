@@ -138,7 +138,7 @@ jobs:
 
       - name: Build mobile (Expo export)
         run: cd apps/mobile && npx expo export --platform web
-        continue-on-error: true  # Mobile build may need EAS
+        continue-on-error: true # Mobile build may need EAS
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

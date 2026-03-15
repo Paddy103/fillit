@@ -9,6 +9,7 @@ disable-model-invocation: true
 Check the current pipeline status for a story. Shows which stages (build, test, review, QA, docs) have completed based on branch state and commit history.
 
 ## Usage
+
 ```
 /pipeline-status <story-id>
 ```
@@ -18,6 +19,7 @@ Example: `/pipeline-status S-01`
 ## How to Determine Status
 
 ### 1. Find the Feature Branch
+
 ```bash
 git branch --list "feature/${STORY_ID}-*"
 ```
@@ -28,20 +30,22 @@ If no branch exists, the story has not started.
 
 Check the commit messages on the feature branch (relative to main) to determine which stages have run:
 
-| Stage | Indicator | Commit Pattern |
-|-------|-----------|----------------|
-| **Build** | Implementation commits exist | `feat(*)`, `fix(*)`, `refactor(*)` |
-| **Test** | Test files added/modified | `test(*)` commits, `*.test.ts` files in diff |
-| **Review** | Review iteration commits | `fix:` commits after test commits (review feedback) |
-| **QA** | QA passed | All tests pass when run |
-| **Docs** | Documentation updated | `docs:` commits, `.md` files in diff |
+| Stage      | Indicator                    | Commit Pattern                                      |
+| ---------- | ---------------------------- | --------------------------------------------------- |
+| **Build**  | Implementation commits exist | `feat(*)`, `fix(*)`, `refactor(*)`                  |
+| **Test**   | Test files added/modified    | `test(*)` commits, `*.test.ts` files in diff        |
+| **Review** | Review iteration commits     | `fix:` commits after test commits (review feedback) |
+| **QA**     | QA passed                    | All tests pass when run                             |
+| **Docs**   | Documentation updated        | `docs:` commits, `.md` files in diff                |
 
 ### 3. Run the Status Script
+
 ```bash
 ./scripts/pipeline-status.sh ${STORY_ID}
 ```
 
 ### 4. Check Test Health
+
 ```bash
 # Run tests to verify current state
 pnpm test 2>/dev/null || npx jest --passWithNoTests 2>/dev/null || echo "No test runner configured yet"

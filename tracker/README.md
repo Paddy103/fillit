@@ -15,13 +15,13 @@ A lightweight, self-contained project tracking board for the FillIt development 
 
 Five status columns reflecting a standard development workflow:
 
-| Column | Meaning |
-|---|---|
-| **Backlog** | Not yet planned for a sprint |
-| **To Do** | Planned and ready to start |
-| **In Progress** | Actively being worked on |
-| **Review** | Code complete, awaiting review or QA |
-| **Done** | Shipped and verified |
+| Column          | Meaning                              |
+| --------------- | ------------------------------------ |
+| **Backlog**     | Not yet planned for a sprint         |
+| **To Do**       | Planned and ready to start           |
+| **In Progress** | Actively being worked on             |
+| **Review**      | Code complete, awaiting review or QA |
+| **Done**        | Shipped and verified                 |
 
 Drag and drop cards between columns to update their status. Changes persist automatically.
 
@@ -55,12 +55,12 @@ The collapsible left sidebar displays the full Epic → Feature → Story → Ta
 
 The filter bar supports four simultaneous filters:
 
-| Filter | Description |
-|---|---|
-| **Epic** | Show only items belonging to a specific epic |
-| **Type** | Show only Epics, Features, User Stories, or Tasks |
-| **Assignee** | Show only items assigned to a specific person |
-| **Search** | Free-text search across titles and descriptions |
+| Filter       | Description                                       |
+| ------------ | ------------------------------------------------- |
+| **Epic**     | Show only items belonging to a specific epic      |
+| **Type**     | Show only Epics, Features, User Stories, or Tasks |
+| **Assignee** | Show only items assigned to a specific person     |
+| **Search**   | Free-text search across titles and descriptions   |
 
 The stats indicator on the right shows `done/total` for the current filtered view.
 
@@ -125,24 +125,24 @@ location.reload();
 
 The pre-populated data maps the FillIt implementation plan into the following epics:
 
-| # | Epic | Phase | Stories | Priority |
-|---|---|---|---|---|
-| E1 | Project Infrastructure & Monorepo | 1 | 7 | Critical |
-| E2 | Shared Types & Validation | 1 | 5 | Critical |
-| E3 | Data Layer — SQLite & Encryption | 1 | 9 | Critical |
-| E4 | State Management | 1 | 4 | High |
-| E5 | Theme & UI Foundation | 1 | 5 | High |
-| E6 | Profile Management UI | 1 | 8 | High |
-| E7 | Document Scanning & OCR | 2 | 7 | High |
-| E8 | Backend Proxy Server | 3 | 10 | High |
-| E9 | Authentication | 3 | 3 | High |
-| E10 | AI Field Detection & Matching | 3 | 9 | Critical |
-| E11 | Signatures | 4 | 5 | High |
-| E12 | PDF Generation & Export | 4 | 6 | High |
-| E13 | Security Hardening | 5 | 3 | High |
-| E14 | Cloud Backup | 5 | 4 | Medium |
-| E15 | Onboarding & Polish | 5 | 6 | Medium |
-| E16 | Web Platform (Future) | 6 | 4 | Low |
+| #   | Epic                              | Phase | Stories | Priority |
+| --- | --------------------------------- | ----- | ------- | -------- |
+| E1  | Project Infrastructure & Monorepo | 1     | 7       | Critical |
+| E2  | Shared Types & Validation         | 1     | 5       | Critical |
+| E3  | Data Layer — SQLite & Encryption  | 1     | 9       | Critical |
+| E4  | State Management                  | 1     | 4       | High     |
+| E5  | Theme & UI Foundation             | 1     | 5       | High     |
+| E6  | Profile Management UI             | 1     | 8       | High     |
+| E7  | Document Scanning & OCR           | 2     | 7       | High     |
+| E8  | Backend Proxy Server              | 3     | 10      | High     |
+| E9  | Authentication                    | 3     | 3       | High     |
+| E10 | AI Field Detection & Matching     | 3     | 9       | Critical |
+| E11 | Signatures                        | 4     | 5       | High     |
+| E12 | PDF Generation & Export           | 4     | 6       | High     |
+| E13 | Security Hardening                | 5     | 3       | High     |
+| E14 | Cloud Backup                      | 5     | 4       | Medium   |
+| E15 | Onboarding & Polish               | 5     | 6       | Medium   |
+| E16 | Web Platform (Future)             | 6     | 4       | Low      |
 
 ### Dependencies & Parallelization
 
@@ -162,11 +162,11 @@ Key bottlenecks to watch: S-15 (SQLite schema), S-22 (profile store), S-50 (anal
 
 Three static files, zero external dependencies:
 
-| File | Lines | Purpose |
-|---|---|---|
-| `index.html` | ~180 | Semantic HTML skeleton |
-| `styles.css` | ~330 | Complete styling with CSS custom properties |
-| `app.js` | ~1330 | State management, rendering, drag-and-drop, seed data |
+| File         | Lines | Purpose                                               |
+| ------------ | ----- | ----------------------------------------------------- |
+| `index.html` | ~180  | Semantic HTML skeleton                                |
+| `styles.css` | ~330  | Complete styling with CSS custom properties           |
+| `app.js`     | ~1330 | State management, rendering, drag-and-drop, seed data |
 
 ### Browser Support
 
@@ -192,28 +192,28 @@ Mobile browsers get touch-based drag and drop via `touchstart`/`touchmove`/`touc
 
 ### Work Item Types
 
-| Type | Color | Hex |
-|---|---|---|
-| Epic | Purple | `#8B5CF6` |
-| Feature | Blue | `#3B82F6` |
-| User Story | Green | `#22C55E` |
-| Task | Amber | `#F59E0B` |
+| Type       | Color  | Hex       |
+| ---------- | ------ | --------- |
+| Epic       | Purple | `#8B5CF6` |
+| Feature    | Blue   | `#3B82F6` |
+| User Story | Green  | `#22C55E` |
+| Task       | Amber  | `#F59E0B` |
 
 ### Priorities
 
-| Priority | Color | Hex |
-|---|---|---|
-| Critical | Red | `#EF4444` |
-| High | Amber | `#F59E0B` |
-| Medium | Blue | `#3B82F6` |
-| Low | Gray | `#6B7280` |
+| Priority | Color | Hex       |
+| -------- | ----- | --------- |
+| Critical | Red   | `#EF4444` |
+| High     | Amber | `#F59E0B` |
+| Medium   | Blue  | `#3B82F6` |
+| Low      | Gray  | `#6B7280` |
 
 ### Status Columns
 
-| Status | Color | Hex |
-|---|---|---|
-| Backlog | Gray | `#6B7280` |
-| To Do | Blue | `#3B82F6` |
-| In Progress | Amber | `#F59E0B` |
-| Review | Purple | `#8B5CF6` |
-| Done | Green | `#22C55E` |
+| Status      | Color  | Hex       |
+| ----------- | ------ | --------- |
+| Backlog     | Gray   | `#6B7280` |
+| To Do       | Blue   | `#3B82F6` |
+| In Progress | Amber  | `#F59E0B` |
+| Review      | Purple | `#8B5CF6` |
+| Done        | Green  | `#22C55E` |
