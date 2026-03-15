@@ -21,6 +21,7 @@ fillit/
 │   └── server/          # Hono backend proxy
 ├── packages/
 │   └── shared/          # Shared types, validation, constants
+├── tests/               # Project-wide tests (infrastructure, integration)
 ├── implementation-plan/ # Full project spec (source of truth)
 ├── tracker/             # Kanban board (static HTML/CSS/JS)
 ├── scripts/             # Pipeline and utility scripts
