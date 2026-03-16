@@ -2,17 +2,11 @@
 
 ## Completed
 
-S-01 through S-05 (foundation), S-08 (profile types), S-09 (document types), S-10 (SA ID validation), S-12 (provinces), S-13 (encryption), S-46 (server middleware) are all merged.
+S-01 through S-05 (foundation), S-08 (profile types), S-09 (document types), S-10 (SA ID validation), S-11 (field normalization), S-12 (provinces), S-13 (encryption), S-46 (server middleware) are all merged.
 
 ## Newly Unblocked Stories
 
 These stories have all dependencies satisfied and are ready to build **now**.
-
-### Shared Package (`packages/shared`)
-
-| Issue | Story                                   | Description                                  | Unblocked by |
-| ----- | --------------------------------------- | -------------------------------------------- | ------------ |
-| #12   | **S-11**: Field normalization utilities | Normalize detected field labels for matching | S-08, S-09   |
 
 ### Mobile (`apps/mobile`)
 
@@ -50,7 +44,6 @@ These stories are independent and can be built simultaneously.
 | ----------------------------- | ----------------------------------------------------------------------- |
 | **S-15**: SQLite schema       | Gates ALL CRUD operations (S-16 through S-20) and the entire data layer |
 | **S-14**: Key management      | Gates encrypted CRUD (S-18), biometric auth (S-79)                      |
-| **S-11**: Field normalization | Gates fuzzy matching (S-62), field detection pipeline                   |
 
 ### Group B — UI Foundation
 
