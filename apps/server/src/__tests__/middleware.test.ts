@@ -19,9 +19,7 @@ describe('Request ID middleware', () => {
     const res = await app.request('/test');
     const id = res.headers.get('X-Request-ID');
     expect(id).toBeTruthy();
-    expect(id).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
-    );
+    expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
   });
 
   it('should generate unique IDs per request', async () => {
@@ -31,9 +29,7 @@ describe('Request ID middleware', () => {
 
     const res1 = await app.request('/test');
     const res2 = await app.request('/test');
-    expect(res1.headers.get('X-Request-ID')).not.toBe(
-      res2.headers.get('X-Request-ID'),
-    );
+    expect(res1.headers.get('X-Request-ID')).not.toBe(res2.headers.get('X-Request-ID'));
   });
 
   it('should set requestId on context', async () => {
@@ -78,9 +74,7 @@ describe('CORS middleware', () => {
       },
     });
     expect(res.status).toBe(204);
-    expect(
-      res.headers.get('Access-Control-Allow-Methods'),
-    ).toContain('POST');
+    expect(res.headers.get('Access-Control-Allow-Methods')).toContain('POST');
   });
 
   it('should allow credentials', async () => {
