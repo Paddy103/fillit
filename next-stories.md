@@ -1,45 +1,86 @@
 # Stories Ready for Development
 
-All foundation stories (S-01 through S-05) and S-08 are merged. **14 stories** are unblocked.
+## Completed
 
-## Shared Package (`packages/shared`)
+S-01 through S-05 (foundation), S-08 (profile types), S-09 (document types), S-10 (SA ID validation), S-12 (provinces), S-13 (encryption), S-46 (server middleware) are all merged.
 
-| Issue | Story                                   | Description                                           |
-| ----- | --------------------------------------- | ----------------------------------------------------- |
-| #10   | **S-09**: Document & field interfaces   | Document, Page, Field types with enums and confidence |
-| #11   | **S-10**: SA ID validation & smart fill | Luhn check, extract DOB/gender/citizenship from ID    |
-| #13   | **S-12**: SA provinces & constants      | Province data, validation constants                   |
+## Newly Unblocked Stories
 
-## Mobile (`apps/mobile`)
+These stories have all dependencies satisfied and are ready to build **now**.
 
-| Issue | Story                                   | Description                                           |
-| ----- | --------------------------------------- | ----------------------------------------------------- |
-| #14   | **S-13**: AES-256-GCM encryption module | Encrypt/decrypt sensitive data at rest                |
-| #22   | **S-21**: Local file storage service    | File read/write/delete for images, PDFs, signatures   |
-| #24   | **S-23**: Settings Zustand store        | Theme, security, network state with persistence       |
-| #27   | **S-26**: Theme token system            | Design tokens, dark/light mode, color palette         |
-| #28   | **S-27**: Load custom fonts             | Inter, JetBrains Mono, splash screen during load      |
-| #43   | **S-42**: ML Kit OCR service            | Text recognition with bounding boxes and confidence   |
-| #46   | **S-45**: Image processing utilities    | Resize, compress, rotate, contrast/brightness for OCR |
+### Shared Package (`packages/shared`)
 
-## Server (`apps/server`)
+| Issue | Story                                   | Description                                  | Unblocked by |
+| ----- | --------------------------------------- | -------------------------------------------- | ------------ |
+| #12   | **S-11**: Field normalization utilities | Normalize detected field labels for matching | S-08, S-09   |
 
-| Issue | Story                                       | Description                                          |
-| ----- | ------------------------------------------- | ---------------------------------------------------- |
-| #47   | **S-46**: Hono server with middleware stack | CORS, logging, error handling, request ID middleware |
+### Mobile (`apps/mobile`)
 
-## CI/CD
+| Issue | Story                                   | Description                                           | Unblocked by     |
+| ----- | --------------------------------------- | ----------------------------------------------------- | ---------------- |
+| #15   | **S-14**: Secure key management service | Key generation, rotation, biometric gating            | S-13             |
+| #16   | **S-15**: SQLite schema and migrations  | Database tables for profiles, documents, fields       | S-03, S-08, S-09 |
+| #22   | **S-21**: Local file storage service    | File read/write/delete for images, PDFs, signatures   | S-03             |
+| #24   | **S-23**: Settings Zustand store        | Theme, security, network state with persistence       | S-03             |
+| #27   | **S-26**: Theme token system            | Design tokens, dark/light mode, color palette         | S-03             |
+| #28   | **S-27**: Load custom fonts             | Inter, JetBrains Mono, splash screen during load      | S-03             |
+| #43   | **S-42**: ML Kit OCR service            | Text recognition with bounding boxes and confidence   | S-03             |
+| #46   | **S-45**: Image processing utilities    | Resize, compress, rotate, contrast/brightness for OCR | S-03             |
 
-| Issue | Story                                | Description                                             |
-| ----- | ------------------------------------ | ------------------------------------------------------- |
-| #7    | **S-06**: Server deployment workflow | Auto-deploy to Fly.io on merge, health checks, rollback |
-| #8    | **S-07**: Mobile build workflow      | EAS Build for iOS/Android release builds                |
+### Server (`apps/server`)
 
-## Recommended Priority
+| Issue | Story                                         | Description                                    | Unblocked by |
+| ----- | --------------------------------------------- | ---------------------------------------------- | ------------ |
+| #48   | **S-47**: OAuth token verification middleware | Verify Google/Apple OAuth tokens on API routes | S-46         |
 
-**Critical path** (unblocks the most downstream work):
+### CI/CD
 
-1. **S-09, S-10** — together with S-08 (done), these gate the database schema (S-15), CRUD ops, and the entire data layer
-2. **S-46** — gates the full backend API chain (OAuth, Claude API, rate limiting, analytics)
-3. **S-13** — gates key management (S-14) which gates all encrypted storage
-4. **S-26, S-27** — gate the UI component library (S-28) and navigation shell (S-29)
+| Issue | Story                                | Description                                             | Unblocked by |
+| ----- | ------------------------------------ | ------------------------------------------------------- | ------------ |
+| #7    | **S-06**: Server deployment workflow | Auto-deploy to Fly.io on merge, health checks, rollback | S-05         |
+| #8    | **S-07**: Mobile build workflow      | EAS Build for iOS/Android release builds                | S-03         |
+
+## Recommended Parallel Groups
+
+These stories are independent and can be built simultaneously.
+
+### Group A — Data Layer (critical path)
+
+| Story                         | Why                                                                     |
+| ----------------------------- | ----------------------------------------------------------------------- |
+| **S-15**: SQLite schema       | Gates ALL CRUD operations (S-16 through S-20) and the entire data layer |
+| **S-14**: Key management      | Gates encrypted CRUD (S-18), biometric auth (S-79)                      |
+| **S-11**: Field normalization | Gates fuzzy matching (S-62), field detection pipeline                   |
+
+### Group B — UI Foundation
+
+| Story                    | Why                                      |
+| ------------------------ | ---------------------------------------- |
+| **S-26**: Theme tokens   | Gates UI component library (S-28)        |
+| **S-27**: Custom fonts   | Gates UI component library (S-28)        |
+| **S-23**: Settings store | Gates theme switching, security settings |
+
+### Group C — Backend API Chain
+
+| Story                      | Why                                                                          |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| **S-47**: OAuth middleware | Gates rate limiting (S-48), Claude API endpoint (S-50), all protected routes |
+
+### Group D — Mobile Services
+
+| Story                      | Why                                                    |
+| -------------------------- | ------------------------------------------------------ |
+| **S-21**: File storage     | Gates document scanning, PDF export, signature storage |
+| **S-42**: ML Kit OCR       | Gates OCR pipeline, document processing                |
+| **S-45**: Image processing | Gates image optimization for API submission            |
+
+### Group E — CI/CD
+
+| Story                   | Why                            |
+| ----------------------- | ------------------------------ |
+| **S-06**: Server deploy | Enables auto-deploy to Fly.io  |
+| **S-07**: Mobile build  | Enables EAS builds for release |
+
+## Maximum Parallelism
+
+All 5 groups (A-E) are fully independent — **up to 13 stories** can be built in parallel. For practical parallelism, prioritize Groups A + B + C (8 stories) as they unblock the most downstream work.
