@@ -77,7 +77,7 @@ describe('CORS middleware', () => {
     expect(res.headers.get('Access-Control-Allow-Methods')).toContain('POST');
   });
 
-  it('should allow credentials', async () => {
+  it('should not set credentials header when using wildcard origin', async () => {
     const app = new Hono<AppEnv>();
     app.use('*', cors);
     app.get('/test', (c) => c.json({ ok: true }));
@@ -85,7 +85,8 @@ describe('CORS middleware', () => {
     const res = await app.request('/test', {
       headers: { Origin: 'http://localhost:3000' },
     });
-    expect(res.headers.get('Access-Control-Allow-Credentials')).toBe('true');
+    // credentials: true is only set when CORS_ORIGINS env var provides specific origins
+    expect(res.headers.get('Access-Control-Allow-Credentials')).toBeNull();
   });
 });
 
