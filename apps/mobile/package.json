@@ -10,13 +10,16 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --ext .ts,.tsx"
+    "lint": "eslint . --ext .ts,.tsx",
+    "test": "vitest run"
   },
   "dependencies": {
     "expo": "~52.0.0",
     "expo-constants": "~17.0.0",
+    "expo-crypto": "^55.0.9",
     "expo-linking": "~7.0.0",
     "expo-router": "~4.0.0",
+    "expo-secure-store": "^55.0.8",
     "expo-status-bar": "~2.0.0",
     "react": "18.3.1",
     "react-native": "0.76.9",
@@ -25,6 +28,7 @@
   },
   "devDependencies": {
     "@types/react": "~18.3.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.0"
   }
 }
