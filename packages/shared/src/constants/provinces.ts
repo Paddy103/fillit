@@ -9,7 +9,6 @@ import { SA_PROVINCES } from './index.js';
 export interface ProvinceInfo {
   name: string;
   abbreviation: string;
-  capital: string;
 }
 
 export type SAProvince = (typeof SA_PROVINCES)[number];
@@ -19,15 +18,15 @@ export type SAProvinceAbbreviation = 'EC' | 'FS' | 'GP' | 'KZN' | 'LP' | 'MP' | 
 // ─── Province Data ─────────────────────────────────────────────────
 
 export const SA_PROVINCE_DATA: readonly ProvinceInfo[] = [
-  { name: 'Eastern Cape', abbreviation: 'EC', capital: 'Bhisho' },
-  { name: 'Free State', abbreviation: 'FS', capital: 'Bloemfontein' },
-  { name: 'Gauteng', abbreviation: 'GP', capital: 'Johannesburg' },
-  { name: 'KwaZulu-Natal', abbreviation: 'KZN', capital: 'Pietermaritzburg' },
-  { name: 'Limpopo', abbreviation: 'LP', capital: 'Polokwane' },
-  { name: 'Mpumalanga', abbreviation: 'MP', capital: 'Mbombela' },
-  { name: 'North West', abbreviation: 'NW', capital: 'Mahikeng' },
-  { name: 'Northern Cape', abbreviation: 'NC', capital: 'Kimberley' },
-  { name: 'Western Cape', abbreviation: 'WC', capital: 'Cape Town' },
+  { name: 'Eastern Cape', abbreviation: 'EC' },
+  { name: 'Free State', abbreviation: 'FS' },
+  { name: 'Gauteng', abbreviation: 'GP' },
+  { name: 'KwaZulu-Natal', abbreviation: 'KZN' },
+  { name: 'Limpopo', abbreviation: 'LP' },
+  { name: 'Mpumalanga', abbreviation: 'MP' },
+  { name: 'North West', abbreviation: 'NW' },
+  { name: 'Northern Cape', abbreviation: 'NC' },
+  { name: 'Western Cape', abbreviation: 'WC' },
 ] as const;
 
 // ─── Lookup Maps ───────────────────────────────────────────────────

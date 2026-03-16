@@ -31,11 +31,6 @@ describe('SA Province Data', () => {
     expect(new Set(abbrs).size).toBe(9);
   });
 
-  it('should have unique capitals', () => {
-    const capitals = SA_PROVINCE_DATA.map((p) => p.capital);
-    expect(new Set(capitals).size).toBe(9);
-  });
-
   it('SA_PROVINCE_DATA names should match SA_PROVINCES', () => {
     const dataNames = SA_PROVINCE_DATA.map((p) => p.name).sort();
     const constNames = [...SA_PROVINCES].sort();
