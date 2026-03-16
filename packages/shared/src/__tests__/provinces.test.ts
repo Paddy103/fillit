@@ -36,6 +36,21 @@ describe('SA Province Data', () => {
     const constNames = [...SA_PROVINCES].sort();
     expect(dataNames).toEqual(constNames);
   });
+
+  it('each ProvinceInfo should have a non-empty name and abbreviation', () => {
+    for (const province of SA_PROVINCE_DATA) {
+      expect(province.name).toBeTruthy();
+      expect(province.abbreviation).toBeTruthy();
+      expect(province.name.length).toBeGreaterThan(0);
+      expect(province.abbreviation.length).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it('abbreviations should be uppercase letters only', () => {
+    for (const province of SA_PROVINCE_DATA) {
+      expect(province.abbreviation).toMatch(/^[A-Z]{2,3}$/);
+    }
+  });
 });
 
 describe('Lookup Maps', () => {
@@ -71,6 +86,9 @@ describe('isValidSAProvince', () => {
     expect(isValidSAProvince('Cape Town')).toBe(false);
     expect(isValidSAProvince('Johannesburg')).toBe(false);
     expect(isValidSAProvince('')).toBe(false);
+    expect(isValidSAProvince(' ')).toBe(false);
+    expect(isValidSAProvince('Western cape')).toBe(false);
+    expect(isValidSAProvince('GP')).toBe(false);
   });
 
   it('should be case-sensitive', () => {
@@ -90,6 +108,9 @@ describe('isValidSAProvinceAbbreviation', () => {
     expect(isValidSAProvinceAbbreviation('ec')).toBe(false);
     expect(isValidSAProvinceAbbreviation('')).toBe(false);
     expect(isValidSAProvinceAbbreviation('Gauteng')).toBe(false);
+    expect(isValidSAProvinceAbbreviation(' ')).toBe(false);
+    expect(isValidSAProvinceAbbreviation('gp')).toBe(false);
+    expect(isValidSAProvinceAbbreviation('Gp')).toBe(false);
   });
 });
 
@@ -111,6 +132,8 @@ describe('getProvinceFromAbbreviation', () => {
   it('should return undefined for unknown abbreviation', () => {
     expect(getProvinceFromAbbreviation('XX')).toBeUndefined();
     expect(getProvinceFromAbbreviation('')).toBeUndefined();
+    expect(getProvinceFromAbbreviation('gp')).toBeUndefined();
+    expect(getProvinceFromAbbreviation(' ')).toBeUndefined();
   });
 });
 
@@ -132,6 +155,8 @@ describe('getAbbreviationFromProvince', () => {
   it('should return undefined for unknown province', () => {
     expect(getAbbreviationFromProvince('Durban')).toBeUndefined();
     expect(getAbbreviationFromProvince('')).toBeUndefined();
+    expect(getAbbreviationFromProvince('gauteng')).toBeUndefined();
+    expect(getAbbreviationFromProvince(' ')).toBeUndefined();
   });
 });
 
