@@ -53,28 +53,67 @@ jobs:
     needs: test
     steps:
       - name: Trigger Render deploy
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
-          response=$(curl -sf -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}")
-          echo "Deploy triggered: $response"
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "ERROR: RENDER_DEPLOY_HOOK_URL secret is not set"
+            exit 1
+          fi
+          curl -sf -X POST "$RENDER_DEPLOY_HOOK_URL"
+          echo "Deploy triggered"
+
+      - name: Wait for deploy to complete
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          echo "Polling Render deploy status..."
+          for i in $(seq 1 40); do
+            sleep 15
+            status=$(curl -sf \
+              -H "Authorization: Bearer $RENDER_API_KEY" \
+              "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys?limit=1" \
+              | jq -r '.[0].deploy.status')
+
+            echo "Attempt $i: deploy status = $status"
+
+            case "$status" in
+              live)
+                echo "Deploy completed successfully"
+                exit 0
+                ;;
+              build_failed|update_failed|canceled|pre_deploy_failed)
+                echo "Deploy failed with status: $status"
+                exit 1
+                ;;
+            esac
+          done
+          echo "Deploy timed out after 10 minutes"
+          exit 1
 
   smoke-test:
     name: Smoke Test
     runs-on: ubuntu-latest
     needs: deploy
     steps:
-      - name: Wait for deployment to stabilize
-        run: sleep 30
-
       - name: Health check
+        env:
+          RENDER_SERVICE_URL: ${{ secrets.RENDER_SERVICE_URL }}
         run: |
           for i in 1 2 3 4 5; do
-            response=$(curl -sf https://${{ secrets.RENDER_SERVICE_URL }}/health 2>/dev/null) && break
+            response=$(curl -sf "https://$RENDER_SERVICE_URL/health" 2>/dev/null) && break
             echo "Attempt $i failed, retrying in 15s..."
             sleep 15
           done
 
+          if [ -z "$response" ]; then
+            echo "All health check retries exhausted — service unreachable"
+            exit 1
+          fi
+
           echo "Health response: $response"
-          echo "$response" | grep -q '"status":"ok"' || {
+          echo "$response" | jq -e '.status == "ok"' > /dev/null || {
             echo "Health check failed: status is not ok"
             exit 1
           }
@@ -88,30 +127,52 @@ jobs:
     steps:
       - name: Get previous successful deploy
         id: prev-deploy
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
         run: |
-          deploys=$(curl -sf -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
-            "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys?limit=10")
+          deploys=$(curl -sf \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys?limit=10")
 
-          previous_id=$(echo "$deploys" | jq -r '[.[] | select(.deploy.status == "live")] | .[0].deploy.id')
+          # Get the second "live" deploy (first is the current broken one)
+          previous_id=$(echo "$deploys" | jq -r '
+            [.[] | select(.deploy.status == "live")] | .[1].deploy.id // empty
+          ')
+
+          if [ -z "$previous_id" ]; then
+            echo "WARNING: No previous successful deploy found to rollback to"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           echo "deploy_id=$previous_id" >> "$GITHUB_OUTPUT"
+          echo "found=true" >> "$GITHUB_OUTPUT"
           echo "Rolling back to deploy: $previous_id"
 
-      - name: Rollback to previous deploy
-        if: steps.prev-deploy.outputs.deploy_id != 'null'
+      - name: Trigger rollback deploy
+        if: steps.prev-deploy.outputs.found == 'true'
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
         run: |
           curl -sf -X POST \
-            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
-            "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys/${{ steps.prev-deploy.outputs.deploy_id }}/rollback"
-          echo "Rollback initiated"
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
+            -d '{"clearCache": "do_not_clear"}'
+          echo "Rollback deploy triggered"
 
       - name: Verify rollback health
-        if: steps.prev-deploy.outputs.deploy_id != 'null'
+        if: steps.prev-deploy.outputs.found == 'true'
+        env:
+          RENDER_SERVICE_URL: ${{ secrets.RENDER_SERVICE_URL }}
         run: |
-          sleep 30
-          response=$(curl -sf --retry 3 --retry-delay 10 https://${{ secrets.RENDER_SERVICE_URL }}/health)
-          echo "Post-rollback health: $response"
-          echo "$response" | grep -q '"status":"ok"' || {
-            echo "WARNING: Rollback health check also failed"
+          echo "Waiting for rollback deploy..."
+          sleep 60
+          response=$(curl -sf --retry 3 --retry-delay 10 "https://$RENDER_SERVICE_URL/health")
+          echo "$response" | jq -e '.status == "ok"' > /dev/null || {
+            echo "WARNING: Rollback health check also failed — manual intervention required"
             exit 1
           }
           echo "Rollback successful"

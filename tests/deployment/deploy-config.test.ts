@@ -127,6 +127,11 @@ describe('Dockerfile', () => {
     expect(content).toMatch(/ENV\s+NODE_ENV=production/);
   });
 
+  it('should run as a non-root user', () => {
+    expect(content).toMatch(/USER\s+\w+/);
+    expect(content).toMatch(/adduser/);
+  });
+
   it('should patch shared package.json exports for dist output', () => {
     expect(content).toContain('dist/index.js');
     expect(content).toContain('dist/index.d.ts');
@@ -276,6 +281,21 @@ describe('Deploy server workflow', () => {
         const stepRuns = job.steps.map((s) => s.run ?? '').join('\n');
         expect(stepRuns).toContain('RENDER_DEPLOY_HOOK_URL');
       });
+
+      it('should poll Render API for deploy completion', () => {
+        const job = workflow.jobs['deploy']!;
+        const stepRuns = job.steps.map((s) => s.run ?? '').join('\n');
+        expect(stepRuns).toContain('api.render.com');
+        expect(stepRuns).toContain('deploy.status');
+      });
+
+      it('should pass secrets via env vars, not inline', () => {
+        const job = workflow.jobs['deploy']!;
+        const hasEnvSecrets = job.steps.some(
+          (s) => s.env?.['RENDER_DEPLOY_HOOK_URL'] || s.env?.['RENDER_API_KEY'],
+        );
+        expect(hasEnvSecrets).toBe(true);
+      });
     });
 
     describe('smoke-test job', () => {
@@ -290,6 +310,12 @@ describe('Deploy server workflow', () => {
         const stepRuns = job.steps.map((s) => s.run ?? '').join('\n');
         expect(stepRuns).toContain('RENDER_SERVICE_URL');
         expect(stepRuns).toContain('/health');
+      });
+
+      it('should use jq for JSON validation', () => {
+        const job = workflow.jobs['smoke-test']!;
+        const stepRuns = job.steps.map((s) => s.run ?? '').join('\n');
+        expect(stepRuns).toContain('jq');
       });
     });
 
@@ -309,15 +335,21 @@ describe('Deploy server workflow', () => {
         const job = workflow.jobs['rollback']!;
         const stepRuns = job.steps.map((s) => s.run ?? '').join('\n');
         expect(stepRuns).toContain('api.render.com');
-        expect(stepRuns).toContain('RENDER_API_KEY');
-        expect(stepRuns).toContain('RENDER_SERVICE_ID');
       });
 
-      it('should fetch previous deploy and rollback', () => {
+      it('should pass secrets via env vars, not inline', () => {
+        const job = workflow.jobs['rollback']!;
+        const hasEnvSecrets = job.steps.some(
+          (s) => s.env?.['RENDER_API_KEY'] || s.env?.['RENDER_SERVICE_URL'],
+        );
+        expect(hasEnvSecrets).toBe(true);
+      });
+
+      it('should fetch previous deploy and trigger rollback', () => {
         const job = workflow.jobs['rollback']!;
         const stepRuns = job.steps.map((s) => s.run ?? '').join('\n');
         expect(stepRuns).toContain('deploys');
-        expect(stepRuns).toContain('rollback');
+        expect(stepRuns).toContain('Rollback');
       });
     });
   });

@@ -44,7 +44,10 @@ RUN pnpm --filter @fillit/server build
 
 # ── Stage 4: Production ─────────────────────────────────────────────
 FROM node:20-alpine AS production
-RUN corepack enable && corepack prepare pnpm@10.30.3 --activate
+
+# Run as non-root user for security
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
 WORKDIR /app
 
 # Copy workspace config
@@ -75,5 +78,6 @@ RUN cd packages/shared && \
 
 ENV NODE_ENV=production
 
+USER appuser
 WORKDIR /app/apps/server
 CMD ["node", "dist/index.js"]
