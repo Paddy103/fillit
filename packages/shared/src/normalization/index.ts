@@ -71,7 +71,7 @@ export function normalizeLabel(label: string): string {
   result = result.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   // Remove common punctuation: colons, asterisks, parentheses, brackets, underscores
-  result = result.replace(/[:\*\(\)\[\]{}_]/g, '');
+  result = result.replace(/[:**(){}_[\]]/g, '');
 
   // Remove periods that are not between letters (preserve abbreviations like d.o.b)
   // but remove trailing/leading periods and standalone periods
