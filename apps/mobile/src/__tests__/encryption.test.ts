@@ -1,13 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { randomBytes } from 'node:crypto';
 
 // Mock expo-crypto
 vi.mock('expo-crypto', () => ({
   getRandomBytes: vi.fn((count: number) => {
     const bytes = new Uint8Array(count);
     // Use Node crypto for genuinely random bytes in tests
-    const nodeCrypto = require('node:crypto');
-    const randomBytes = nodeCrypto.randomBytes(count);
-    bytes.set(randomBytes);
+    bytes.set(randomBytes(count));
     return bytes;
   }),
 }));
@@ -15,9 +14,7 @@ vi.mock('expo-crypto', () => ({
 // Mock expo-secure-store
 const mockStore: Record<string, string> = {};
 vi.mock('expo-secure-store', () => ({
-  getItemAsync: vi.fn((key: string) =>
-    Promise.resolve(mockStore[key] ?? null),
-  ),
+  getItemAsync: vi.fn((key: string) => Promise.resolve(mockStore[key] ?? null)),
   setItemAsync: vi.fn((key: string, value: string) => {
     mockStore[key] = value;
     return Promise.resolve();
@@ -35,11 +32,7 @@ import {
   deleteEncryptionKey,
   isEncryptedFormat,
 } from '../utils/encryption';
-import {
-  DecryptionError,
-  InvalidFormatError,
-  KeyNotFoundError,
-} from '../utils/encryption-errors';
+import { DecryptionError, InvalidFormatError, KeyNotFoundError } from '../utils/encryption-errors';
 
 beforeEach(() => {
   // Clear the mock store between tests
@@ -88,7 +81,8 @@ describe('encrypt / decrypt roundtrip', () => {
   });
 
   it('should handle unicode strings', async () => {
-    const plaintext = 'Hallo wereld! \u{1F1FF}\u{1F1E6} Suid-Afrika \u2764\uFE0F \u00E9\u00E8\u00EA\u00EB \u4F60\u597D';
+    const plaintext =
+      'Hallo wereld! \u{1F1FF}\u{1F1E6} Suid-Afrika \u2764\uFE0F \u00E9\u00E8\u00EA\u00EB \u4F60\u597D';
     const encrypted = await encrypt(plaintext);
     const decrypted = await decrypt(encrypted);
     expect(decrypted).toBe(plaintext);

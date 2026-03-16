@@ -27,10 +27,7 @@ export class DecryptionError extends EncryptionError {
 }
 
 export class InvalidFormatError extends EncryptionError {
-  constructor(
-    message = 'Invalid encrypted data format',
-    cause?: unknown,
-  ) {
+  constructor(message = 'Invalid encrypted data format', cause?: unknown) {
     super(message, cause);
     this.name = 'InvalidFormatError';
   }
