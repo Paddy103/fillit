@@ -64,6 +64,12 @@ describe('normalizeLabel', () => {
     expect(normalizeLabel('***')).toBe('');
     expect(normalizeLabel(':::')).toBe('');
   });
+
+  it('should truncate very long input to prevent DoS', () => {
+    const longLabel = 'a'.repeat(1000);
+    const result = normalizeLabel(longLabel);
+    expect(result.length).toBeLessThanOrEqual(200);
+  });
 });
 
 // ─── Dictionary ─────────────────────────────────────────────────────
@@ -183,6 +189,12 @@ describe('LABEL_DICTIONARY', () => {
   it('should return undefined for unknown labels', () => {
     expect(lookupLabel('xyz123abc')).toBeUndefined();
     expect(lookupLabel('unknown field')).toBeUndefined();
+  });
+
+  it('should safely handle prototype property names', () => {
+    expect(lookupLabel('__proto__')).toBeUndefined();
+    expect(lookupLabel('constructor')).toBeUndefined();
+    expect(lookupLabel('toString')).toBeUndefined();
   });
 
   it('should have a category for every entry', () => {
@@ -341,10 +353,17 @@ describe('inferFieldType', () => {
     expect(inferFieldType('ja / nee')).toBe('checkbox');
   });
 
-  it('should detect number fields', () => {
-    expect(inferFieldType('id number')).toBe('number');
-    expect(inferFieldType('nommer')).toBe('number');
+  it('should detect number fields for financial labels', () => {
     expect(inferFieldType('amount')).toBe('number');
+    expect(inferFieldType('salary')).toBe('number');
+    expect(inferFieldType('income')).toBe('number');
+    expect(inferFieldType('bedrag')).toBe('number');
+  });
+
+  it('should NOT detect number for compound labels like phone/id number', () => {
+    expect(inferFieldType('phone number')).toBe('text');
+    expect(inferFieldType('id number')).toBe('text');
+    expect(inferFieldType('account number')).toBe('text');
   });
 
   it('should default to text for unrecognized patterns', () => {
@@ -512,6 +531,10 @@ describe('normalizePhoneNumber', () => {
     expect(normalizePhoneNumber('12345678')).toBe('12345678');
   });
 
+  it('should convert 0027 international prefix to +27', () => {
+    expect(normalizePhoneNumber('0027821234567')).toBe('+27821234567');
+  });
+
   it('should handle empty string', () => {
     expect(normalizePhoneNumber('')).toBe('');
     expect(normalizePhoneNumber('   ')).toBe('');
@@ -608,7 +631,7 @@ describe('Integration: end-to-end field matching', () => {
   it('should infer correct types through the full pipeline', () => {
     expect(findBestMatch('Date of Birth:').fieldType).toBe('date');
     expect(findBestMatch('Signature:').fieldType).toBe('signature');
-    expect(findBestMatch('ID Number:').fieldType).toBe('number');
+    expect(findBestMatch('ID Number:').fieldType).toBe('text');
   });
 
   it('should handle common SA form labels', () => {

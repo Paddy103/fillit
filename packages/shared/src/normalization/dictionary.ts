@@ -41,6 +41,7 @@ export const LABEL_DICTIONARY: Record<string, DictionaryEntry> = {
   'middle names': { fieldPath: 'middleName', category: 'personal' },
   'second name': { fieldPath: 'middleName', category: 'personal' },
   'tweede naam': { fieldPath: 'middleName', category: 'personal' },
+  'middelnaam': { fieldPath: 'middleName', category: 'personal' },
   'middelname': { fieldPath: 'middleName', category: 'personal' },
 
   // ─── Personal Info: Last Name ────────────────────────────────────
@@ -550,5 +551,8 @@ export function getDictionarySize(): number {
 export function lookupLabel(
   normalizedLabel: string,
 ): DictionaryEntry | undefined {
+  if (!Object.hasOwn(LABEL_DICTIONARY, normalizedLabel)) {
+    return undefined;
+  }
   return LABEL_DICTIONARY[normalizedLabel];
 }

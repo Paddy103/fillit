@@ -62,6 +62,11 @@ export interface MatchResult {
 export function normalizeLabel(label: string): string {
   let result = label.trim().toLowerCase();
 
+  // Guard against unreasonably long input (OCR labels are never >100 chars)
+  if (result.length > 200) {
+    result = result.slice(0, 200);
+  }
+
   // Remove diacritics (NFD decomposes, then strip combining marks)
   result = result.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
@@ -127,14 +132,13 @@ const FIELD_TYPE_PATTERNS: Array<{
   {
     type: 'number',
     patterns: [
-      /\bnumber\b/,
-      /\bnommer\b/,
-      /\bno\b/,
-      /\bnr\b/,
       /\bamt\b/,
       /\bamount\b/,
       /\bbedrag\b/,
-      /\b\d+\b/,
+      /\bsalary\b/,
+      /\bincome\b/,
+      /\bprice\b/,
+      /\bcost\b/,
     ],
   },
 ];
@@ -356,6 +360,11 @@ export function normalizePhoneNumber(value: string): string {
   if (hasPlus && digits.startsWith('27')) {
     // Already +27 format
     return `+${digits}`;
+  }
+
+  // 0027... → +27... (international dialing prefix)
+  if (digits.startsWith('0027') && digits.length >= 13) {
+    return `+${digits.slice(2)}`;
   }
 
   if (digits.startsWith('27') && digits.length >= 11) {
