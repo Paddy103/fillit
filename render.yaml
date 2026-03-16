@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: fillit-server
+    runtime: docker
+    dockerfilePath: ./apps/server/Dockerfile
+    dockerContext: .
+    region: frankfurt
+    plan: free
+    autoDeploy: false
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production

@@ -31,10 +31,28 @@ interface Workflow {
   jobs: Record<string, WorkflowJob>;
 }
 
+interface RenderService {
+  type: string;
+  name: string;
+  runtime: string;
+  dockerfilePath: string;
+  dockerContext: string;
+  region: string;
+  plan: string;
+  autoDeploy: boolean;
+  healthCheckPath: string;
+  envVars?: Array<{ key: string; value: string }>;
+}
+
+interface RenderBlueprint {
+  services: RenderService[];
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────
 
 const repoRoot = resolve(__dirname, '../../');
-const readFile = (relativePath: string) => readFileSync(resolve(repoRoot, relativePath), 'utf-8');
+const readFile = (relativePath: string) =>
+  readFileSync(resolve(repoRoot, relativePath), 'utf-8');
 
 // ── Dockerfile ───────────────────────────────────────────────────────
 
@@ -97,14 +115,6 @@ describe('Dockerfile', () => {
     expect(sharedBuildIdx).toBeLessThan(serverBuildIdx);
   });
 
-  it('should set PORT=8080 in production stage', () => {
-    expect(content).toMatch(/ENV\s+PORT=8080/);
-  });
-
-  it('should expose port 8080', () => {
-    expect(content).toMatch(/EXPOSE\s+8080/);
-  });
-
   it('should run node dist/index.js as final CMD', () => {
     expect(content).toContain('CMD ["node", "dist/index.js"]');
   });
@@ -113,63 +123,73 @@ describe('Dockerfile', () => {
     expect(content).toMatch(/FROM\s+node:20-alpine\s+AS\s+production/);
   });
 
+  it('should set NODE_ENV to production', () => {
+    expect(content).toMatch(/ENV\s+NODE_ENV=production/);
+  });
+
   it('should patch shared package.json exports for dist output', () => {
-    // The Dockerfile patches the shared package.json to point exports to dist/
     expect(content).toContain('dist/index.js');
     expect(content).toContain('dist/index.d.ts');
     expect(content).toMatch(/pkg\.exports/);
   });
 });
 
-// ── fly.toml ─────────────────────────────────────────────────────────
+// ── render.yaml ─────────────────────────────────────────────────────
 
-describe('fly.toml', () => {
-  let content: string;
+describe('render.yaml', () => {
+  let blueprint: RenderBlueprint;
 
   beforeAll(() => {
-    content = readFile('apps/server/fly.toml');
+    const content = readFile('render.yaml');
+    blueprint = parse(content) as RenderBlueprint;
   });
 
-  it('should exist at apps/server/fly.toml', () => {
-    expect(existsSync(resolve(repoRoot, 'apps/server/fly.toml'))).toBe(true);
+  it('should exist at repo root', () => {
+    expect(existsSync(resolve(repoRoot, 'render.yaml'))).toBe(true);
   });
 
-  it('should set app name to fillit-server', () => {
-    expect(content).toMatch(/^app\s*=\s*'fillit-server'/m);
+  it('should define a web service', () => {
+    expect(blueprint.services).toHaveLength(1);
+    expect(blueprint.services[0]!.type).toBe('web');
   });
 
-  it('should set primary region to jnb (Johannesburg)', () => {
-    expect(content).toMatch(/^primary_region\s*=\s*'jnb'/m);
+  it('should name the service fillit-server', () => {
+    expect(blueprint.services[0]!.name).toBe('fillit-server');
   });
 
-  it('should set internal port to 8080', () => {
-    expect(content).toMatch(/internal_port\s*=\s*8080/);
+  it('should use docker runtime', () => {
+    expect(blueprint.services[0]!.runtime).toBe('docker');
   });
 
-  describe('Health check', () => {
-    it('should have a health check on /health path', () => {
-      expect(content).toMatch(/path\s*=\s*'\/health'/);
-    });
-
-    it('should use GET method for health check', () => {
-      expect(content).toMatch(/method\s*=\s*'GET'/);
-    });
+  it('should point to the correct Dockerfile', () => {
+    expect(blueprint.services[0]!.dockerfilePath).toBe('./apps/server/Dockerfile');
   });
 
-  it('should configure auto_stop_machines', () => {
-    expect(content).toMatch(/auto_stop_machines\s*=/);
+  it('should use repo root as docker context', () => {
+    expect(blueprint.services[0]!.dockerContext).toBe('.');
   });
 
-  it('should enable auto_start_machines', () => {
-    expect(content).toMatch(/auto_start_machines\s*=\s*true/);
+  it('should deploy to frankfurt region (closest to SA)', () => {
+    expect(blueprint.services[0]!.region).toBe('frankfurt');
   });
 
-  it('should set min_machines_running to 0', () => {
-    expect(content).toMatch(/min_machines_running\s*=\s*0/);
+  it('should use the free plan', () => {
+    expect(blueprint.services[0]!.plan).toBe('free');
   });
 
-  it('should configure 256mb memory', () => {
-    expect(content).toMatch(/memory\s*=\s*'256mb'/);
+  it('should disable auto-deploy (deploys via GitHub Actions)', () => {
+    expect(blueprint.services[0]!.autoDeploy).toBe(false);
+  });
+
+  it('should configure health check on /health', () => {
+    expect(blueprint.services[0]!.healthCheckPath).toBe('/health');
+  });
+
+  it('should set NODE_ENV to production', () => {
+    const envVars = blueprint.services[0]!.envVars ?? [];
+    const nodeEnv = envVars.find((v) => v.key === 'NODE_ENV');
+    expect(nodeEnv).toBeDefined();
+    expect(nodeEnv!.value).toBe('production');
   });
 });
 
@@ -177,15 +197,16 @@ describe('fly.toml', () => {
 
 describe('Deploy server workflow', () => {
   let workflow: Workflow;
-  let rawContent: string;
 
   beforeAll(() => {
-    rawContent = readFile('.github/workflows/deploy-server.yml');
+    const rawContent = readFile('.github/workflows/deploy-server.yml');
     workflow = parse(rawContent) as Workflow;
   });
 
   it('should exist at .github/workflows/deploy-server.yml', () => {
-    expect(existsSync(resolve(repoRoot, '.github/workflows/deploy-server.yml'))).toBe(true);
+    expect(existsSync(resolve(repoRoot, '.github/workflows/deploy-server.yml'))).toBe(
+      true,
+    );
   });
 
   describe('Triggers', () => {
@@ -250,12 +271,10 @@ describe('Deploy server workflow', () => {
         expect(needs).toContain('test');
       });
 
-      it('should use FLY_API_TOKEN secret', () => {
+      it('should trigger Render deploy via deploy hook', () => {
         const job = workflow.jobs['deploy']!;
-        const hasToken = job.steps.some(
-          (s) => s.env?.['FLY_API_TOKEN'] === '${{ secrets.FLY_API_TOKEN }}',
-        );
-        expect(hasToken).toBe(true);
+        const stepRuns = job.steps.map((s) => s.run ?? '').join('\n');
+        expect(stepRuns).toContain('RENDER_DEPLOY_HOOK_URL');
       });
     });
 
@@ -269,7 +288,8 @@ describe('Deploy server workflow', () => {
       it('should hit the health endpoint', () => {
         const job = workflow.jobs['smoke-test']!;
         const stepRuns = job.steps.map((s) => s.run ?? '').join('\n');
-        expect(stepRuns).toContain('https://fillit-server.fly.dev/health');
+        expect(stepRuns).toContain('RENDER_SERVICE_URL');
+        expect(stepRuns).toContain('/health');
       });
     });
 
@@ -285,18 +305,19 @@ describe('Deploy server workflow', () => {
         expect(job.if).toContain('failure()');
       });
 
-      it('should get previous release image', () => {
+      it('should use Render API for rollback', () => {
         const job = workflow.jobs['rollback']!;
         const stepRuns = job.steps.map((s) => s.run ?? '').join('\n');
-        expect(stepRuns).toContain('previous_image');
-        expect(stepRuns).toContain('flyctl releases');
+        expect(stepRuns).toContain('api.render.com');
+        expect(stepRuns).toContain('RENDER_API_KEY');
+        expect(stepRuns).toContain('RENDER_SERVICE_ID');
       });
 
-      it('should redeploy the previous image', () => {
+      it('should fetch previous deploy and rollback', () => {
         const job = workflow.jobs['rollback']!;
         const stepRuns = job.steps.map((s) => s.run ?? '').join('\n');
-        expect(stepRuns).toContain('flyctl deploy');
-        expect(stepRuns).toContain('--image');
+        expect(stepRuns).toContain('deploys');
+        expect(stepRuns).toContain('rollback');
       });
     });
   });

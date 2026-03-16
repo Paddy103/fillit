@@ -74,8 +74,6 @@ RUN cd packages/shared && \
     "
 
 ENV NODE_ENV=production
-ENV PORT=8080
-EXPOSE 8080
 
 WORKDIR /app/apps/server
 CMD ["node", "dist/index.js"]
