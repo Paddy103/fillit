@@ -28,16 +28,12 @@ describe('Document type guards', () => {
   });
 
   describe('isValidProcessingStatus', () => {
-    it.each([
-      'scanned',
-      'ocr_complete',
-      'fields_detected',
-      'matched',
-      'reviewed',
-      'exported',
-    ])('returns true for valid status "%s"', (status) => {
-      expect(isValidProcessingStatus(status)).toBe(true);
-    });
+    it.each(['scanned', 'ocr_complete', 'fields_detected', 'matched', 'reviewed', 'exported'])(
+      'returns true for valid status "%s"',
+      (status) => {
+        expect(isValidProcessingStatus(status)).toBe(true);
+      },
+    );
 
     it.each(['draft', 'pending', '', 'SCANNED'])(
       'returns false for invalid status "%s"',
@@ -52,22 +48,16 @@ describe('Document type guards', () => {
       expect(isValidDocumentSourceType(source)).toBe(true);
     });
 
-    it.each(['scan', 'upload', '', 'CAMERA'])(
-      'returns false for invalid source "%s"',
-      (source) => {
-        expect(isValidDocumentSourceType(source)).toBe(false);
-      },
-    );
+    it.each(['scan', 'upload', '', 'CAMERA'])('returns false for invalid source "%s"', (source) => {
+      expect(isValidDocumentSourceType(source)).toBe(false);
+    });
   });
 });
 
 describe('isValidConfidence', () => {
-  it.each([0, 0.0, 0.5, 1, 1.0])(
-    'returns true for valid confidence %s',
-    (value) => {
-      expect(isValidConfidence(value)).toBe(true);
-    },
-  );
+  it.each([0, 0.0, 0.5, 1, 1.0])('returns true for valid confidence %s', (value) => {
+    expect(isValidConfidence(value)).toBe(true);
+  });
 
   it.each([-0.1, 1.1, -1, 2, Infinity, -Infinity, NaN])(
     'returns false for invalid confidence %s',
@@ -79,57 +69,35 @@ describe('isValidConfidence', () => {
 
 describe('isValidBoundingBox', () => {
   it('returns true for a valid bounding box', () => {
-    expect(
-      isValidBoundingBox({ x: 0, y: 0, width: 1, height: 1 }),
-    ).toBe(true);
+    expect(isValidBoundingBox({ x: 0, y: 0, width: 1, height: 1 })).toBe(true);
   });
 
   it('returns true for a box with fractional coordinates', () => {
-    expect(
-      isValidBoundingBox({ x: 0.1, y: 0.2, width: 0.5, height: 0.3 }),
-    ).toBe(true);
+    expect(isValidBoundingBox({ x: 0.1, y: 0.2, width: 0.5, height: 0.3 })).toBe(true);
   });
 
   it('returns true for a zero-size box', () => {
-    expect(
-      isValidBoundingBox({ x: 0.5, y: 0.5, width: 0, height: 0 }),
-    ).toBe(true);
+    expect(isValidBoundingBox({ x: 0.5, y: 0.5, width: 0, height: 0 })).toBe(true);
   });
 
   it('returns false when x is out of range', () => {
-    expect(
-      isValidBoundingBox({ x: -0.1, y: 0, width: 0.5, height: 0.5 }),
-    ).toBe(false);
-    expect(
-      isValidBoundingBox({ x: 1.1, y: 0, width: 0.5, height: 0.5 }),
-    ).toBe(false);
+    expect(isValidBoundingBox({ x: -0.1, y: 0, width: 0.5, height: 0.5 })).toBe(false);
+    expect(isValidBoundingBox({ x: 1.1, y: 0, width: 0.5, height: 0.5 })).toBe(false);
   });
 
   it('returns false when y is out of range', () => {
-    expect(
-      isValidBoundingBox({ x: 0, y: -0.1, width: 0.5, height: 0.5 }),
-    ).toBe(false);
-    expect(
-      isValidBoundingBox({ x: 0, y: 1.1, width: 0.5, height: 0.5 }),
-    ).toBe(false);
+    expect(isValidBoundingBox({ x: 0, y: -0.1, width: 0.5, height: 0.5 })).toBe(false);
+    expect(isValidBoundingBox({ x: 0, y: 1.1, width: 0.5, height: 0.5 })).toBe(false);
   });
 
   it('returns false when width is out of range', () => {
-    expect(
-      isValidBoundingBox({ x: 0, y: 0, width: -0.1, height: 0.5 }),
-    ).toBe(false);
-    expect(
-      isValidBoundingBox({ x: 0, y: 0, width: 1.1, height: 0.5 }),
-    ).toBe(false);
+    expect(isValidBoundingBox({ x: 0, y: 0, width: -0.1, height: 0.5 })).toBe(false);
+    expect(isValidBoundingBox({ x: 0, y: 0, width: 1.1, height: 0.5 })).toBe(false);
   });
 
   it('returns false when height is out of range', () => {
-    expect(
-      isValidBoundingBox({ x: 0, y: 0, width: 0.5, height: -0.1 }),
-    ).toBe(false);
-    expect(
-      isValidBoundingBox({ x: 0, y: 0, width: 0.5, height: 1.1 }),
-    ).toBe(false);
+    expect(isValidBoundingBox({ x: 0, y: 0, width: 0.5, height: -0.1 })).toBe(false);
+    expect(isValidBoundingBox({ x: 0, y: 0, width: 0.5, height: 1.1 })).toBe(false);
   });
 });
 

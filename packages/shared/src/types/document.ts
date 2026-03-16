@@ -6,13 +6,7 @@
 import type { BoundingBox } from './index.js';
 
 /** Field type for AI-detected form fields. */
-export type DetectedFieldType =
-  | 'text'
-  | 'date'
-  | 'checkbox'
-  | 'signature'
-  | 'initial'
-  | 'number';
+export type DetectedFieldType = 'text' | 'date' | 'checkbox' | 'signature' | 'initial' | 'number';
 
 /** Processing pipeline status for a document. */
 export type ProcessingStatus =
