@@ -29,6 +29,26 @@ export const FORM_FIELD_TYPES = [
   'checkbox',
 ] as const;
 
+export const DETECTED_FIELD_TYPES = [
+  'text',
+  'date',
+  'checkbox',
+  'signature',
+  'initial',
+  'number',
+] as const;
+
+export const PROCESSING_STATUSES = [
+  'scanned',
+  'ocr_complete',
+  'fields_detected',
+  'matched',
+  'reviewed',
+  'exported',
+] as const;
+
+export const DOCUMENT_SOURCE_TYPES = ['camera', 'import'] as const;
+
 export const SA_PROVINCES = [
   'Eastern Cape',
   'Free State',

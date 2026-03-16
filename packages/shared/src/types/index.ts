@@ -22,6 +22,16 @@ export {
 // SA ID parse result (S-10)
 export { type SAIdParseResult } from '../validation/sa-id.js';
 
+// Document processing types (S-09)
+export {
+  type DetectedField,
+  type DetectedFieldType,
+  type DocumentPage,
+  type DocumentSourceType,
+  type ProcessedDocument,
+  type ProcessingStatus,
+} from './document.js';
+
 export interface User {
   id: string;
   email: string;

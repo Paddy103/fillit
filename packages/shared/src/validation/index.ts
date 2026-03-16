@@ -3,6 +3,13 @@
  */
 
 import { luhnCheck } from './sa-id.js';
+import {
+  DETECTED_FIELD_TYPES,
+  DOCUMENT_SOURCE_TYPES,
+  PROCESSING_STATUSES,
+} from '../constants/index.js';
+import type { DetectedFieldType, DocumentSourceType, ProcessingStatus } from '../types/document.js';
+import type { BoundingBox } from '../types/index.js';
 
 export { parseSAId, extractSAIdSmartFillData, type SAIdParseResult } from './sa-id.js';
 
@@ -40,3 +47,38 @@ export {
   getAbbreviationFromProvince,
   suggestProvinceFromPostalCode,
 } from './provinces.js';
+
+// --- Document processing validators (S-09) ---
+
+export function isValidDetectedFieldType(type: string): type is DetectedFieldType {
+  return (DETECTED_FIELD_TYPES as readonly string[]).includes(type);
+}
+
+export function isValidProcessingStatus(status: string): status is ProcessingStatus {
+  return (PROCESSING_STATUSES as readonly string[]).includes(status);
+}
+
+export function isValidDocumentSourceType(source: string): source is DocumentSourceType {
+  return (DOCUMENT_SOURCE_TYPES as readonly string[]).includes(source);
+}
+
+export function isValidConfidence(value: number): boolean {
+  return typeof value === 'number' && !Number.isNaN(value) && value >= 0 && value <= 1;
+}
+
+export function isValidBoundingBox(box: BoundingBox): boolean {
+  return (
+    typeof box.x === 'number' &&
+    typeof box.y === 'number' &&
+    typeof box.width === 'number' &&
+    typeof box.height === 'number' &&
+    box.x >= 0 &&
+    box.x <= 1 &&
+    box.y >= 0 &&
+    box.y <= 1 &&
+    box.width >= 0 &&
+    box.width <= 1 &&
+    box.height >= 0 &&
+    box.height <= 1
+  );
+}
