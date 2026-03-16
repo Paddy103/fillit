@@ -40,3 +40,12 @@ export function isValidSAPostalCode(postalCode: string): boolean {
 export function isNonEmpty(value: string): boolean {
   return value.trim().length > 0;
 }
+
+// Province validation and lookup utilities (S-12)
+export {
+  isValidSAProvince,
+  isValidSAProvinceAbbreviation,
+  getProvinceFromAbbreviation,
+  getAbbreviationFromProvince,
+  suggestProvinceFromPostalCode,
+} from './provinces.js';

@@ -40,3 +40,14 @@ export const SA_PROVINCES = [
   'Northern Cape',
   'Western Cape',
 ] as const;
+
+// Province data, lookup maps, and postal code ranges (S-12)
+export {
+  type ProvinceInfo,
+  type SAProvince,
+  type SAProvinceAbbreviation,
+  SA_PROVINCE_DATA,
+  SA_PROVINCE_ABBREVIATION_MAP,
+  SA_PROVINCE_NAME_MAP,
+  SA_POSTAL_CODE_RANGES,
+} from './provinces.js';
