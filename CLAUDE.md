@@ -20,7 +20,7 @@ fillit/
 │   ├── mobile/          # Expo React Native app
 │   └── server/          # Hono backend proxy
 ├── packages/
-│   └── shared/          # Shared types, validation, constants
+│   └── shared/          # Shared types, validation, constants, normalization
 ├── tests/               # Project-wide tests (infrastructure, integration)
 ├── implementation-plan/ # Full project spec (source of truth)
 ├── scripts/             # Pipeline and utility scripts
