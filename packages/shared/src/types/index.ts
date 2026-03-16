@@ -3,6 +3,22 @@
  * Shared between mobile and server packages.
  */
 
+// Profile & address types (S-08)
+export {
+  type Address,
+  type Citizenship,
+  type DocumentType,
+  type EmergencyContact,
+  type Gender,
+  type IdentityDocument,
+  type MaritalStatus,
+  type ProfessionalRegistration,
+  type ProfileRelationship,
+  type SignatureType,
+  type StoredSignature,
+  type UserProfile,
+} from './profile.js';
+
 export interface User {
   id: string;
   email: string;
@@ -47,25 +63,6 @@ export interface BoundingBox {
   y: number;
   width: number;
   height: number;
-}
-
-export interface UserProfile {
-  id: string;
-  userId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  idNumber: string;
-  address: Address;
-}
-
-export interface Address {
-  street: string;
-  city: string;
-  province: string;
-  postalCode: string;
-  country: string;
 }
 
 export interface ApiResponse<T> {
