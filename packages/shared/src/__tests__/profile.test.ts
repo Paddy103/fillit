@@ -480,11 +480,13 @@ describe('Profile types', () => {
 
   describe('Barrel exports', () => {
     it('should export all profile types from the shared package', async () => {
-      const types = await import('../index.js');
+      // Dynamic import verifies the barrel re-exports compile correctly.
+      // Type-only exports are erased at runtime, so we verify by constructing
+      // a valid UserProfile object using the imported types.
+      const shared = await import('../index.js');
+      expect(shared).toBeDefined();
 
-      // Verify that the module exports exist (type re-exports are erased at
-      // runtime, so we check via creating objects that conform to the types)
-      const profile: typeof types extends { UserProfile: unknown } ? never : UserProfile = {
+      const profile: UserProfile = {
         id: 'test',
         isPrimary: true,
         firstName: 'Test',
