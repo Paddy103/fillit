@@ -14,16 +14,7 @@ export interface ProvinceInfo {
 
 export type SAProvince = (typeof SA_PROVINCES)[number];
 
-export type SAProvinceAbbreviation =
-  | 'EC'
-  | 'FS'
-  | 'GP'
-  | 'KZN'
-  | 'LP'
-  | 'MP'
-  | 'NW'
-  | 'NC'
-  | 'WC';
+export type SAProvinceAbbreviation = 'EC' | 'FS' | 'GP' | 'KZN' | 'LP' | 'MP' | 'NW' | 'NC' | 'WC';
 
 // ─── Province Data ─────────────────────────────────────────────────
 
@@ -42,10 +33,9 @@ export const SA_PROVINCE_DATA: readonly ProvinceInfo[] = [
 // ─── Lookup Maps ───────────────────────────────────────────────────
 
 /** Map from abbreviation (e.g. 'EC') to province name (e.g. 'Eastern Cape'). */
-export const SA_PROVINCE_ABBREVIATION_MAP: ReadonlyMap<string, SAProvince> =
-  new Map(
-    SA_PROVINCE_DATA.map((p) => [p.abbreviation, p.name as SAProvince]),
-  );
+export const SA_PROVINCE_ABBREVIATION_MAP: ReadonlyMap<string, SAProvince> = new Map(
+  SA_PROVINCE_DATA.map((p) => [p.abbreviation, p.name as SAProvince]),
+);
 
 /** Map from province name (e.g. 'Eastern Cape') to its full info. */
 export const SA_PROVINCE_NAME_MAP: ReadonlyMap<string, ProvinceInfo> = new Map(

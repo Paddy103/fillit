@@ -86,12 +86,9 @@ describe('isValidSAProvince', () => {
 });
 
 describe('isValidSAProvinceAbbreviation', () => {
-  it.each(['EC', 'FS', 'GP', 'KZN', 'LP', 'MP', 'NW', 'NC', 'WC'])(
-    'should accept "%s"',
-    (abbr) => {
-      expect(isValidSAProvinceAbbreviation(abbr)).toBe(true);
-    },
-  );
+  it.each(['EC', 'FS', 'GP', 'KZN', 'LP', 'MP', 'NW', 'NC', 'WC'])('should accept "%s"', (abbr) => {
+    expect(isValidSAProvinceAbbreviation(abbr)).toBe(true);
+  });
 
   it('should reject invalid abbreviations', () => {
     expect(isValidSAProvinceAbbreviation('XX')).toBe(false);
