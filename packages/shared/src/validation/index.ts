@@ -4,11 +4,7 @@
 
 import { luhnCheck } from './sa-id.js';
 
-export {
-  parseSAId,
-  extractSAIdSmartFillData,
-  type SAIdParseResult,
-} from './sa-id.js';
+export { parseSAId, extractSAIdSmartFillData, type SAIdParseResult } from './sa-id.js';
 
 const SA_ID_REGEX = /^\d{13}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

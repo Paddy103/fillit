@@ -43,11 +43,7 @@ export function luhnCheck(idNumber: string): boolean {
 /** Returns true when the given year/month/day form a real calendar date. */
 function isRealDate(year: number, month: number, day: number): boolean {
   const d = new Date(year, month - 1, day);
-  return (
-    d.getFullYear() === year &&
-    d.getMonth() === month - 1 &&
-    d.getDate() === day
-  );
+  return d.getFullYear() === year && d.getMonth() === month - 1 && d.getDate() === day;
 }
 
 /**
@@ -135,9 +131,7 @@ export function extractSAIdSmartFillData(
   const result = parseSAId(idNumber);
   if (!result.valid) return null;
 
-  const data: Partial<
-    Pick<UserProfile, 'dateOfBirth' | 'gender' | 'citizenship'>
-  > = {};
+  const data: Partial<Pick<UserProfile, 'dateOfBirth' | 'gender' | 'citizenship'>> = {};
 
   if (result.dateOfBirth !== undefined) data.dateOfBirth = result.dateOfBirth;
   if (result.gender !== undefined) data.gender = result.gender;

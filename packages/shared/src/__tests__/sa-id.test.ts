@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  extractSAIdSmartFillData,
-  isValidSAIdNumber,
-  parseSAId,
-} from '../validation/index.js';
+import { extractSAIdSmartFillData, isValidSAIdNumber, parseSAId } from '../validation/index.js';
 
 // ─── Helper: compute valid Luhn checksum digit for a 12-digit prefix ──
 
