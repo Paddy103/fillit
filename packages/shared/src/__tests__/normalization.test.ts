@@ -114,18 +114,14 @@ describe('LABEL_DICTIONARY', () => {
     expect(lookupLabel('address')?.fieldPath).toBe('addresses[0].street1');
     expect(lookupLabel('city')?.fieldPath).toBe('addresses[0].city');
     expect(lookupLabel('province')?.fieldPath).toBe('addresses[0].province');
-    expect(lookupLabel('postal code')?.fieldPath).toBe(
-      'addresses[0].postalCode',
-    );
+    expect(lookupLabel('postal code')?.fieldPath).toBe('addresses[0].postalCode');
   });
 
   it('should contain banking field labels', () => {
     expect(lookupLabel('bank name')?.fieldPath).toBe(
       'documents[bank_account].additionalFields.bankName',
     );
-    expect(lookupLabel('account number')?.fieldPath).toBe(
-      'documents[bank_account].number',
-    );
+    expect(lookupLabel('account number')?.fieldPath).toBe('documents[bank_account].number');
     expect(lookupLabel('branch code')?.fieldPath).toBe(
       'documents[bank_account].additionalFields.branchCode',
     );
@@ -139,27 +135,15 @@ describe('LABEL_DICTIONARY', () => {
   });
 
   it('should contain medical aid field labels', () => {
-    expect(lookupLabel('medical aid')?.fieldPath).toBe(
-      'documents[medical_aid].label',
-    );
-    expect(lookupLabel('mediese fonds')?.fieldPath).toBe(
-      'documents[medical_aid].label',
-    );
-    expect(lookupLabel('medical aid number')?.fieldPath).toBe(
-      'documents[medical_aid].number',
-    );
+    expect(lookupLabel('medical aid')?.fieldPath).toBe('documents[medical_aid].label');
+    expect(lookupLabel('mediese fonds')?.fieldPath).toBe('documents[medical_aid].label');
+    expect(lookupLabel('medical aid number')?.fieldPath).toBe('documents[medical_aid].number');
   });
 
   it('should contain emergency contact labels', () => {
-    expect(lookupLabel('emergency contact')?.fieldPath).toBe(
-      'emergencyContacts[0].firstName',
-    );
-    expect(lookupLabel('emergency number')?.fieldPath).toBe(
-      'emergencyContacts[0].phoneMobile',
-    );
-    expect(lookupLabel('noodkontak')?.fieldPath).toBe(
-      'emergencyContacts[0].firstName',
-    );
+    expect(lookupLabel('emergency contact')?.fieldPath).toBe('emergencyContacts[0].firstName');
+    expect(lookupLabel('emergency number')?.fieldPath).toBe('emergencyContacts[0].phoneMobile');
+    expect(lookupLabel('noodkontak')?.fieldPath).toBe('emergencyContacts[0].firstName');
   });
 
   it('should contain signature and initial labels', () => {
@@ -171,19 +155,13 @@ describe('LABEL_DICTIONARY', () => {
 
   it('should contain education labels', () => {
     expect(lookupLabel('school')?.fieldPath).toBe('institution');
-    expect(lookupLabel('qualification')?.fieldPath).toBe(
-      'highestQualification',
-    );
+    expect(lookupLabel('qualification')?.fieldPath).toBe('highestQualification');
     expect(lookupLabel('student number')?.fieldPath).toBe('studentNumber');
   });
 
   it('should contain SA-specific employment labels (UIF, COIDA)', () => {
-    expect(lookupLabel('uif number')?.fieldPath).toBe(
-      'documents[uif_number].number',
-    );
-    expect(lookupLabel('coida number')?.fieldPath).toBe(
-      'documents[coida].number',
-    );
+    expect(lookupLabel('uif number')?.fieldPath).toBe('documents[uif_number].number');
+    expect(lookupLabel('coida number')?.fieldPath).toBe('documents[coida].number');
   });
 
   it('should return undefined for unknown labels', () => {
@@ -225,12 +203,8 @@ describe('levenshteinDistance', () => {
   });
 
   it('should be symmetric', () => {
-    expect(levenshteinDistance('abc', 'xyz')).toBe(
-      levenshteinDistance('xyz', 'abc'),
-    );
-    expect(levenshteinDistance('first', 'frist')).toBe(
-      levenshteinDistance('frist', 'first'),
-    );
+    expect(levenshteinDistance('abc', 'xyz')).toBe(levenshteinDistance('xyz', 'abc'));
+    expect(levenshteinDistance('first', 'frist')).toBe(levenshteinDistance('frist', 'first'));
   });
 });
 
@@ -562,18 +536,14 @@ describe('normalizeAddress', () => {
 
   it('should normalize province abbreviations', () => {
     expect(normalizeAddress({ province: 'gp' }).province).toBe('Gauteng');
-    expect(normalizeAddress({ province: 'KZN' }).province).toBe(
-      'KwaZulu-Natal',
-    );
+    expect(normalizeAddress({ province: 'KZN' }).province).toBe('KwaZulu-Natal');
     expect(normalizeAddress({ province: 'wc' }).province).toBe('Western Cape');
     expect(normalizeAddress({ province: 'EC' }).province).toBe('Eastern Cape');
   });
 
   it('should normalize full province names', () => {
     expect(normalizeAddress({ province: 'gauteng' }).province).toBe('Gauteng');
-    expect(normalizeAddress({ province: 'WESTERN CAPE' }).province).toBe(
-      'Western Cape',
-    );
+    expect(normalizeAddress({ province: 'WESTERN CAPE' }).province).toBe('Western Cape');
   });
 
   it('should default empty country to South Africa', () => {
@@ -638,12 +608,8 @@ describe('Integration: end-to-end field matching', () => {
     // These are labels commonly found on SA government and corporate forms
     expect(findBestMatch('ID Nommer').confidence).toBeGreaterThanOrEqual(0.9);
     expect(findBestMatch('Werkgewer').confidence).toBeGreaterThanOrEqual(0.9);
-    expect(findBestMatch('Mediese Fonds').confidence).toBeGreaterThanOrEqual(
-      0.9,
-    );
+    expect(findBestMatch('Mediese Fonds').confidence).toBeGreaterThanOrEqual(0.9);
     expect(findBestMatch('Poskode').confidence).toBeGreaterThanOrEqual(0.9);
-    expect(findBestMatch('Handtekening').confidence).toBeGreaterThanOrEqual(
-      0.9,
-    );
+    expect(findBestMatch('Handtekening').confidence).toBeGreaterThanOrEqual(0.9);
   });
 });

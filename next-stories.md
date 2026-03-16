@@ -40,10 +40,10 @@ These stories are independent and can be built simultaneously.
 
 ### Group A — Data Layer (critical path)
 
-| Story                         | Why                                                                     |
-| ----------------------------- | ----------------------------------------------------------------------- |
-| **S-15**: SQLite schema       | Gates ALL CRUD operations (S-16 through S-20) and the entire data layer |
-| **S-14**: Key management      | Gates encrypted CRUD (S-18), biometric auth (S-79)                      |
+| Story                    | Why                                                                     |
+| ------------------------ | ----------------------------------------------------------------------- |
+| **S-15**: SQLite schema  | Gates ALL CRUD operations (S-16 through S-20) and the entire data layer |
+| **S-14**: Key management | Gates encrypted CRUD (S-18), biometric auth (S-79)                      |
 
 ### Group B — UI Foundation
 

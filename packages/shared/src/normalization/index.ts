@@ -92,13 +92,7 @@ const FIELD_TYPE_PATTERNS: Array<{
 }> = [
   {
     type: 'signature',
-    patterns: [
-      /\bsignature\b/,
-      /\bsign\b/,
-      /\bsigned\b/,
-      /\bhandtekening\b/,
-      /\bteken\b/,
-    ],
+    patterns: [/\bsignature\b/, /\bsign\b/, /\bsigned\b/, /\bhandtekening\b/, /\bteken\b/],
   },
   {
     type: 'initial',
@@ -188,10 +182,7 @@ const FUZZY_CONFIDENCE_MAX = 0.8;
 function scaleFuzzyConfidence(score: number): number {
   const range = 1.0 - FUZZY_MIN_THRESHOLD;
   const normalized = (score - FUZZY_MIN_THRESHOLD) / range;
-  return (
-    FUZZY_CONFIDENCE_MIN +
-    normalized * (FUZZY_CONFIDENCE_MAX - FUZZY_CONFIDENCE_MIN)
-  );
+  return FUZZY_CONFIDENCE_MIN + normalized * (FUZZY_CONFIDENCE_MAX - FUZZY_CONFIDENCE_MIN);
 }
 
 /**
@@ -218,11 +209,7 @@ export function findBestMatch(label: string): MatchResult {
   }
 
   // Fuzzy match
-  const fuzzyResult = findBestFuzzyMatch(
-    normalized,
-    getDictionaryKeys(),
-    FUZZY_MIN_THRESHOLD,
-  );
+  const fuzzyResult = findBestFuzzyMatch(normalized, getDictionaryKeys(), FUZZY_MIN_THRESHOLD);
 
   if (fuzzyResult) {
     const matchedEntry = LABEL_DICTIONARY[fuzzyResult.dictionaryLabel];
@@ -282,9 +269,7 @@ export function normalizeDateFormat(value: string): string {
   if (!trimmed) return trimmed;
 
   // Match patterns with separators (-, /, or .)
-  const match = trimmed.match(
-    /^(\d{1,4})\s*[/\-.]\s*(\d{1,2})\s*[/\-.]\s*(\d{1,4})$/,
-  );
+  const match = trimmed.match(/^(\d{1,4})\s*[/\-.]\s*(\d{1,2})\s*[/\-.]\s*(\d{1,4})$/);
   if (!match) return trimmed;
 
   const p1 = match[1] ?? '';
@@ -386,9 +371,7 @@ export function normalizePhoneNumber(value: string): string {
  * - Uppercases postal code
  * - Normalizes province names to standard SA province format
  */
-export function normalizeAddress(
-  address: Record<string, string>,
-): Record<string, string> {
+export function normalizeAddress(address: Record<string, string>): Record<string, string> {
   const result: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(address)) {
