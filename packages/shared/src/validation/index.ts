@@ -2,6 +2,10 @@
  * Shared validation utilities for the FillIt application.
  */
 
+import { luhnCheck } from './sa-id.js';
+
+export { parseSAId, extractSAIdSmartFillData, type SAIdParseResult } from './sa-id.js';
+
 const SA_ID_REGEX = /^\d{13}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SA_PHONE_REGEX = /^(\+27|0)\d{9}$/;
@@ -9,20 +13,7 @@ const SA_POSTAL_CODE_REGEX = /^\d{4}$/;
 
 export function isValidSAIdNumber(idNumber: string): boolean {
   if (!SA_ID_REGEX.test(idNumber)) return false;
-
-  // Luhn algorithm check for SA ID numbers
-  let sum = 0;
-  for (let i = 0; i < 13; i++) {
-    const digit = Number(idNumber[i]);
-    if (i % 2 === 0) {
-      sum += digit;
-    } else {
-      const doubled = digit * 2;
-      sum += doubled > 9 ? doubled - 9 : doubled;
-    }
-  }
-
-  return sum % 10 === 0;
+  return luhnCheck(idNumber);
 }
 
 export function isValidEmail(email: string): boolean {
