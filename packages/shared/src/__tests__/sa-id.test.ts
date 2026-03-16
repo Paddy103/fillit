@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { extractSAIdSmartFillData, isValidSAIdNumber, parseSAId } from '../validation/index.js';
+import {
+  extractSAIdSmartFillData,
+  isValidSAIdNumber,
+  parseSAId,
+} from '../validation/index.js';
+import { luhnCheck } from '../validation/sa-id.js';
 
 // ─── Helper: compute valid Luhn checksum digit for a 12-digit prefix ──
 
@@ -292,5 +297,221 @@ describe('isValidSAIdNumber backward compatibility', () => {
     const badDigit = (validDigit + 1) % 10;
     const badId = VALID_MALE_CITIZEN.slice(0, 12) + String(badDigit);
     expect(isValidSAIdNumber(badId)).toBe(false);
+  });
+
+  it('returns true for ID with invalid date but valid format+checksum', () => {
+    // isValidSAIdNumber only checks format and Luhn, not date validity
+    const id = makeId('801301500008'); // month 13 is invalid
+    expect(isValidSAIdNumber(id)).toBe(true);
+  });
+
+  it('returns true for ID with invalid citizenship digit but valid format+checksum', () => {
+    const id = makeId('800101500028'); // citizenship digit 2 is invalid
+    expect(isValidSAIdNumber(id)).toBe(true);
+  });
+});
+
+// ─── luhnCheck direct tests ──────────────────────────────────────
+
+describe('luhnCheck', () => {
+  it('returns true for a 13-digit string with valid Luhn checksum', () => {
+    expect(luhnCheck(VALID_MALE_CITIZEN)).toBe(true);
+  });
+
+  it('returns false when checksum digit is wrong', () => {
+    const validDigit = Number(VALID_MALE_CITIZEN[12]);
+    const badDigit = (validDigit + 1) % 10;
+    const badId = VALID_MALE_CITIZEN.slice(0, 12) + String(badDigit);
+    expect(luhnCheck(badId)).toBe(false);
+  });
+
+  it('handles all-zeros (0000000000000)', () => {
+    // 0+0+0+0+0+0+0+0+0+0+0+0+0 = 0, 0 % 10 === 0 → valid
+    expect(luhnCheck('0000000000000')).toBe(true);
+  });
+});
+
+// ─── Century resolution edge cases ──────────────────────────────
+
+describe('parseSAId century resolution', () => {
+  it('resolves YY=26 to 2026 (current year boundary)', () => {
+    // In 2026, YY <= 26 → 2000s
+    const id = makeId('260101500008');
+    const result = parseSAId(id);
+    expect(result.valid).toBe(true);
+    expect(result.dateOfBirth).toBe('2026-01-01');
+  });
+
+  it('resolves YY=27 to 1927 (just above current year)', () => {
+    // In 2026, YY > 26 → 1900s
+    const id = makeId('270101500008');
+    const result = parseSAId(id);
+    expect(result.valid).toBe(true);
+    expect(result.dateOfBirth).toBe('1927-01-01');
+  });
+
+  it('resolves YY=99 to 1999', () => {
+    const id = makeId('990101500008');
+    const result = parseSAId(id);
+    expect(result.valid).toBe(true);
+    expect(result.dateOfBirth).toBe('1999-01-01');
+  });
+
+  it('resolves YY=00 to 2000', () => {
+    const id = makeId('000101500008');
+    const result = parseSAId(id);
+    expect(result.valid).toBe(true);
+    expect(result.dateOfBirth).toBe('2000-01-01');
+  });
+});
+
+// ─── Additional date edge cases ──────────────────────────────────
+
+describe('parseSAId additional date edge cases', () => {
+  it('accepts Feb 29 in a 1900s leap year (1996)', () => {
+    // YY=96 → 1996, which is a leap year
+    const id = makeId('960229500008');
+    const result = parseSAId(id);
+    expect(result.valid).toBe(true);
+    expect(result.dateOfBirth).toBe('1996-02-29');
+  });
+
+  it('rejects Feb 29 in a 1900s non-leap year (1997)', () => {
+    const id = makeId('970229500008');
+    const result = parseSAId(id);
+    expect(result.errors).toContain('Invalid date of birth');
+  });
+
+  it('rejects Apr 31 (April has 30 days)', () => {
+    const id = makeId('800431500008');
+    const result = parseSAId(id);
+    expect(result.errors).toContain('Invalid date of birth');
+  });
+
+  it('accepts Jan 31 (valid end of month)', () => {
+    const id = makeId('800131500008');
+    const result = parseSAId(id);
+    expect(result.valid).toBe(true);
+    expect(result.dateOfBirth).toBe('1980-01-31');
+  });
+
+  it('accepts Jun 30 (valid end of month)', () => {
+    const id = makeId('800630500008');
+    const result = parseSAId(id);
+    expect(result.valid).toBe(true);
+    expect(result.dateOfBirth).toBe('1980-06-30');
+  });
+
+  it('rejects Jun 31 (June has 30 days)', () => {
+    const id = makeId('800631500008');
+    const result = parseSAId(id);
+    expect(result.errors).toContain('Invalid date of birth');
+  });
+});
+
+// ─── Additional format edge cases ────────────────────────────────
+
+describe('parseSAId additional format edge cases', () => {
+  it('rejects input with leading whitespace', () => {
+    const result = parseSAId(' ' + VALID_MALE_CITIZEN);
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('ID number must be exactly 13 digits');
+  });
+
+  it('rejects input with trailing whitespace', () => {
+    const result = parseSAId(VALID_MALE_CITIZEN + ' ');
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('ID number must be exactly 13 digits');
+  });
+
+  it('rejects special characters', () => {
+    const result = parseSAId('800101-50090');
+    expect(result.valid).toBe(false);
+  });
+
+  it('does not set gender or citizenship for format-invalid input', () => {
+    const result = parseSAId('abc');
+    expect(result.valid).toBe(false);
+    expect(result.gender).toBeUndefined();
+    expect(result.citizenship).toBeUndefined();
+    expect(result.dateOfBirth).toBeUndefined();
+  });
+});
+
+// ─── Additional citizenship edge cases ───────────────────────────
+
+describe('parseSAId citizenship edge cases', () => {
+  it('rejects citizenship digit 5', () => {
+    const id = makeId('800101500058');
+    const result = parseSAId(id);
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('Invalid citizenship digit');
+  });
+
+  it('rejects citizenship digit 3', () => {
+    const id = makeId('800101500038');
+    const result = parseSAId(id);
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('Invalid citizenship digit');
+  });
+});
+
+// ─── Multiple errors combination ─────────────────────────────────
+
+describe('parseSAId multiple error combinations', () => {
+  it('collects checksum, date, and citizenship errors together', () => {
+    // Invalid date (month 13) + invalid citizenship (digit 5) + bad checksum
+    const prefix = '801301500058';
+    const correctDigit = luhnChecksumDigit(prefix);
+    const badDigit = (correctDigit + 1) % 10;
+    const badId = prefix + String(badDigit);
+    const result = parseSAId(badId);
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('Invalid checksum digit');
+    expect(result.errors).toContain('Invalid date of birth');
+    expect(result.errors).toContain('Invalid citizenship digit');
+    expect(result.errors.length).toBe(3);
+  });
+
+  it('returns gender even when other fields are invalid', () => {
+    // Invalid date but gender should still be parsed
+    const id = makeId('801301500008');
+    const result = parseSAId(id);
+    expect(result.valid).toBe(false);
+    expect(result.gender).toBe('male');
+  });
+});
+
+// ─── extractSAIdSmartFillData additional tests ───────────────────
+
+describe('extractSAIdSmartFillData additional cases', () => {
+  it('returns null for non-numeric input', () => {
+    expect(extractSAIdSmartFillData('abcdefghijklm')).toBeNull();
+  });
+
+  it('returns null for too-short input', () => {
+    expect(extractSAIdSmartFillData('12345')).toBeNull();
+  });
+
+  it('returns null for ID with invalid citizenship digit', () => {
+    const id = makeId('800101500028'); // citizenship digit 2
+    expect(extractSAIdSmartFillData(id)).toBeNull();
+  });
+
+  it('returns correct data for a 2000s-born citizen', () => {
+    const data = extractSAIdSmartFillData(VALID_2000S);
+    expect(data).toEqual({
+      dateOfBirth: '2005-01-01',
+      gender: 'male',
+      citizenship: 'citizen',
+    });
+  });
+
+  it('returns all three fields when valid', () => {
+    const data = extractSAIdSmartFillData(VALID_FEMALE_CITIZEN);
+    expect(data).not.toBeNull();
+    expect(data).toHaveProperty('dateOfBirth');
+    expect(data).toHaveProperty('gender');
+    expect(data).toHaveProperty('citizenship');
   });
 });
