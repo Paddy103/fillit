@@ -96,12 +96,7 @@ describe('Profile types', () => {
     });
 
     it('should allow all valid relationship types', () => {
-      const relationships: ProfileRelationship[] = [
-        'spouse',
-        'child',
-        'parent',
-        'other',
-      ];
+      const relationships: ProfileRelationship[] = ['spouse', 'child', 'parent', 'other'];
       relationships.forEach((rel) => {
         const profile: UserProfile = {
           ...baseProfile,
@@ -121,13 +116,7 @@ describe('Profile types', () => {
     });
 
     it('should allow all valid marital status values', () => {
-      const statuses: MaritalStatus[] = [
-        'single',
-        'married',
-        'divorced',
-        'widowed',
-        'other',
-      ];
+      const statuses: MaritalStatus[] = ['single', 'married', 'divorced', 'widowed', 'other'];
       statuses.forEach((s) => {
         const profile: UserProfile = { ...baseProfile, maritalStatus: s };
         expect(profile.maritalStatus).toBe(s);
@@ -169,8 +158,8 @@ describe('Profile types', () => {
         ],
       };
       expect(profile.addresses).toHaveLength(2);
-      expect(profile.addresses[0].isDefault).toBe(true);
-      expect(profile.addresses[1].label).toBe('Postal');
+      expect(profile.addresses[0]!.isDefault).toBe(true);
+      expect(profile.addresses[1]!.label).toBe('Postal');
     });
 
     it('should support emergency contacts', () => {
@@ -196,8 +185,8 @@ describe('Profile types', () => {
         ],
       };
       expect(profile.emergencyContacts).toHaveLength(2);
-      expect(profile.emergencyContacts[0].firstName).toBe('Naledi');
-      expect(profile.emergencyContacts[1].email).toBe('peter@example.com');
+      expect(profile.emergencyContacts[0]!.firstName).toBe('Naledi');
+      expect(profile.emergencyContacts[1]!.email).toBe('peter@example.com');
     });
 
     it('should support professional registrations', () => {
@@ -213,7 +202,7 @@ describe('Profile types', () => {
         ],
       };
       expect(profile.professionalRegistrations).toHaveLength(1);
-      expect(profile.professionalRegistrations[0].body).toBe('HPCSA');
+      expect(profile.professionalRegistrations[0]!.body).toBe('HPCSA');
     });
 
     it('should support identity documents', () => {
@@ -240,8 +229,8 @@ describe('Profile types', () => {
         ],
       };
       expect(profile.documents).toHaveLength(2);
-      expect(profile.documents[0].type).toBe('sa_smart_id');
-      expect(profile.documents[1].additionalFields.code).toBe('B');
+      expect(profile.documents[0]!.type).toBe('sa_smart_id');
+      expect(profile.documents[1]!.additionalFields.code).toBe('B');
     });
 
     it('should support stored signatures', () => {
@@ -271,8 +260,8 @@ describe('Profile types', () => {
         ],
       };
       expect(profile.signatures).toHaveLength(2);
-      expect(profile.signatures[0].type).toBe('drawn');
-      expect(profile.signatures[1].text).toBe('TM');
+      expect(profile.signatures[0]!.type).toBe('drawn');
+      expect(profile.signatures[1]!.text).toBe('TM');
     });
   });
 
@@ -495,9 +484,7 @@ describe('Profile types', () => {
 
       // Verify that the module exports exist (type re-exports are erased at
       // runtime, so we check via creating objects that conform to the types)
-      const profile: typeof types extends { UserProfile: unknown }
-        ? never
-        : UserProfile = {
+      const profile: typeof types extends { UserProfile: unknown } ? never : UserProfile = {
         id: 'test',
         isPrimary: true,
         firstName: 'Test',

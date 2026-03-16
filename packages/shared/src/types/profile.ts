@@ -9,12 +9,7 @@
 
 export type Gender = 'male' | 'female' | 'other';
 
-export type MaritalStatus =
-  | 'single'
-  | 'married'
-  | 'divorced'
-  | 'widowed'
-  | 'other';
+export type MaritalStatus = 'single' | 'married' | 'divorced' | 'widowed' | 'other';
 
 export type Citizenship = 'citizen' | 'permanent_resident';
 

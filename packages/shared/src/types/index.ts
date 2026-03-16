@@ -37,13 +37,7 @@ export interface Document {
   updatedAt: string;
 }
 
-export type DocumentStatus =
-  | 'draft'
-  | 'scanned'
-  | 'detected'
-  | 'filled'
-  | 'signed'
-  | 'exported';
+export type DocumentStatus = 'draft' | 'scanned' | 'detected' | 'filled' | 'signed' | 'exported';
 
 export interface FormField {
   id: string;
