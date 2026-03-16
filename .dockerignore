@@ -1,0 +1,28 @@
+node_modules
+dist
+.git
+.github
+.claude
+.vscode
+.idea
+
+# Mobile app not needed for server build
+apps/mobile
+
+# Docs and plans
+implementation-plan
+*.md
+
+# Tests and coverage
+tests
+__tests__
+coverage
+
+# Environment and secrets
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+*.log

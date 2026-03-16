@@ -31,7 +31,7 @@ These stories have all dependencies satisfied and are ready to build **now**.
 
 | Issue | Story                                | Description                                             | Unblocked by |
 | ----- | ------------------------------------ | ------------------------------------------------------- | ------------ |
-| #7    | **S-06**: Server deployment workflow | Auto-deploy to Fly.io on merge, health checks, rollback | S-05         |
+| #7    | **S-06**: Server deployment workflow | Auto-deploy to Render on merge, health checks, rollback | S-05         |
 | #8    | **S-07**: Mobile build workflow      | EAS Build for iOS/Android release builds                | S-03         |
 
 ## Recommended Parallel Groups
@@ -71,7 +71,7 @@ These stories are independent and can be built simultaneously.
 
 | Story                   | Why                            |
 | ----------------------- | ------------------------------ |
-| **S-06**: Server deploy | Enables auto-deploy to Fly.io  |
+| **S-06**: Server deploy | Enables auto-deploy to Render  |
 | **S-07**: Mobile build  | Enables EAS builds for release |
 
 ## Maximum Parallelism
