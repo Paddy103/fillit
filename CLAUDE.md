@@ -7,7 +7,7 @@ FillIt is a cross-platform mobile app (React Native + Expo) that scans/imports d
 ## Tech Stack
 
 - **Mobile**: React Native + Expo SDK 55+, Expo Router, Zustand, expo-sqlite
-- **Backend**: Hono on Node.js, deployed to Fly.io
+- **Backend**: Hono on Node.js, deployed to Render
 - **AI**: @anthropic-ai/sdk (Claude API via backend proxy)
 - **PDF**: pdf-lib for generation
 - **Monorepo**: pnpm workspaces
@@ -120,4 +120,8 @@ User kicks off story → Issue moved to "In Progress" on project board
 - `.claude/settings.json` — Permissions, hooks (auto-format + file protection)
 - `.mcp.json` — Team-shared MCP servers (context7 for docs, GitHub for PRs/issues)
 - `scripts/update-issue-status.sh` — Pipeline helper to sync issue status on project board
+- `.github/workflows/deploy-server.yml` — CD pipeline: test → deploy to Render → smoke test → rollback
 - `.github/workflows/project-sync.yml` — Auto-syncs PRs/issues to GitHub Projects board
+- `render.yaml` — Render Blueprint (service config, region, plan, health check)
+- `apps/server/Dockerfile` — Multi-stage Docker build for server (handles pnpm workspace)
+- `.dockerignore` — Docker build context exclusions
