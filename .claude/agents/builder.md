@@ -43,11 +43,13 @@ Before handing off to the tester:
 
 - [ ] All acceptance criteria from the story are addressed
 - [ ] Code compiles without errors (`npx tsc --noEmit`)
-- [ ] No linting errors (`npx eslint .`)
+- [ ] No linting errors — **run `pnpm run lint` and fix all errors/warnings**
+- [ ] Prettier formatting clean — **run `npx prettier --write` on all changed files**
 - [ ] No hardcoded secrets, API keys, or test credentials
 - [ ] File structure follows the monorepo layout
-- [ ] Imports are clean (no circular dependencies)
+- [ ] Imports are clean (no circular dependencies, use `import type` for type-only imports)
 - [ ] Types are explicit (no `any` unless absolutely necessary with justification)
+- [ ] Code is designed for reuse — extract shared utilities to `packages/shared`, avoid duplicating logic that exists elsewhere
 
 ### 5. Write Implementation Summary
 
