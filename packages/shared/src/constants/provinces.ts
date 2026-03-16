@@ -2,7 +2,7 @@
  * South African province data, lookup maps, and postal code ranges.
  */
 
-import { SA_PROVINCES } from './index.js';
+import { type SA_PROVINCES } from './index.js';
 
 // ─── Types ─────────────────────────────────────────────────────────
 

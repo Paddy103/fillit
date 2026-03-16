@@ -224,7 +224,7 @@ Present the final package to the user:
 
 ### Stage 7: CREATE PR
 
-On user approval:
+After docs update is complete, proceed directly to creating the PR (no user approval prompt needed).
 
 1. Ensure the feature branch is up to date with main:
    ```bash
@@ -232,7 +232,19 @@ On user approval:
    git rebase main
    ```
 2. If conflicts, resolve them and re-run tests
-3. Push the branch and create a GitHub PR:
+3. **MANDATORY: Run lint and format checks before pushing:**
+   ```bash
+   # Format all changed files
+   npx prettier --write $(git diff --name-only main -- '*.ts' '*.tsx' '*.json' '*.md' '*.yml' '*.yaml')
+   # Verify lint passes
+   pnpm run lint
+   # Verify format passes
+   npx prettier --check $(git diff --name-only main -- '*.ts' '*.tsx' '*.json' '*.md' '*.yml' '*.yaml')
+   # Commit any formatting fixes
+   git add -A && git diff --cached --quiet || git commit -m "style: fix formatting"
+   ```
+   **Do NOT push until both lint and format checks pass with zero errors.**
+4. Push the branch and create a GitHub PR:
 
    ```bash
    git push -u origin feature/<branch>
@@ -261,8 +273,8 @@ On user approval:
    )"
    ```
 
-4. The `Closes #<issue-number>` keyword in the PR body will automatically close the issue and move it to Done on the project board when the PR is merged.
-5. Share the PR URL with the user for final review and merge.
+5. The `Closes #<issue-number>` keyword in the PR body will automatically close the issue and move it to Done on the project board when the PR is merged.
+6. Share the PR URL with the user for final review and merge.
 
 ## Pipeline State Tracking
 

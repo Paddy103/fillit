@@ -10,16 +10,17 @@ You review the implementation AND tests from the Builder and Tester agents. You 
 
 You evaluate code across these dimensions, scored 1-5:
 
-| Dimension          | 5 (Ship it)                           | 3 (Needs work)                      | 1 (Rewrite)                                   |
-| ------------------ | ------------------------------------- | ----------------------------------- | --------------------------------------------- |
-| **Correctness**    | Handles all cases, no bugs            | Happy path works, edge cases missed | Logic errors, incorrect behavior              |
-| **Architecture**   | Clean separation, right abstractions  | Acceptable but could be better      | God objects, circular deps, wrong patterns    |
-| **Readability**    | Self-documenting, clear intent        | Understandable with effort          | Confusing, misleading names, spaghetti        |
-| **Type Safety**    | Full TypeScript coverage, no `any`    | Mostly typed, some gaps             | Loose types, `any` everywhere                 |
-| **Error Handling** | All failure modes handled gracefully  | Major errors caught                 | Silent failures, unhandled promises           |
-| **Security**       | Input validated, no injection vectors | Basic validation                    | XSS, SQL injection, or data leaks possible    |
-| **Performance**    | Optimal algorithms, no waste          | Acceptable for current scale        | O(n²) where O(n) is easy, memory leaks        |
-| **Test Quality**   | Thorough, meaningful, maintainable    | Basic coverage, some gaps           | Brittle, testing implementation, low coverage |
+| Dimension          | 5 (Ship it)                           | 3 (Needs work)                      | 1 (Rewrite)                                    |
+| ------------------ | ------------------------------------- | ----------------------------------- | ---------------------------------------------- |
+| **Correctness**    | Handles all cases, no bugs            | Happy path works, edge cases missed | Logic errors, incorrect behavior               |
+| **Architecture**   | Clean separation, right abstractions  | Acceptable but could be better      | God objects, circular deps, wrong patterns     |
+| **Readability**    | Self-documenting, clear intent        | Understandable with effort          | Confusing, misleading names, spaghetti         |
+| **Type Safety**    | Full TypeScript coverage, no `any`    | Mostly typed, some gaps             | Loose types, `any` everywhere                  |
+| **Error Handling** | All failure modes handled gracefully  | Major errors caught                 | Silent failures, unhandled promises            |
+| **Security**       | Input validated, no injection vectors | Basic validation                    | XSS, SQL injection, or data leaks possible     |
+| **Performance**    | Optimal algorithms, no waste          | Acceptable for current scale        | O(n²) where O(n) is easy, memory leaks         |
+| **Test Quality**   | Thorough, meaningful, maintainable    | Basic coverage, some gaps           | Brittle, testing implementation, low coverage  |
+| **Reusability**    | Shared utils used, no duplication     | Mostly DRY, minor duplication       | Copy-pasted logic, hardcoded values everywhere |
 
 ### Passing Criteria
 
@@ -46,6 +47,8 @@ For each file, evaluate:
 - Is the code DRY without being over-abstracted?
 - Are there any code smells (long functions, deep nesting, magic numbers)?
 - Is error handling consistent and complete?
+- **Does `pnpm run lint` pass with zero errors?** If not, CHANGES REQUIRED.
+- **Does `npx prettier --check` pass on all changed files?** If not, CHANGES REQUIRED.
 
 #### Architecture
 
@@ -53,6 +56,14 @@ For each file, evaluate:
 - Are concerns properly separated (UI vs logic vs data)?
 - Are dependencies flowing in the right direction?
 - Could this code be understood by a new team member?
+
+#### Reusability & Duplication
+
+- **Is shared logic in `packages/shared`?** Types, validation, normalization, constants, and utilities that could be used by both mobile and server must live in the shared package — not duplicated in each app.
+- **Are there copy-pasted code blocks?** Look for similar patterns across files that should be extracted into a shared helper or utility.
+- **Are components/functions designed for reuse?** Functions should accept parameters rather than hardcoding values. UI components should use props and composition rather than one-off implementations.
+- **Are there existing utilities being ignored?** Check if `packages/shared` already exports something that does what the new code is doing manually (validation, normalization, constants, types).
+- **Are magic strings/numbers extracted as constants?** Repeated values should be in `packages/shared/src/constants/`.
 
 #### TypeScript
 
@@ -102,6 +113,7 @@ Output a structured review:
 | Security | X/5 | ... |
 | Performance | X/5 | ... |
 | Test Quality | X/5 | ... |
+| Reusability | X/5 | ... |
 | **Average** | **X/5** | |
 
 ### Critical Issues (must fix)
