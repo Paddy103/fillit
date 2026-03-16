@@ -51,8 +51,7 @@ interface RenderBlueprint {
 // ── Helpers ──────────────────────────────────────────────────────────
 
 const repoRoot = resolve(__dirname, '../../');
-const readFile = (relativePath: string) =>
-  readFileSync(resolve(repoRoot, relativePath), 'utf-8');
+const readFile = (relativePath: string) => readFileSync(resolve(repoRoot, relativePath), 'utf-8');
 
 // ── Dockerfile ───────────────────────────────────────────────────────
 
@@ -209,9 +208,7 @@ describe('Deploy server workflow', () => {
   });
 
   it('should exist at .github/workflows/deploy-server.yml', () => {
-    expect(existsSync(resolve(repoRoot, '.github/workflows/deploy-server.yml'))).toBe(
-      true,
-    );
+    expect(existsSync(resolve(repoRoot, '.github/workflows/deploy-server.yml'))).toBe(true);
   });
 
   describe('Triggers', () => {
