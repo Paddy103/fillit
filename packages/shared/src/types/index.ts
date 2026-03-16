@@ -19,6 +19,9 @@ export {
   type UserProfile,
 } from './profile.js';
 
+// SA ID parse result (S-10)
+export { type SAIdParseResult } from '../validation/sa-id.js';
+
 export interface User {
   id: string;
   email: string;
