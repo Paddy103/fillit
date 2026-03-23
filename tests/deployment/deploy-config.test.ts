@@ -181,8 +181,8 @@ describe('render.yaml', () => {
     expect(blueprint.services[0]!.plan).toBe('free');
   });
 
-  it('should disable auto-deploy (deploys via GitHub Actions)', () => {
-    expect(blueprint.services[0]!.autoDeploy).toBe(false);
+  it('should enable auto-deploy after CI checks', () => {
+    expect(blueprint.services[0]!.autoDeploy).toBe(true);
   });
 
   it('should configure health check on /health', () => {
