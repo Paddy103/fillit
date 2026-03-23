@@ -125,3 +125,5 @@ User kicks off story → Issue moved to "In Progress" on project board
 - `render.yaml` — Render Blueprint (service config, region, plan, health check)
 - `apps/server/Dockerfile` — Multi-stage Docker build for server (handles pnpm workspace)
 - `.dockerignore` — Docker build context exclusions
+- `apps/mobile/src/services/storage/secureStore.ts` — Secure key management (iOS Keychain / Android Keystore)
+- `apps/mobile/src/utils/encryption.ts` — AES-256-GCM encryption (uses secureStore for keys)
