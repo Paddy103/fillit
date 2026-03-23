@@ -3,13 +3,16 @@
  *
  * Storage format: base64(iv):base64(ciphertext+tag)
  * - IV: 12 bytes, randomly generated per encryption
- * - Key: 256-bit, stored in platform secure store
+ * - Key: 256-bit, managed by the secure key management service
  * - GCM tag: 128-bit, appended to ciphertext by WebCrypto
+ *
+ * Key management is delegated to `services/storage/secureStore`, which
+ * handles secure hardware detection, fallback, and key lifecycle.
  */
 
 import { getRandomBytes } from 'expo-crypto';
-import * as SecureStore from 'expo-secure-store';
 
+import { getOrCreateKey, getKey, deleteKey } from '../services/storage';
 import {
   DecryptionError,
   EncryptionError,
@@ -17,9 +20,7 @@ import {
   KeyNotFoundError,
 } from './encryption-errors';
 
-const ENCRYPTION_KEY_ALIAS = 'fillit_encryption_key';
 const IV_BYTE_LENGTH = 12;
-const KEY_BYTE_LENGTH = 32;
 
 /**
  * Convert a Uint8Array to a base64 string.
@@ -60,22 +61,14 @@ async function importKey(rawKeyBytes: Uint8Array): Promise<CryptoKey> {
 /**
  * Retrieve or create the encryption key.
  *
- * Checks the platform secure store for an existing key. If none exists,
- * generates 32 random bytes via expo-crypto and stores them.
+ * Delegates to the secure key management service which handles
+ * secure hardware storage, key generation, and fallback.
  *
  * @returns The encryption key as a base64 string.
  */
 export async function getOrCreateEncryptionKey(): Promise<string> {
   try {
-    const existingKey = await SecureStore.getItemAsync(ENCRYPTION_KEY_ALIAS);
-    if (existingKey) {
-      return existingKey;
-    }
-
-    const keyBytes = getRandomBytes(KEY_BYTE_LENGTH);
-    const keyBase64 = uint8ArrayToBase64(keyBytes);
-    await SecureStore.setItemAsync(ENCRYPTION_KEY_ALIAS, keyBase64);
-    return keyBase64;
+    return await getOrCreateKey();
   } catch (error) {
     throw new EncryptionError('Failed to get or create encryption key', error);
   }
@@ -137,7 +130,7 @@ export async function decrypt(encryptedData: string): Promise<string> {
     const iv = base64ToUint8Array(ivBase64);
     const ciphertextBytes = base64ToUint8Array(ciphertextBase64);
 
-    const keyBase64 = await SecureStore.getItemAsync(ENCRYPTION_KEY_ALIAS);
+    const keyBase64 = await getKey();
     if (!keyBase64) {
       throw new KeyNotFoundError();
     }
@@ -168,7 +161,7 @@ export async function decrypt(encryptedData: string): Promise<string> {
  */
 export async function deleteEncryptionKey(): Promise<void> {
   try {
-    await SecureStore.deleteItemAsync(ENCRYPTION_KEY_ALIAS);
+    await deleteKey();
   } catch (error) {
     throw new EncryptionError('Failed to delete encryption key', error);
   }
