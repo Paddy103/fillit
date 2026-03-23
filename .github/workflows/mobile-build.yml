@@ -1,0 +1,46 @@
+name: Mobile Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  build:
+    name: EAS Build (${{ matrix.platform }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [android, ios]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build
+        working-directory: apps/mobile
+        run: eas build --platform ${{ matrix.platform }} --profile production --non-interactive
+
+      - name: Get build URL
+        if: success()
+        working-directory: apps/mobile
+        run: |
+          echo "## ${{ matrix.platform }} build complete" >> $GITHUB_STEP_SUMMARY
+          echo "View builds at https://expo.dev/accounts/paddy103/projects/fillit/builds" >> $GITHUB_STEP_SUMMARY
