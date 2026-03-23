@@ -6,7 +6,7 @@ services:
     dockerContext: .
     region: frankfurt
     plan: free
-    autoDeploy: false
+    autoDeploy: true
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
