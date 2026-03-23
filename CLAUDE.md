@@ -37,7 +37,7 @@ fillit/
 - **Language**: TypeScript everywhere (strict mode)
 - **Formatting**: Prettier (2-space indent, single quotes, trailing commas)
 - **Linting**: ESLint with @typescript-eslint
-- **Testing**: Jest + React Native Testing Library (mobile), Vitest (server/shared)
+- **Testing**: Vitest (mobile, server, shared)
 - **Commits**: Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `docs:`, `chore:`)
 - **Branches**: `feature/<story-id>-<short-name>` (e.g., `feature/S-01-pnpm-monorepo`)
 - **PRs**: One PR per user story, linked to GitHub Issue (use `Closes #N` in PR body)
@@ -127,3 +127,4 @@ User kicks off story → Issue moved to "In Progress" on project board
 - `.dockerignore` — Docker build context exclusions
 - `apps/mobile/src/services/storage/secureStore.ts` — Secure key management (iOS Keychain / Android Keystore)
 - `apps/mobile/src/utils/encryption.ts` — AES-256-GCM encryption (uses secureStore for keys)
+- `apps/mobile/src/theme/` — Design token system (colors, typography, spacing, dark/light mode)
