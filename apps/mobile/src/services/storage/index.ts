@@ -18,3 +18,5 @@ export {
   KeyDeletionError,
   SecureHardwareUnavailableError,
 } from './secureStore';
+
+export type { InitializeResult } from './secureStore';

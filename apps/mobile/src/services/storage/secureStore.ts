@@ -21,7 +21,6 @@ import {
   KeyGenerationError,
   KeyRetrievalError,
   KeyStorageError,
-  SecureHardwareUnavailableError,
 } from './secureStoreErrors';
 
 /** Length of AES-256 key in bytes. */
@@ -44,6 +43,12 @@ let fallbackActive = false;
  * Keys stored here do not persist across app restarts.
  */
 const inMemoryStore = new Map<string, string>();
+
+/**
+ * In-flight `getOrCreateKey` promises keyed by alias.
+ * Prevents concurrent calls from generating duplicate keys.
+ */
+const pendingKeyCreation = new Map<string, Promise<string>>();
 
 /**
  * Listeners that are notified when the fallback mode changes.
@@ -140,22 +145,34 @@ function setFallbackActive(active: boolean): void {
 }
 
 /**
+ * Result of the key management service initialization.
+ */
+export interface InitializeResult {
+  /** Whether the platform secure store is available. */
+  secureStoreAvailable: boolean;
+  /** Whether the in-memory fallback was activated. */
+  fallbackActivated: boolean;
+}
+
+/**
  * Initialize the key management service.
  *
  * Checks whether the device supports secure hardware storage and
  * activates the in-memory fallback if it does not. Should be called
  * once during app startup before any key operations.
  *
- * @throws {SecureHardwareUnavailableError} When secure hardware is not
- *   available (thrown once for logging; the service continues with fallback).
+ * @returns An object indicating whether secure storage is available and
+ *   whether the fallback was activated. Callers should log a warning
+ *   when `fallbackActivated` is `true`.
  */
-export async function initialize(): Promise<void> {
+export async function initialize(): Promise<InitializeResult> {
   const available = await isSecureStoreAvailable();
   if (!available) {
     setFallbackActive(true);
-    throw new SecureHardwareUnavailableError();
+    return { secureStoreAvailable: false, fallbackActivated: true };
   }
   setFallbackActive(false);
+  return { secureStoreAvailable: true, fallbackActivated: false };
 }
 
 /**
@@ -242,6 +259,9 @@ async function removeKey(alias: string): Promise<void> {
  * in the platform's secure store (iOS Keychain / Android Keystore).
  * On subsequent launches, returns the existing key.
  *
+ * Uses a per-alias promise cache to prevent concurrent calls from
+ * generating duplicate keys (race condition guard).
+ *
  * @param alias - Optional custom alias. Defaults to the primary key alias.
  * @returns The encryption key as a base64-encoded string.
  * @throws {KeyGenerationError} If key generation fails.
@@ -249,17 +269,32 @@ async function removeKey(alias: string): Promise<void> {
  * @throws {KeyRetrievalError} If the key cannot be retrieved.
  */
 export async function getOrCreateKey(alias: string = DEFAULT_KEY_ALIAS): Promise<string> {
-  const existingKey = await retrieveKey(alias);
-  if (existingKey) {
-    if (!isValidKeyBase64(existingKey, KEY_BYTE_LENGTH)) {
-      throw new KeyRetrievalError(`Key with alias "${alias}" is corrupt (invalid length)`);
-    }
-    return existingKey;
+  // If a creation is already in flight for this alias, return the same promise.
+  const pending = pendingKeyCreation.get(alias);
+  if (pending) {
+    return pending;
   }
 
-  const newKey = generateKey();
-  await storeKey(alias, newKey);
-  return newKey;
+  const promise = (async () => {
+    const existingKey = await retrieveKey(alias);
+    if (existingKey) {
+      if (!isValidKeyBase64(existingKey, KEY_BYTE_LENGTH)) {
+        throw new KeyRetrievalError(`Key with alias "${alias}" is corrupt (invalid length)`);
+      }
+      return existingKey;
+    }
+
+    const newKey = generateKey();
+    await storeKey(alias, newKey);
+    return newKey;
+  })();
+
+  pendingKeyCreation.set(alias, promise);
+  try {
+    return await promise;
+  } finally {
+    pendingKeyCreation.delete(alias);
+  }
 }
 
 /**
@@ -339,6 +374,7 @@ export function clearInMemoryStore(): void {
  */
 export function resetServiceState(): void {
   inMemoryStore.clear();
+  pendingKeyCreation.clear();
   setFallbackActive(false);
   fallbackListeners.length = 0;
 }

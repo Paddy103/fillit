@@ -132,35 +132,29 @@ describe('isSecureStoreAvailable', () => {
 // ===========================================================================
 
 describe('initialize', () => {
-  it('should succeed without throwing when secure hardware is available', async () => {
+  it('should return secureStoreAvailable: true when secure hardware is available', async () => {
     mockIsAvailableAsync.mockResolvedValueOnce(true);
-    await expect(initialize()).resolves.toBeUndefined();
+    const result = await initialize();
+    expect(result).toEqual({ secureStoreAvailable: true, fallbackActivated: false });
     expect(isFallbackActive()).toBe(false);
   });
 
-  it('should throw SecureHardwareUnavailableError when hardware is unavailable', async () => {
+  it('should return fallbackActivated: true when hardware is unavailable', async () => {
     mockIsAvailableAsync.mockResolvedValueOnce(false);
-    await expect(initialize()).rejects.toThrow(SecureHardwareUnavailableError);
+    const result = await initialize();
+    expect(result).toEqual({ secureStoreAvailable: false, fallbackActivated: true });
   });
 
   it('should activate fallback mode when hardware is unavailable', async () => {
     mockIsAvailableAsync.mockResolvedValueOnce(false);
-    try {
-      await initialize();
-    } catch {
-      // expected
-    }
+    await initialize();
     expect(isFallbackActive()).toBe(true);
   });
 
   it('should deactivate fallback if previously active and hardware becomes available', async () => {
     // First: unavailable
     mockIsAvailableAsync.mockResolvedValueOnce(false);
-    try {
-      await initialize();
-    } catch {
-      // expected
-    }
+    await initialize();
     expect(isFallbackActive()).toBe(true);
 
     // Second: available
@@ -174,11 +168,7 @@ describe('initialize', () => {
     onFallbackChange(listener);
 
     mockIsAvailableAsync.mockResolvedValueOnce(false);
-    try {
-      await initialize();
-    } catch {
-      // expected
-    }
+    await initialize();
 
     expect(listener).toHaveBeenCalledWith(true);
   });
@@ -478,11 +468,7 @@ describe('fallback mode', () => {
   beforeEach(async () => {
     // Activate fallback mode by simulating unavailable hardware
     mockIsAvailableAsync.mockResolvedValueOnce(false);
-    try {
-      await initialize();
-    } catch {
-      // expected SecureHardwareUnavailableError
-    }
+    await initialize();
     expect(isFallbackActive()).toBe(true);
   });
 
@@ -550,11 +536,7 @@ describe('onFallbackChange', () => {
     onFallbackChange(listener);
 
     mockIsAvailableAsync.mockResolvedValueOnce(false);
-    try {
-      await initialize();
-    } catch {
-      // expected
-    }
+    await initialize();
 
     expect(listener).toHaveBeenCalledTimes(1);
     expect(listener).toHaveBeenCalledWith(true);
@@ -565,11 +547,7 @@ describe('onFallbackChange', () => {
 
     // First activate fallback
     mockIsAvailableAsync.mockResolvedValueOnce(false);
-    try {
-      await initialize();
-    } catch {
-      // expected
-    }
+    await initialize();
 
     // Then subscribe and deactivate
     onFallbackChange(listener);
@@ -587,11 +565,7 @@ describe('onFallbackChange', () => {
     onFallbackChange(listener2);
 
     mockIsAvailableAsync.mockResolvedValueOnce(false);
-    try {
-      await initialize();
-    } catch {
-      // expected
-    }
+    await initialize();
 
     expect(listener1).toHaveBeenCalledWith(true);
     expect(listener2).toHaveBeenCalledWith(true);
@@ -603,11 +577,7 @@ describe('onFallbackChange', () => {
     unsubscribe();
 
     mockIsAvailableAsync.mockResolvedValueOnce(false);
-    try {
-      await initialize();
-    } catch {
-      // expected
-    }
+    await initialize();
 
     expect(listener).not.toHaveBeenCalled();
   });
@@ -636,11 +606,7 @@ describe('onFallbackChange', () => {
     unsubscribe(); // second call should not throw
 
     mockIsAvailableAsync.mockResolvedValueOnce(false);
-    try {
-      await initialize();
-    } catch {
-      // expected
-    }
+    await initialize();
 
     expect(listener).not.toHaveBeenCalled();
   });
@@ -657,11 +623,7 @@ describe('isFallbackActive', () => {
 
   it('should return true after initialize with unavailable hardware', async () => {
     mockIsAvailableAsync.mockResolvedValueOnce(false);
-    try {
-      await initialize();
-    } catch {
-      // expected
-    }
+    await initialize();
     expect(isFallbackActive()).toBe(true);
   });
 
@@ -688,11 +650,7 @@ describe('clearInMemoryStore', () => {
 
   it('should clear keys in fallback mode', async () => {
     mockIsAvailableAsync.mockResolvedValueOnce(false);
-    try {
-      await initialize();
-    } catch {
-      // expected
-    }
+    await initialize();
 
     await getOrCreateKey();
     expect(await hasKey()).toBe(true);
@@ -713,11 +671,7 @@ describe('clearInMemoryStore', () => {
 describe('resetServiceState', () => {
   it('should clear in-memory store', async () => {
     mockIsAvailableAsync.mockResolvedValueOnce(false);
-    try {
-      await initialize();
-    } catch {
-      // expected
-    }
+    await initialize();
 
     await getOrCreateKey();
     resetServiceState();
@@ -727,11 +681,7 @@ describe('resetServiceState', () => {
 
   it('should reset fallback state to false', async () => {
     mockIsAvailableAsync.mockResolvedValueOnce(false);
-    try {
-      await initialize();
-    } catch {
-      // expected
-    }
+    await initialize();
     expect(isFallbackActive()).toBe(true);
 
     resetServiceState();
@@ -744,11 +694,7 @@ describe('resetServiceState', () => {
     resetServiceState();
 
     mockIsAvailableAsync.mockResolvedValueOnce(false);
-    try {
-      await initialize();
-    } catch {
-      // expected
-    }
+    await initialize();
 
     expect(listener).not.toHaveBeenCalled();
   });
@@ -869,14 +815,13 @@ describe('edge cases', () => {
     expect(retrieved).toBe(key);
   });
 
-  it('should handle rapid successive getOrCreateKey calls', async () => {
-    // Simulate multiple concurrent calls — all should resolve to valid keys
+  it('should handle rapid successive getOrCreateKey calls (mutex prevents duplicates)', async () => {
+    // Simulate multiple concurrent calls — all should resolve to the same key
     const promises = Array.from({ length: 10 }, () => getOrCreateKey());
     const results = await Promise.all(promises);
-    // All should return the same key (first write wins, rest retrieve)
     const uniqueKeys = new Set(results);
-    // Due to race conditions in async, we might get 1 or more unique keys,
-    // but all should be valid 32-byte base64 strings
+    // The mutex guarantees exactly one key is created
+    expect(uniqueKeys.size).toBe(1);
     for (const key of uniqueKeys) {
       expect(base64ByteLength(key)).toBe(32);
     }

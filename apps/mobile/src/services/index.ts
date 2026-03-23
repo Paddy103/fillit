@@ -18,3 +18,5 @@ export {
   KeyDeletionError,
   SecureHardwareUnavailableError,
 } from './storage';
+
+export type { InitializeResult } from './storage';
