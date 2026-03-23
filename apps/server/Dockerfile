@@ -14,7 +14,9 @@ COPY apps/server/package.json apps/server/package.json
 COPY packages/shared/package.json packages/shared/package.json
 
 # Install production dependencies only
-RUN pnpm install --frozen-lockfile --prod
+# Ensure workspace node_modules dirs exist (pnpm hoists to root, so these may be empty)
+RUN pnpm install --frozen-lockfile --prod \
+    && mkdir -p apps/server/node_modules packages/shared/node_modules
 
 # Install all dependencies (including devDependencies for build)
 # in a separate layer so we can copy only prod deps to final image

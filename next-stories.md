@@ -2,7 +2,7 @@
 
 ## Completed
 
-S-01 through S-05 (foundation), S-08 (profile types), S-09 (document types), S-10 (SA ID validation), S-11 (field normalization), S-12 (provinces), S-13 (encryption), S-46 (server middleware) are all merged.
+S-01 through S-06 (foundation + server deployment), S-08 (profile types), S-09 (document types), S-10 (SA ID validation), S-11 (field normalization), S-12 (provinces), S-13 (encryption), S-46 (server middleware) are all merged.
 
 ## Newly Unblocked Stories
 
@@ -29,10 +29,9 @@ These stories have all dependencies satisfied and are ready to build **now**.
 
 ### CI/CD
 
-| Issue | Story                                | Description                                             | Unblocked by |
-| ----- | ------------------------------------ | ------------------------------------------------------- | ------------ |
-| #7    | **S-06**: Server deployment workflow | Auto-deploy to Render on merge, health checks, rollback | S-05         |
-| #8    | **S-07**: Mobile build workflow      | EAS Build for iOS/Android release builds                | S-03         |
+| Issue | Story                           | Description                              | Unblocked by |
+| ----- | ------------------------------- | ---------------------------------------- | ------------ |
+| #8    | **S-07**: Mobile build workflow | EAS Build for iOS/Android release builds | S-03         |
 
 ## Recommended Parallel Groups
 
@@ -69,10 +68,9 @@ These stories are independent and can be built simultaneously.
 
 ### Group E — CI/CD
 
-| Story                   | Why                            |
-| ----------------------- | ------------------------------ |
-| **S-06**: Server deploy | Enables auto-deploy to Render  |
-| **S-07**: Mobile build  | Enables EAS builds for release |
+| Story                  | Why                            |
+| ---------------------- | ------------------------------ |
+| **S-07**: Mobile build | Enables EAS builds for release |
 
 ## Maximum Parallelism
 
