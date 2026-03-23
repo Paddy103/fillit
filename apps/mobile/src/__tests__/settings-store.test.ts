@@ -1,5 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 
 // ---------------------------------------------------------------------------
 // Mock AsyncStorage
@@ -60,12 +59,9 @@ import {
   selectNetworkStatus,
   selectIsOnline,
   selectIsInternetReachable,
-} from '../stores/settings-store';
-import type {
-  ThemePreference,
-  AutoLockTimeout,
-  NetworkStatus,
-  SettingsStore,
+  type ThemePreference,
+  type AutoLockTimeout,
+  type NetworkStatus,
 } from '../stores/settings-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
