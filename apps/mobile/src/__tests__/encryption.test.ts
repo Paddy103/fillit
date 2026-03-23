@@ -23,6 +23,14 @@ vi.mock('expo-secure-store', () => ({
     delete mockStore[key];
     return Promise.resolve();
   }),
+  isAvailableAsync: vi.fn(() => Promise.resolve(true)),
+  AFTER_FIRST_UNLOCK: 1,
+  AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY: 2,
+  WHEN_UNLOCKED: 3,
+  WHEN_UNLOCKED_THIS_DEVICE_ONLY: 4,
+  WHEN_PASSCODE_SET_THIS_DEVICE_ONLY: 5,
+  ALWAYS: 6,
+  ALWAYS_THIS_DEVICE_ONLY: 7,
 }));
 
 import {
