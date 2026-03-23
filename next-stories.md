@@ -2,7 +2,7 @@
 
 ## Completed
 
-S-01 through S-06 (foundation + server deployment), S-08 (profile types), S-09 (document types), S-10 (SA ID validation), S-11 (field normalization), S-12 (provinces), S-13 (encryption), S-46 (server middleware) are all merged.
+S-01 through S-07 (foundation + server deployment + mobile build), S-08 (profile types), S-09 (document types), S-10 (SA ID validation), S-11 (field normalization), S-12 (provinces), S-13 (encryption), S-46 (server middleware) are all merged.
 
 ## Newly Unblocked Stories
 
@@ -26,12 +26,6 @@ These stories have all dependencies satisfied and are ready to build **now**.
 | Issue | Story                                         | Description                                    | Unblocked by |
 | ----- | --------------------------------------------- | ---------------------------------------------- | ------------ |
 | #48   | **S-47**: OAuth token verification middleware | Verify Google/Apple OAuth tokens on API routes | S-46         |
-
-### CI/CD
-
-| Issue | Story                           | Description                              | Unblocked by |
-| ----- | ------------------------------- | ---------------------------------------- | ------------ |
-| #8    | **S-07**: Mobile build workflow | EAS Build for iOS/Android release builds | S-03         |
 
 ## Recommended Parallel Groups
 
@@ -66,12 +60,6 @@ These stories are independent and can be built simultaneously.
 | **S-42**: ML Kit OCR       | Gates OCR pipeline, document processing                |
 | **S-45**: Image processing | Gates image optimization for API submission            |
 
-### Group E — CI/CD
-
-| Story                  | Why                            |
-| ---------------------- | ------------------------------ |
-| **S-07**: Mobile build | Enables EAS builds for release |
-
 ## Maximum Parallelism
 
-All 5 groups (A-E) are fully independent — **up to 13 stories** can be built in parallel. For practical parallelism, prioritize Groups A + B + C (8 stories) as they unblock the most downstream work.
+All 4 groups (A-D) are fully independent — **up to 12 stories** can be built in parallel. For practical parallelism, prioritize Groups A + B + C (8 stories) as they unblock the most downstream work.
