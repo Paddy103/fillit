@@ -13,7 +13,6 @@ const { mockDb, mockOpenDatabase, mockDeleteDatabase } = vi.hoisted(() => {
 
   /** Schema version state. */
   let schemaVersion = 0;
-  let schemaAppliedAt = '';
 
   const mockDb = {
     execAsync: vi.fn(async (sql: string) => {
@@ -21,31 +20,22 @@ const { mockDb, mockOpenDatabase, mockDeleteDatabase } = vi.hoisted(() => {
 
       // Parse CREATE TABLE statements to track tables
       const createMatch = sql.match(/CREATE TABLE IF NOT EXISTS (\w+)/i);
-      if (createMatch) {
-        const tableName = createMatch[1]!;
-        if (!tables.has(tableName)) {
-          // Extract column definitions
-          const colSection = sql.match(/\(([\s\S]+)\)/);
-          const columns: string[] = [];
-          if (colSection) {
-            const lines = colSection[1]!.split(',').map((l) => l.trim());
-            for (const line of lines) {
-              const colName = line.split(/\s+/)[0];
-              if (
-                colName &&
-                !colName.startsWith('FOREIGN') &&
-                !colName.startsWith('CHECK') &&
-                !colName.startsWith('UNIQUE') &&
-                !colName.startsWith('PRIMARY') &&
-                !colName.startsWith('CONSTRAINT')
-              ) {
-                columns.push(colName);
-              }
-            }
+      if (!createMatch || tables.has(createMatch[1]!)) return;
+
+      const tableName = createMatch[1]!;
+      const colSection = sql.match(/\(([\s\S]+)\)/);
+      const columns: string[] = [];
+      if (colSection) {
+        const skipPrefixes = ['FOREIGN', 'CHECK', 'UNIQUE', 'PRIMARY', 'CONSTRAINT'];
+        const lines = colSection[1]!.split(',').map((l) => l.trim());
+        for (const line of lines) {
+          const colName = line.split(/\s+/)[0];
+          if (colName && !skipPrefixes.some((p) => colName.startsWith(p))) {
+            columns.push(colName);
           }
-          tables.set(tableName, { columns, rows: [] });
         }
       }
+      tables.set(tableName, { columns, rows: [] });
     }),
 
     runAsync: vi.fn(async (sql: string, ...args: unknown[]) => {
@@ -53,16 +43,12 @@ const { mockDb, mockOpenDatabase, mockDeleteDatabase } = vi.hoisted(() => {
 
       // Handle schema version inserts
       if (sql.includes('INSERT OR IGNORE INTO _schema_version')) {
-        if (schemaVersion === 0) {
-          schemaAppliedAt = (args[0] as string) || new Date().toISOString();
-        }
         return { lastInsertRowId: 1, changes: schemaVersion === 0 ? 1 : 0 };
       }
 
       // Handle schema version updates
       if (sql.includes('UPDATE _schema_version SET version')) {
         schemaVersion = (args[0] as number) || 0;
-        schemaAppliedAt = (args[1] as string) || new Date().toISOString();
         return { lastInsertRowId: 1, changes: 1 };
       }
 
@@ -137,7 +123,6 @@ const { mockDb, mockOpenDatabase, mockDeleteDatabase } = vi.hoisted(() => {
       tables.clear();
       executedSql.length = 0;
       schemaVersion = 0;
-      schemaAppliedAt = '';
     },
   };
 
