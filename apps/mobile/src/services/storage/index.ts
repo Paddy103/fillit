@@ -49,3 +49,24 @@ export {
   FileDeleteError,
   DirectoryError,
 } from './fileStorageErrors';
+
+// Database (S-15)
+export {
+  initializeDatabase,
+  getDatabase,
+  getSchemaVersion,
+  runQuery,
+  getFirst,
+  getAll,
+  withTransaction,
+  closeDatabase,
+  deleteDatabase,
+} from './database';
+
+export {
+  DatabaseError,
+  DatabaseInitError,
+  MigrationError,
+  QueryError,
+  TransactionError,
+} from './databaseErrors';

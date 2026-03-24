@@ -46,3 +46,21 @@ export {
 } from './storage';
 
 export type { FileSubdirectory, DocumentFileInfo } from './storage';
+
+// Database (S-15)
+export {
+  initializeDatabase,
+  getDatabase,
+  getSchemaVersion,
+  runQuery,
+  getFirst,
+  getAll,
+  withTransaction,
+  closeDatabase,
+  deleteDatabase,
+  DatabaseError,
+  DatabaseInitError,
+  MigrationError,
+  QueryError,
+  TransactionError,
+} from './storage';
