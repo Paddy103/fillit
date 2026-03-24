@@ -18,6 +18,12 @@ vi.mock('expo-file-system', () => ({
   Directory: vi.fn(),
 }));
 
+// Mock expo-sqlite (imported transitively via storage barrel)
+vi.mock('expo-sqlite', () => ({
+  openDatabaseAsync: vi.fn(),
+  deleteDatabaseAsync: vi.fn(),
+}));
+
 // Mock expo-secure-store
 const mockStore: Record<string, string> = {};
 vi.mock('expo-secure-store', () => ({
