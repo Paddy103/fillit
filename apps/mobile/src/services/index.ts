@@ -20,3 +20,29 @@ export {
 } from './storage';
 
 export type { InitializeResult } from './storage';
+
+// File Storage (S-21)
+export {
+  saveFile,
+  readFile,
+  fileExists,
+  deleteFile,
+  deleteDocumentFiles,
+  getDocumentFileSize,
+  listDocuments,
+  cleanupOrphanedFiles,
+  cleanupTempFiles,
+  getDocumentsBaseDir,
+  getDocumentDir,
+  getSubdirectory,
+  getPageImageFile,
+  getExportedPdfFile,
+  getTempDir,
+  FileStorageError,
+  FileWriteError,
+  FileReadError,
+  FileDeleteError,
+  DirectoryError,
+} from './storage';
+
+export type { FileSubdirectory, DocumentFileInfo } from './storage';
