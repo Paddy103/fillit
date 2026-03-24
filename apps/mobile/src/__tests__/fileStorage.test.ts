@@ -197,7 +197,7 @@ vi.mock('expo-file-system', () => {
       return mockFs.totalSize(this.uri);
     }
 
-    create(options?: { intermediates?: boolean; idempotent?: boolean }) {
+    create(_options?: { intermediates?: boolean; idempotent?: boolean }) {
       const normalized = this.uri.endsWith('/') ? this.uri : `${this.uri}/`;
       mockFs.directories.add(normalized);
     }
@@ -269,7 +269,6 @@ import {
   FileStorageError,
   FileWriteError,
   FileReadError,
-  FileDeleteError,
 } from '../services/storage/fileStorageErrors';
 
 // ---------------------------------------------------------------------------
