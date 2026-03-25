@@ -1,3 +1,12 @@
+/**
+ * Root layout for the FillIt mobile app.
+ *
+ * Wraps the entire app with ThemeProvider and handles:
+ * - Font loading with splash screen
+ * - Theme-aware status bar
+ * - Top-level Stack navigator containing (tabs) group and modal screens
+ */
+
 import { View } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -14,6 +23,22 @@ function ThemedStatusBar() {
   return <StatusBar style={isDark ? 'light' : 'dark'} />;
 }
 
+function RootNavigator() {
+  const { theme } = useTheme();
+
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: theme.colors.background },
+      }}
+    >
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="__e2e" options={{ headerShown: true, headerTitle: 'E2E Tests' }} />
+    </Stack>
+  );
+}
+
 export default function RootLayout() {
   const { fontsLoaded, fontError, onLayoutRootView } = useFontsLoaded();
 
@@ -25,12 +50,7 @@ export default function RootLayout() {
     <ThemeProvider initialColorMode="system">
       <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
         <ThemedStatusBar />
-        <Stack
-          screenOptions={{
-            headerShown: true,
-            headerTitle: 'FillIt',
-          }}
-        />
+        <RootNavigator />
       </View>
     </ThemeProvider>
   );

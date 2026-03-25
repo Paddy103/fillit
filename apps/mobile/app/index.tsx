@@ -1,40 +1,12 @@
-import { StyleSheet, Text, View } from 'react-native';
-import { useTheme } from '../src/theme';
+/**
+ * Root index screen — redirects to the (tabs) group.
+ *
+ * This file handles the entry redirect from `/` to `/(tabs)/home`
+ * so the app always lands on the Home tab.
+ */
 
-export default function HomeScreen() {
-  const { theme } = useTheme();
+import { Redirect } from 'expo-router';
 
-  return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.background, padding: theme.spacing.lg },
-      ]}
-    >
-      <Text
-        style={[
-          theme.typography.displayMedium,
-          { color: theme.colors.onBackground, marginBottom: theme.spacing.sm },
-        ]}
-      >
-        FillIt
-      </Text>
-      <Text
-        style={[
-          theme.typography.bodyLarge,
-          { color: theme.colors.onSurfaceVariant, textAlign: 'center' },
-        ]}
-      >
-        Scan, fill, and export documents with ease.
-      </Text>
-    </View>
-  );
+export default function IndexScreen() {
+  return <Redirect href="/(tabs)/home" />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
