@@ -16,9 +16,9 @@ The user will tell you which story or task to work on. They might say:
 ```
                                    ┌──────────┐
                               ┌───>│ REVIEWER │───┐
-┌─────────┐    ┌─────────┐   │    └──────────┘   │    ┌────────┐    ┌──────┐    ┌─────────────┐    ┌───────┐
-│ BUILDER │───>│ TESTER  │───┤    ┌──────────┐   ├───>│   QA   │───>│ DOCS │───>│ USER REVIEW │───>│ MERGE │
-└─────────┘    └─────────┘   ├───>│ SECURITY │───┤    └────────┘    └──────┘    └─────────────┘    └───────┘
+┌─────────┐    ┌─────────┐   │    └──────────┘   │    ┌────────┐    ┌──────┐    ┌──────┐    ┌─────────────┐    ┌───────┐
+│ BUILDER │───>│ TESTER  │───┤    ┌──────────┐   ├───>│   QA   │───>│ E2E  │───>│ DOCS │───>│ USER REVIEW │───>│ MERGE │
+└─────────┘    └─────────┘   ├───>│ SECURITY │───┤    └────────┘    └──────┘    └──────┘    └─────────────┘    └───────┘
      ^              ^         │    └──────────┘   │         │
      │              │         │    ┌──────────┐   │         │
      │              │         └───>│    UX    │───┘         │ Bugs
@@ -158,6 +158,18 @@ Launch the QA Agent on the feature branch.
 - **FAIL** → Send bugs back to Builder (Stage 1). Builder fixes, Tester updates tests, Reviewer re-reviews the fixes, then QA re-verifies. Track iteration count.
 
 **Max iterations:** 2 QA cycles. If not passed after 2 rounds, escalate to user.
+
+### Stage 4b: E2E TESTS
+
+If the story involves UI screens, native services (database, file system, encryption, secure store), or user-facing functionality, ensure Maestro E2E coverage exists:
+
+1. **Service-layer stories**: Add a test suite runner in `apps/mobile/src/e2e/` and register it in the E2E harness screen (`app/__e2e.tsx`)
+2. **UI stories**: Write a Maestro flow in `apps/mobile/.maestro/flows/ui/`
+3. **All stories**: Write a Maestro flow in the appropriate subdirectory (`flows/smoke/`, `flows/services/`, or `flows/ui/`) tagged with `regression`
+
+The E2E flows run in CI via `.github/workflows/e2e-android.yml` against an Android emulator. They must pass before merge.
+
+See `apps/mobile/.maestro/README.md` for flow authoring guide.
 
 ### Stage 5: DOCS UPDATE
 

@@ -1,0 +1,10 @@
+# Smoke test: verify app launches and home screen renders
+appId: com.fillit.app
+tags:
+  - smoke
+  - pr
+---
+- launchApp:
+    clearState: true
+- assertVisible: 'FillIt'
+- assertVisible: 'Scan, fill, and export documents with ease.'

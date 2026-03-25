@@ -1,0 +1,23 @@
+# S-23: Settings store — theme toggle, biometric default, reset
+appId: com.fillit.app
+tags:
+  - services
+  - regression
+---
+- launchApp:
+    clearState: true
+
+# Navigate to E2E test harness
+- runFlow: ../../navigate-to-e2e.yaml
+
+# Run settings suite
+- tapOn:
+    id: 'e2e-run-settings'
+- extendedWaitUntil:
+    visible:
+      id: 'suite-settings'
+    timeout: 10000
+
+# Assert all tests passed
+- assertVisible: 'Settings (S-23)'
+- assertNotVisible: "\u274C"

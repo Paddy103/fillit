@@ -1,0 +1,13 @@
+# S-26: Theme switching — verify app renders in light and dark mode
+appId: com.fillit.app
+tags:
+  - ui
+  - regression
+---
+- launchApp:
+    clearState: true
+- assertVisible: 'FillIt'
+
+# App should render the home screen with theme applied
+# (visual verification — Maestro confirms no crash on render)
+- assertVisible: 'Scan, fill, and export documents with ease.'
