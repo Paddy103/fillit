@@ -70,3 +70,18 @@ export {
   QueryError,
   TransactionError,
 } from './databaseErrors';
+
+// Address CRUD (S-17)
+export {
+  createAddress,
+  getAddressById,
+  getAddressesByProfile,
+  updateAddress,
+  deleteAddress,
+  countAddressesByProfile,
+  getDefaultAddress,
+  setDefaultAddress,
+  deleteAddressesByProfile,
+} from './addressCrud';
+
+export type { CreateAddressInput, UpdateAddressInput } from './addressCrud';

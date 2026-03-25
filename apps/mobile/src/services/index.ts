@@ -64,3 +64,18 @@ export {
   QueryError,
   TransactionError,
 } from './storage';
+
+// Address CRUD (S-17)
+export {
+  createAddress,
+  getAddressById,
+  getAddressesByProfile,
+  updateAddress,
+  deleteAddress,
+  countAddressesByProfile,
+  getDefaultAddress,
+  setDefaultAddress,
+  deleteAddressesByProfile,
+} from './storage';
+
+export type { CreateAddressInput, UpdateAddressInput } from './storage';
