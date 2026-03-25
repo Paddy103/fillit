@@ -85,3 +85,44 @@ export {
 } from './addressCrud';
 
 export type { CreateAddressInput, UpdateAddressInput } from './addressCrud';
+
+// Profile CRUD (S-16)
+export {
+  createProfile,
+  getProfileById,
+  listProfiles,
+  getPrimaryProfile,
+  updateProfile,
+  deleteProfile,
+  getProfileCount,
+  createAddress as createProfileAddress,
+  getAddressesByProfileId,
+  updateAddress as updateProfileAddress,
+  deleteAddress as deleteProfileAddress,
+  createIdentityDocument,
+  getIdentityDocumentsByProfileId,
+  updateIdentityDocument,
+  deleteIdentityDocument,
+  createProfessionalRegistration,
+  getProfessionalRegistrationsByProfileId,
+  updateProfessionalRegistration,
+  deleteProfessionalRegistration,
+  createEmergencyContact,
+  getEmergencyContactsByProfileId,
+  updateEmergencyContact,
+  deleteEmergencyContact,
+  createFullProfile,
+} from './profileCrud';
+
+export type {
+  CreateProfileInput,
+  UpdateProfileInput,
+  CreateAddressInput as ProfileCreateAddressInput,
+  UpdateAddressInput as ProfileUpdateAddressInput,
+  CreateIdentityDocumentInput,
+  UpdateIdentityDocumentInput,
+  CreateProfessionalRegistrationInput,
+  UpdateProfessionalRegistrationInput,
+  CreateEmergencyContactInput,
+  UpdateEmergencyContactInput,
+} from './profileCrud';
