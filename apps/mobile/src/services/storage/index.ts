@@ -146,3 +146,31 @@ export type {
   CreateIdentityDocumentInput,
   UpdateIdentityDocumentInput,
 } from './identityDocumentService';
+
+// Document & Page CRUD (S-19)
+export {
+  createDocument,
+  getDocumentById,
+  getDocumentWithPages,
+  listDocuments as listDocumentRecords,
+  updateDocument,
+  deleteDocument,
+  countDocuments,
+  createPage,
+  getPageById,
+  getPagesByDocumentId,
+  updatePage,
+  deletePage,
+  deletePagesByDocumentId,
+  countPages,
+  createDocumentWithPages,
+  deleteDocumentWithCleanup,
+  isValidStatusTransition,
+} from './documentCrud';
+
+export type {
+  CreateDocumentInput,
+  UpdateDocumentInput,
+  CreatePageInput,
+  UpdatePageInput,
+} from './documentCrud';
