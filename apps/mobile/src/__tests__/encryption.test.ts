@@ -11,6 +11,13 @@ vi.mock('expo-crypto', () => ({
   }),
 }));
 
+// Mock expo-file-system (imported transitively via storage barrel)
+vi.mock('expo-file-system', () => ({
+  Paths: { document: { uri: 'file:///mock/' } },
+  File: vi.fn(),
+  Directory: vi.fn(),
+}));
+
 // Mock expo-secure-store
 const mockStore: Record<string, string> = {};
 vi.mock('expo-secure-store', () => ({
