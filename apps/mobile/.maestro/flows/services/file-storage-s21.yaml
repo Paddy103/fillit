@@ -1,0 +1,23 @@
+# S-21: File storage — save, read, delete, size, orphan cleanup, path traversal
+appId: com.fillit.app
+tags:
+  - services
+  - regression
+---
+- launchApp:
+    clearState: true
+
+# Navigate to E2E test harness
+- runFlow: ../../navigate-to-e2e.yaml
+
+# Run file storage suite
+- tapOn:
+    id: "e2e-run-files"
+- extendedWaitUntil:
+    visible:
+      id: "suite-files"
+    timeout: 15000
+
+# Assert all tests passed
+- assertVisible: "File Storage (S-21)"
+- assertNotVisible: "\u274C"

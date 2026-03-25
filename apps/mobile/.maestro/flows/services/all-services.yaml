@@ -1,0 +1,24 @@
+# Run all service-layer E2E suites in one flow
+appId: com.fillit.app
+tags:
+  - services
+  - regression
+  - full
+---
+- launchApp:
+    clearState: true
+
+# Navigate to E2E test harness
+- runFlow: ../../navigate-to-e2e.yaml
+
+# Run all suites
+- tapOn:
+    id: "e2e-run-all"
+- extendedWaitUntil:
+    visible:
+      id: "suite-settings"
+    timeout: 30000
+
+# Verify no failures
+- assertNotVisible: "\u274C"
+- assertVisible: "passed"

@@ -1,0 +1,7 @@
+# Shared sub-flow: navigate to the E2E test harness screen
+# Used by service test flows via runFlow
+- openLink: "fillit:///__e2e"
+- extendedWaitUntil:
+    visible:
+      id: "e2e-screen"
+    timeout: 10000

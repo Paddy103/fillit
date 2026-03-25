@@ -37,7 +37,7 @@ fillit/
 - **Language**: TypeScript everywhere (strict mode)
 - **Formatting**: Prettier (2-space indent, single quotes, trailing commas)
 - **Linting**: ESLint with @typescript-eslint
-- **Testing**: Vitest (mobile, server, shared)
+- **Testing**: Vitest (unit/integration), Maestro (E2E on device)
 - **Commits**: Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `docs:`, `chore:`)
 - **Branches**: `feature/<story-id>-<short-name>` (e.g., `feature/S-01-pnpm-monorepo`)
 - **PRs**: One PR per user story, linked to GitHub Issue (use `Closes #N` in PR body)
@@ -55,6 +55,7 @@ User kicks off story → Issue moved to "In Progress" on project board
                      → Tester Agent (writes comprehensive tests)
                      → Reviewer Agent (senior engineer code review)
                      → QA Agent (functional + bug verification)
+                     → E2E Tests (Maestro flows on Android emulator)
                      → Docs Updater Agent (updates all READMEs + CLAUDE.md)
                      → Issue moved to "In Review", PR created
                      → User Final Approval → Merge PR
@@ -128,3 +129,9 @@ User kicks off story → Issue moved to "In Progress" on project board
 - `apps/mobile/src/services/storage/secureStore.ts` — Secure key management (iOS Keychain / Android Keystore)
 - `apps/mobile/src/utils/encryption.ts` — AES-256-GCM encryption (uses secureStore for keys)
 - `apps/mobile/src/theme/` — Design token system (colors, typography, spacing, dark/light mode)
+- `apps/mobile/src/services/storage/database.ts` — SQLite database service (init, migrations, query helpers)
+- `apps/mobile/src/services/storage/fileStorage.ts` — Local file storage service (expo-file-system SDK 55+)
+- `apps/mobile/.maestro/` — Maestro E2E test flows and config
+- `apps/mobile/src/e2e/` — E2E test suite runners (used by harness screen)
+- `apps/mobile/app/__e2e.tsx` — E2E test harness screen (Maestro interacts with this)
+- `.github/workflows/e2e-android.yml` — CI workflow: Maestro E2E on Android emulator

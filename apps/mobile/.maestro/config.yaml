@@ -1,0 +1,17 @@
+# Maestro E2E Test Configuration
+# See: https://docs.maestro.dev/api-reference/configuration/workspace-configuration
+
+flows:
+  - "flows/smoke/*"
+  - "flows/services/*"
+  - "flows/ui/*"
+
+excludeTags:
+  - wip
+
+executionOrder:
+  continueOnFailure: false
+  flowsOrder:
+    - flows/smoke/app-launches
+    - flows/services/*
+    - flows/ui/*
