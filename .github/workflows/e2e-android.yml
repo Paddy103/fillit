@@ -28,6 +28,8 @@ jobs:
     env:
       # PRs run smoke only (~3-5 min); pushes to main run full suite (~12-20 min)
       MAESTRO_TAGS: ${{ (github.event_name == 'push' || github.event.inputs.suite == 'full') && '' || '--include-tags=smoke' }}
+      # API 31 boots reliably on GitHub runners (API 34 google_apis often crashes)
+      ANDROID_API_LEVEL: 31
 
     steps:
       - name: Checkout
@@ -92,28 +94,28 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-api-34-${{ runner.os }}
+          key: avd-api-${{ env.ANDROID_API_LEVEL }}-${{ runner.os }}
 
       - name: Create AVD snapshot
         if: steps.avd-cache.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          api-level: ${{ env.ANDROID_API_LEVEL }}
           arch: x86_64
-          target: google_apis
+          target: default
           force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: echo "AVD snapshot created"
 
       - name: "Run Maestro E2E tests (${{ env.MAESTRO_TAGS && 'smoke' || 'full suite' }})"
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          api-level: ${{ env.ANDROID_API_LEVEL }}
           arch: x86_64
-          target: google_apis
+          target: default
           force-avd-creation: false
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
             adb install apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
