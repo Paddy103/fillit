@@ -3,7 +3,18 @@ name: E2E Tests (Android)
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
   workflow_dispatch:
+    inputs:
+      suite:
+        description: 'Which suite to run'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - smoke
+          - full
 
 concurrency:
   group: e2e-${{ github.ref }}
@@ -13,6 +24,10 @@ jobs:
   e2e-android:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+
+    env:
+      # PRs run smoke only (~3-5 min); pushes to main run full suite (~12-20 min)
+      MAESTRO_TAGS: ${{ (github.event_name == 'push' || github.event.inputs.suite == 'full') && '' || '--include-tags=smoke' }}
 
     steps:
       - name: Checkout
@@ -91,7 +106,7 @@ jobs:
           disable-animations: true
           script: echo "AVD snapshot created"
 
-      - name: Run Maestro E2E tests
+      - name: "Run Maestro E2E tests (${{ env.MAESTRO_TAGS && 'smoke' || 'full suite' }})"
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
@@ -102,7 +117,7 @@ jobs:
           disable-animations: true
           script: |
             adb install apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
-            maestro test --format junit --output e2e-report.xml apps/mobile/.maestro/
+            maestro test ${{ env.MAESTRO_TAGS }} --format junit --output e2e-report.xml apps/mobile/.maestro/
 
       - name: Upload E2E results
         if: always()

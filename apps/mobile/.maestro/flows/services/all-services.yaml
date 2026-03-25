@@ -1,6 +1,7 @@
 # Run all service-layer E2E suites in one flow
 appId: com.fillit.app
 tags:
+  - smoke
   - services
   - regression
   - full
