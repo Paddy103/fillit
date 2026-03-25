@@ -5,12 +5,14 @@ End-to-end tests for the FillIt mobile app using [Maestro](https://maestro.mobil
 ## Prerequisites
 
 1. **Maestro CLI** — Install via:
+
    ```bash
    # macOS / Linux / WSL
    curl -fsSL "https://get.maestro.mobile.dev" | bash
 
    # Windows — download from GitHub releases
    ```
+
 2. **Java 17+** with `JAVA_HOME` set
 3. **Dev build** of the app on a connected device or emulator (`expo-dev-client`)
 
@@ -97,7 +99,7 @@ Every new story with UI or native functionality must include a Maestro flow:
 appId: com.fillit.app
 tags:
   - regression
-  - services  # or: smoke, ui
+  - services # or: smoke, ui
 ---
 - launchApp:
     clearState: true
@@ -107,6 +109,7 @@ tags:
 ## CI
 
 E2E tests run automatically on PRs via `.github/workflows/e2e-android.yml`:
+
 - Builds a debug APK
 - Boots an Android emulator (API 34)
 - Installs the APK and runs all Maestro flows

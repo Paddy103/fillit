@@ -6,8 +6,8 @@ tags:
 ---
 - launchApp:
     clearState: true
-- assertVisible: "FillIt"
+- assertVisible: 'FillIt'
 
 # App should render the home screen with theme applied
 # (visual verification — Maestro confirms no crash on render)
-- assertVisible: "Scan, fill, and export documents with ease."
+- assertVisible: 'Scan, fill, and export documents with ease.'

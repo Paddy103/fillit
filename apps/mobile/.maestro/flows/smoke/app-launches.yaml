@@ -6,5 +6,5 @@ tags:
 ---
 - launchApp:
     clearState: true
-- assertVisible: "FillIt"
-- assertVisible: "Scan, fill, and export documents with ease."
+- assertVisible: 'FillIt'
+- assertVisible: 'Scan, fill, and export documents with ease.'

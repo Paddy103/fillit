@@ -13,12 +13,12 @@ tags:
 
 # Run all suites
 - tapOn:
-    id: "e2e-run-all"
+    id: 'e2e-run-all'
 - extendedWaitUntil:
     visible:
-      id: "suite-settings"
+      id: 'suite-settings'
     timeout: 30000
 
 # Verify no failures
 - assertNotVisible: "\u274C"
-- assertVisible: "passed"
+- assertVisible: 'passed'

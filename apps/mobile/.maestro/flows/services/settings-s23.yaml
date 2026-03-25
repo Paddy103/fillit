@@ -12,12 +12,12 @@ tags:
 
 # Run settings suite
 - tapOn:
-    id: "e2e-run-settings"
+    id: 'e2e-run-settings'
 - extendedWaitUntil:
     visible:
-      id: "suite-settings"
+      id: 'suite-settings'
     timeout: 10000
 
 # Assert all tests passed
-- assertVisible: "Settings (S-23)"
+- assertVisible: 'Settings (S-23)'
 - assertNotVisible: "\u274C"

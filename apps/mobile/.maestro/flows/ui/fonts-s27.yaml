@@ -9,5 +9,5 @@ tags:
 
 # If fonts fail to load, the app either crashes or shows nothing.
 # A successful render of styled text proves fonts loaded.
-- assertVisible: "FillIt"
-- assertVisible: "Scan, fill, and export documents with ease."
+- assertVisible: 'FillIt'
+- assertVisible: 'Scan, fill, and export documents with ease.'

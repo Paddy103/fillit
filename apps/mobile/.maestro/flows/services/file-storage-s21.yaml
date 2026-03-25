@@ -12,12 +12,12 @@ tags:
 
 # Run file storage suite
 - tapOn:
-    id: "e2e-run-files"
+    id: 'e2e-run-files'
 - extendedWaitUntil:
     visible:
-      id: "suite-files"
+      id: 'suite-files'
     timeout: 15000
 
 # Assert all tests passed
-- assertVisible: "File Storage (S-21)"
+- assertVisible: 'File Storage (S-21)'
 - assertNotVisible: "\u274C"

@@ -8,17 +8,17 @@ tags:
     clearState: true
 
 # Navigate to E2E test harness
-- tapOn: "FillIt"
+- tapOn: 'FillIt'
 - runFlow: ../../navigate-to-e2e.yaml
 
 # Run database suite
 - tapOn:
-    id: "e2e-run-database"
+    id: 'e2e-run-database'
 - extendedWaitUntil:
     visible:
-      id: "suite-database"
+      id: 'suite-database'
     timeout: 15000
 
 # Assert all tests passed (no fail results)
-- assertVisible: "Database (S-15)"
+- assertVisible: 'Database (S-15)'
 - assertNotVisible: "\u274C"

@@ -2,9 +2,9 @@
 # See: https://docs.maestro.dev/api-reference/configuration/workspace-configuration
 
 flows:
-  - "flows/smoke/*"
-  - "flows/services/*"
-  - "flows/ui/*"
+  - 'flows/smoke/*'
+  - 'flows/services/*'
+  - 'flows/ui/*'
 
 excludeTags:
   - wip
