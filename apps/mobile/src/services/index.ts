@@ -96,3 +96,21 @@ export {
 } from './storage';
 
 export type { CreateIdentityDocumentInput, UpdateIdentityDocumentInput } from './storage';
+
+// Signature CRUD (S-20)
+export {
+  createSignature,
+  getSignatureById,
+  getSignaturesByProfile,
+  getDefaultSignature,
+  countSignaturesByProfile,
+  updateSignature,
+  setDefaultSignature,
+  deleteSignature,
+  deleteSignaturesByProfile,
+  SignatureServiceError,
+  SignatureNotFoundError,
+  SignatureValidationError,
+} from './storage';
+
+export type { CreateSignatureInput, UpdateSignatureInput } from './storage';
