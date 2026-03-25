@@ -85,7 +85,7 @@ export default function DevTestDbScreen() {
       ];
       try {
         const rows = await getAll<{ name: string }>(
-          "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE '_%'",
+          "SELECT name FROM sqlite_master WHERE type='table' AND name != '_schema_version'",
         );
         const tableNames = rows.map((r) => r.name);
         const missing = tables.filter((t) => !tableNames.includes(t));
