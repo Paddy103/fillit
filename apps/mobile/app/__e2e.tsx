@@ -24,22 +24,18 @@ interface SuiteState {
   results: TestResult[];
 }
 
+type SuiteSetter = React.Dispatch<React.SetStateAction<SuiteState>>;
+
+async function executeSuite(runner: () => Promise<TestResult[]>, setter: SuiteSetter) {
+  setter({ status: 'running', results: [] });
+  const results = await runner();
+  setter({ status: 'done', results });
+}
+
 export default function E2ETestScreen() {
   const [db, setDb] = useState<SuiteState>({ status: 'idle', results: [] });
   const [files, setFiles] = useState<SuiteState>({ status: 'idle', results: [] });
   const [settings, setSettings] = useState<SuiteState>({ status: 'idle', results: [] });
-
-  const runSuite = useCallback(
-    async (
-      runner: () => Promise<TestResult[]>,
-      setter: React.Dispatch<React.SetStateAction<SuiteState>>,
-    ) => {
-      setter({ status: 'running', results: [] });
-      const results = await runner();
-      setter({ status: 'done', results });
-    },
-    [],
-  );
 
   const allResults = [...db.results, ...files.results, ...settings.results];
   const passCount = allResults.filter((r) => r.status === 'pass').length;
@@ -48,17 +44,9 @@ export default function E2ETestScreen() {
     db.status === 'running' || files.status === 'running' || settings.status === 'running';
 
   const runAll = useCallback(async () => {
-    setDb({ status: 'running', results: [] });
-    const dbResults = await runDatabaseTests();
-    setDb({ status: 'done', results: dbResults });
-
-    setFiles({ status: 'running', results: [] });
-    const fileResults = await runFileStorageTests();
-    setFiles({ status: 'done', results: fileResults });
-
-    setSettings({ status: 'running', results: [] });
-    const settingsResults = await runSettingsTests();
-    setSettings({ status: 'done', results: settingsResults });
+    await executeSuite(runDatabaseTests, setDb);
+    await executeSuite(runFileStorageTests, setFiles);
+    await executeSuite(runSettingsTests, setSettings);
   }, []);
 
   return (
@@ -88,21 +76,21 @@ export default function E2ETestScreen() {
           testID="e2e-run-database"
           running={db.status === 'running'}
           disabled={anyRunning}
-          onPress={() => runSuite(runDatabaseTests, setDb)}
+          onPress={() => executeSuite(runDatabaseTests, setDb)}
         />
         <SuiteButton
           label="Files"
           testID="e2e-run-files"
           running={files.status === 'running'}
           disabled={anyRunning}
-          onPress={() => runSuite(runFileStorageTests, setFiles)}
+          onPress={() => executeSuite(runFileStorageTests, setFiles)}
         />
         <SuiteButton
           label="Settings"
           testID="e2e-run-settings"
           running={settings.status === 'running'}
           disabled={anyRunning}
-          onPress={() => runSuite(runSettingsTests, setSettings)}
+          onPress={() => executeSuite(runSettingsTests, setSettings)}
         />
       </View>
 
