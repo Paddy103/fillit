@@ -1,10 +1,8 @@
-import { StyleSheet, Text, View, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../src/theme';
 
 export default function HomeScreen() {
   const { theme } = useTheme();
-  const router = useRouter();
 
   return (
     <View
@@ -29,22 +27,6 @@ export default function HomeScreen() {
       >
         Scan, fill, and export documents with ease.
       </Text>
-
-      {/* TEMPORARY — Remove before merging */}
-      <Pressable
-        style={{
-          marginTop: theme.spacing.xl,
-          backgroundColor: theme.colors.primary,
-          paddingVertical: 12,
-          paddingHorizontal: 24,
-          borderRadius: 8,
-        }}
-        onPress={() => router.push('/__dev-test-files')}
-      >
-        <Text style={[theme.typography.labelLarge, { color: theme.colors.onPrimary }]}>
-          Dev: Test File Storage
-        </Text>
-      </Pressable>
     </View>
   );
 }
