@@ -6,10 +6,12 @@ import { luhnCheck } from './sa-id.js';
 import {
   DETECTED_FIELD_TYPES,
   DOCUMENT_SOURCE_TYPES,
+  IDENTITY_DOCUMENT_TYPES,
   PROCESSING_STATUSES,
+  SA_ID_DOCUMENT_TYPES,
 } from '../constants/index.js';
 import type { DetectedFieldType, DocumentSourceType, ProcessingStatus } from '../types/document.js';
-import type { BoundingBox } from '../types/index.js';
+import type { BoundingBox, DocumentType } from '../types/index.js';
 
 export { parseSAId, extractSAIdSmartFillData, type SAIdParseResult } from './sa-id.js';
 
@@ -81,4 +83,17 @@ export function isValidBoundingBox(box: BoundingBox): boolean {
     box.height >= 0 &&
     box.height <= 1
   );
+}
+
+// --- Identity document validators (S-18) ---
+
+export function isValidDocumentType(type: string): type is DocumentType {
+  return (IDENTITY_DOCUMENT_TYPES as readonly string[]).includes(type);
+}
+
+/**
+ * Returns `true` when the given document type requires SA ID number validation.
+ */
+export function requiresSAIdValidation(type: string): boolean {
+  return (SA_ID_DOCUMENT_TYPES as readonly string[]).includes(type);
 }

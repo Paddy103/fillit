@@ -79,3 +79,20 @@ export {
 } from './storage';
 
 export type { CreateAddressInput, UpdateAddressInput } from './storage';
+
+// Identity Document CRUD (S-18)
+export {
+  createIdentityDocument,
+  getIdentityDocumentById,
+  getIdentityDocumentsByProfile,
+  updateIdentityDocument,
+  deleteIdentityDocument,
+  deleteIdentityDocumentsByProfile,
+  countIdentityDocuments,
+  createIdentityDocumentsBatch,
+  IdentityDocumentError,
+  IdentityDocumentNotFoundError,
+  IdentityDocumentValidationError,
+} from './storage';
+
+export type { CreateIdentityDocumentInput, UpdateIdentityDocumentInput } from './storage';

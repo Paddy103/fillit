@@ -49,6 +49,46 @@ export const PROCESSING_STATUSES = [
 
 export const DOCUMENT_SOURCE_TYPES = ['camera', 'import'] as const;
 
+/**
+ * All supported identity document types (S-18).
+ * Mirrors the `DocumentType` union in `types/profile.ts`.
+ */
+export const IDENTITY_DOCUMENT_TYPES = [
+  'sa_id_book',
+  'sa_smart_id',
+  'passport',
+  'drivers_license',
+  'prdp',
+  'tax_number',
+  'bank_account',
+  'medical_aid',
+  'hospital_plan',
+  'vehicle_registration',
+  'license_disc',
+  'work_permit',
+  'refugee_permit',
+  'asylum_seeker_permit',
+  'matric_certificate',
+  'degree_diploma',
+  'student_card',
+  'hpcsa',
+  'sacap',
+  'ecsa',
+  'saica',
+  'law_society',
+  'sace',
+  'birth_certificate',
+  'marriage_certificate',
+  'coida',
+  'uif_number',
+  'custom',
+] as const;
+
+/**
+ * Document types that require SA ID number validation (S-18).
+ */
+export const SA_ID_DOCUMENT_TYPES = ['sa_id_book', 'sa_smart_id'] as const;
+
 export const SA_PROVINCES = [
   'Eastern Cape',
   'Free State',

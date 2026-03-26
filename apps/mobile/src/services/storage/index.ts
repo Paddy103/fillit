@@ -99,10 +99,10 @@ export {
   getAddressesByProfileId,
   updateAddress as updateProfileAddress,
   deleteAddress as deleteProfileAddress,
-  createIdentityDocument,
+  createIdentityDocument as createProfileIdentityDocument,
   getIdentityDocumentsByProfileId,
-  updateIdentityDocument,
-  deleteIdentityDocument,
+  updateIdentityDocument as updateProfileIdentityDocument,
+  deleteIdentityDocument as deleteProfileIdentityDocument,
   createProfessionalRegistration,
   getProfessionalRegistrationsByProfileId,
   updateProfessionalRegistration,
@@ -119,10 +119,30 @@ export type {
   UpdateProfileInput,
   CreateAddressInput as ProfileCreateAddressInput,
   UpdateAddressInput as ProfileUpdateAddressInput,
-  CreateIdentityDocumentInput,
-  UpdateIdentityDocumentInput,
+  CreateIdentityDocumentInput as ProfileCreateIdentityDocumentInput,
+  UpdateIdentityDocumentInput as ProfileUpdateIdentityDocumentInput,
   CreateProfessionalRegistrationInput,
   UpdateProfessionalRegistrationInput,
   CreateEmergencyContactInput,
   UpdateEmergencyContactInput,
 } from './profileCrud';
+
+// Identity Document CRUD (S-18)
+export {
+  createIdentityDocument,
+  getIdentityDocumentById,
+  getIdentityDocumentsByProfile,
+  updateIdentityDocument,
+  deleteIdentityDocument,
+  deleteIdentityDocumentsByProfile,
+  countIdentityDocuments,
+  createIdentityDocumentsBatch,
+  IdentityDocumentError,
+  IdentityDocumentNotFoundError,
+  IdentityDocumentValidationError,
+} from './identityDocumentService';
+
+export type {
+  CreateIdentityDocumentInput,
+  UpdateIdentityDocumentInput,
+} from './identityDocumentService';
