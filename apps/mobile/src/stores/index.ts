@@ -79,3 +79,34 @@ export type {
   DocumentStoreError,
   DocumentOperation,
 } from './document-store';
+
+// Processing Store (S-25)
+export {
+  useProcessingStore,
+  selectCurrentStage,
+  selectDocumentId as selectProcessingDocumentId,
+  selectIsPaused,
+  selectError as selectProcessingError,
+  selectStageHistory,
+  selectIsProcessing,
+  selectIsIdle,
+  selectIsDone,
+  selectCanAdvance,
+  selectNextStage,
+  selectCurrentProgress,
+  selectOverallProgress,
+  selectElapsedTime,
+  VALID_STAGE_TRANSITIONS,
+  STAGE_TO_STATUS,
+  PIPELINE_STAGES,
+  DEFAULT_PROCESSING_STATE,
+} from './processing-store';
+export type {
+  ProcessingState,
+  ProcessingActions,
+  ProcessingStore,
+  ProcessingStoreError,
+  ProcessingOperation,
+  StageProgressInfo,
+  StageTransition,
+} from './processing-store';
