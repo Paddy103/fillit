@@ -233,7 +233,8 @@ function createTransitionActions(set: SetFn, get: GetFn) {
         return;
       }
 
-      const nextStage = nextStages[0];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- length checked above
+      const nextStage = nextStages[0]!;
       set((s) => {
         const completedProgress = s.stageProgress[s.currentStage];
         const updatedCurrentProgress: StageProgressInfo = completedProgress
@@ -471,7 +472,7 @@ export const selectCanAdvance = (state: ProcessingStore): boolean => {
 
 export const selectNextStage = (state: ProcessingStore): PipelineStage | null => {
   const nextStages = VALID_STAGE_TRANSITIONS[state.currentStage];
-  return nextStages.length > 0 ? nextStages[0] : null;
+  return nextStages.length > 0 ? (nextStages[0] ?? null) : null;
 };
 
 export const selectCurrentProgress = (state: ProcessingStore): StageProgressInfo | null =>
