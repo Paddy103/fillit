@@ -49,6 +49,7 @@ Check every documentation file in the repo against the changes. The key files to
 - **Maximum Parallelism**: Update the story count and prioritization guidance
 
 To check what's newly unblocked, run:
+
 ```bash
 # Get closed issues (completed stories)
 gh issue list --state closed --limit 100 --json number,title --jq '.[] | "#\(.number)"'

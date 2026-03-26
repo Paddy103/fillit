@@ -252,8 +252,7 @@ export const useProfileStore = create<ProfileStore>()((set, get) => {
       set({ isLoading: true, error: null });
       try {
         const profiles = await listProfiles();
-        const activeId =
-          profiles.find((p) => p.isPrimary)?.id ?? profiles[0]?.id ?? null;
+        const activeId = profiles.find((p) => p.isPrimary)?.id ?? profiles[0]?.id ?? null;
         set({
           profiles,
           activeProfileId: activeId,
@@ -282,8 +281,7 @@ export const useProfileStore = create<ProfileStore>()((set, get) => {
         const profile = await createProfile(input);
         set((s) => ({
           profiles: [...s.profiles, profile],
-          activeProfileId:
-            profile.isPrimary || !s.activeProfileId ? profile.id : s.activeProfileId,
+          activeProfileId: profile.isPrimary || !s.activeProfileId ? profile.id : s.activeProfileId,
           mutationCount: s.mutationCount - 1,
         }));
         return profile;
@@ -301,8 +299,7 @@ export const useProfileStore = create<ProfileStore>()((set, get) => {
         const created = await createFullProfile(profile);
         set((s) => ({
           profiles: [...s.profiles, created],
-          activeProfileId:
-            created.isPrimary || !s.activeProfileId ? created.id : s.activeProfileId,
+          activeProfileId: created.isPrimary || !s.activeProfileId ? created.id : s.activeProfileId,
           mutationCount: s.mutationCount - 1,
         }));
         return created;
@@ -432,10 +429,7 @@ export const useProfileStore = create<ProfileStore>()((set, get) => {
 
     // ── Identity Document CRUD ────────────────────────────────────────
 
-    createIdentityDocument: async (
-      profileId: string,
-      input: CreateIdentityDocumentInput,
-    ) => {
+    createIdentityDocument: async (profileId: string, input: CreateIdentityDocumentInput) => {
       startMutation();
       try {
         const doc = await createProfileIdentityDocument(profileId, input);
@@ -553,10 +547,7 @@ export const useProfileStore = create<ProfileStore>()((set, get) => {
 
     // ── Emergency Contact CRUD ────────────────────────────────────────
 
-    createEmergencyContact: async (
-      profileId: string,
-      input: CreateEmergencyContactInput,
-    ) => {
+    createEmergencyContact: async (profileId: string, input: CreateEmergencyContactInput) => {
       startMutation();
       try {
         const contact = await createEmergencyContact(profileId, input);
@@ -597,9 +588,7 @@ export const useProfileStore = create<ProfileStore>()((set, get) => {
         const success = await deleteEmergencyContact(id, profileId);
         if (success) {
           updateProfileChildren(profileId, (p) => ({
-            emergencyContacts: p.emergencyContacts.filter(
-              (c: EmergencyContact) => c.id !== id,
-            ),
+            emergencyContacts: p.emergencyContacts.filter((c: EmergencyContact) => c.id !== id),
           }));
         } else {
           endMutation();
@@ -633,8 +622,7 @@ export const useProfileStore = create<ProfileStore>()((set, get) => {
 export const selectProfiles = (state: ProfileStore): UserProfile[] => state.profiles;
 
 /** Select the active profile ID */
-export const selectActiveProfileId = (state: ProfileStore): string | null =>
-  state.activeProfileId;
+export const selectActiveProfileId = (state: ProfileStore): string | null => state.activeProfileId;
 
 /** Select the currently active profile */
 export const selectActiveProfile = (state: ProfileStore): UserProfile | null =>
@@ -666,15 +654,11 @@ export const selectActiveProfileDocuments = (state: ProfileStore): IdentityDocum
   state.profiles.find((p) => p.id === state.activeProfileId)?.documents ?? [];
 
 /** Select professional registrations for the active profile */
-export const selectActiveProfileRegistrations = (
-  state: ProfileStore,
-): ProfessionalRegistration[] =>
+export const selectActiveProfileRegistrations = (state: ProfileStore): ProfessionalRegistration[] =>
   state.profiles.find((p) => p.id === state.activeProfileId)?.professionalRegistrations ?? [];
 
 /** Select emergency contacts for the active profile */
-export const selectActiveProfileEmergencyContacts = (
-  state: ProfileStore,
-): EmergencyContact[] =>
+export const selectActiveProfileEmergencyContacts = (state: ProfileStore): EmergencyContact[] =>
   state.profiles.find((p) => p.id === state.activeProfileId)?.emergencyContacts ?? [];
 
 /** Select whether profiles are loading */

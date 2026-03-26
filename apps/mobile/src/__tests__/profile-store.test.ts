@@ -15,8 +15,7 @@ import type {
 const mockListProfiles = vi.fn<() => Promise<UserProfile[]>>();
 const mockGetProfileById = vi.fn<(id: string) => Promise<UserProfile | null>>();
 const mockCreateProfile = vi.fn<(...args: unknown[]) => Promise<UserProfile>>();
-const mockUpdateProfile =
-  vi.fn<(id: string, ...args: unknown[]) => Promise<UserProfile | null>>();
+const mockUpdateProfile = vi.fn<(id: string, ...args: unknown[]) => Promise<UserProfile | null>>();
 const mockDeleteProfile = vi.fn<(id: string) => Promise<boolean>>();
 const mockCreateFullProfile = vi.fn<(...args: unknown[]) => Promise<UserProfile>>();
 
@@ -25,8 +24,7 @@ const mockGetAddressesByProfileId = vi.fn<(profileId: string) => Promise<Address
 const mockUpdateAddress = vi.fn<(...args: unknown[]) => Promise<Address | null>>();
 const mockDeleteAddress = vi.fn<(...args: unknown[]) => Promise<boolean>>();
 
-const mockCreateIdentityDocument =
-  vi.fn<(...args: unknown[]) => Promise<IdentityDocument>>();
+const mockCreateIdentityDocument = vi.fn<(...args: unknown[]) => Promise<IdentityDocument>>();
 const mockGetIdentityDocumentsByProfileId =
   vi.fn<(profileId: string) => Promise<IdentityDocument[]>>();
 const mockUpdateIdentityDocument =
@@ -39,11 +37,9 @@ const mockGetProfessionalRegistrationsByProfileId =
   vi.fn<(profileId: string) => Promise<ProfessionalRegistration[]>>();
 const mockUpdateProfessionalRegistration =
   vi.fn<(...args: unknown[]) => Promise<ProfessionalRegistration | null>>();
-const mockDeleteProfessionalRegistration =
-  vi.fn<(...args: unknown[]) => Promise<boolean>>();
+const mockDeleteProfessionalRegistration = vi.fn<(...args: unknown[]) => Promise<boolean>>();
 
-const mockCreateEmergencyContact =
-  vi.fn<(...args: unknown[]) => Promise<EmergencyContact>>();
+const mockCreateEmergencyContact = vi.fn<(...args: unknown[]) => Promise<EmergencyContact>>();
 const mockGetEmergencyContactsByProfileId =
   vi.fn<(profileId: string) => Promise<EmergencyContact[]>>();
 const mockUpdateEmergencyContact =
@@ -54,13 +50,11 @@ vi.mock('../services/storage/profileCrud', () => ({
   listProfiles: (...args: unknown[]) => mockListProfiles(...args),
   getProfileById: (...args: unknown[]) => mockGetProfileById(args[0] as string),
   createProfile: (...args: unknown[]) => mockCreateProfile(...args),
-  updateProfile: (...args: unknown[]) =>
-    mockUpdateProfile(args[0] as string, ...args.slice(1)),
+  updateProfile: (...args: unknown[]) => mockUpdateProfile(args[0] as string, ...args.slice(1)),
   deleteProfile: (...args: unknown[]) => mockDeleteProfile(args[0] as string),
   createFullProfile: (...args: unknown[]) => mockCreateFullProfile(...args),
   createAddress: (...args: unknown[]) => mockCreateAddress(...args),
-  getAddressesByProfileId: (...args: unknown[]) =>
-    mockGetAddressesByProfileId(args[0] as string),
+  getAddressesByProfileId: (...args: unknown[]) => mockGetAddressesByProfileId(args[0] as string),
   updateAddress: (...args: unknown[]) => mockUpdateAddress(...args),
   deleteAddress: (...args: unknown[]) => mockDeleteAddress(...args),
   createIdentityDocument: (...args: unknown[]) => mockCreateIdentityDocument(...args),
@@ -125,9 +119,7 @@ function makeAddress(overrides: Partial<Address> = {}): Address {
   };
 }
 
-function makeIdentityDocument(
-  overrides: Partial<IdentityDocument> = {},
-): IdentityDocument {
+function makeIdentityDocument(overrides: Partial<IdentityDocument> = {}): IdentityDocument {
   return {
     id: 'doc-1',
     type: 'sa_smart_id',
@@ -149,9 +141,7 @@ function makeProfessionalRegistration(
   };
 }
 
-function makeEmergencyContact(
-  overrides: Partial<EmergencyContact> = {},
-): EmergencyContact {
+function makeEmergencyContact(overrides: Partial<EmergencyContact> = {}): EmergencyContact {
   return {
     id: 'ec-1',
     firstName: 'Jane',
@@ -475,9 +465,7 @@ describe('deleteProfile', () => {
   it('sets error and rethrows on failure', async () => {
     mockDeleteProfile.mockRejectedValue(new Error('delete failed'));
 
-    await expect(
-      useProfileStore.getState().deleteProfile('id'),
-    ).rejects.toThrow('delete failed');
+    await expect(useProfileStore.getState().deleteProfile('id')).rejects.toThrow('delete failed');
     expect(useProfileStore.getState().error?.operation).toBe('delete');
   });
 });
@@ -553,9 +541,7 @@ describe('address CRUD', () => {
     mockCreateAddress.mockResolvedValue(newAddr);
     mockGetAddressesByProfileId.mockResolvedValue([newAddr]);
 
-    const result = await useProfileStore
-      .getState()
-      .createAddress(profile.id, {} as never);
+    const result = await useProfileStore.getState().createAddress(profile.id, {} as never);
 
     expect(result).toEqual(newAddr);
     expect(useProfileStore.getState().profiles[0].addresses).toEqual([newAddr]);
@@ -595,9 +581,7 @@ describe('address CRUD', () => {
     });
     mockDeleteAddress.mockResolvedValue(true);
 
-    const result = await useProfileStore
-      .getState()
-      .deleteAddress(addr.id, profile.id);
+    const result = await useProfileStore.getState().deleteAddress(addr.id, profile.id);
 
     expect(result).toBe(true);
     expect(useProfileStore.getState().profiles[0].addresses).toEqual([]);
@@ -606,9 +590,9 @@ describe('address CRUD', () => {
   it('sets error on address create failure', async () => {
     mockCreateAddress.mockRejectedValue(new Error('addr error'));
 
-    await expect(
-      useProfileStore.getState().createAddress(profile.id, {} as never),
-    ).rejects.toThrow('addr error');
+    await expect(useProfileStore.getState().createAddress(profile.id, {} as never)).rejects.toThrow(
+      'addr error',
+    );
     expect(useProfileStore.getState().error?.operation).toBe('createAddress');
   });
 });
@@ -626,9 +610,7 @@ describe('identity document CRUD', () => {
     const doc = makeIdentityDocument();
     mockCreateIdentityDocument.mockResolvedValue(doc);
 
-    const result = await useProfileStore
-      .getState()
-      .createIdentityDocument(profile.id, {} as never);
+    const result = await useProfileStore.getState().createIdentityDocument(profile.id, {} as never);
 
     expect(result).toEqual(doc);
     expect(useProfileStore.getState().profiles[0].documents).toEqual([doc]);
@@ -657,9 +639,7 @@ describe('identity document CRUD', () => {
     });
     mockDeleteIdentityDocument.mockResolvedValue(true);
 
-    const result = await useProfileStore
-      .getState()
-      .deleteIdentityDocument(doc.id, profile.id);
+    const result = await useProfileStore.getState().deleteIdentityDocument(doc.id, profile.id);
 
     expect(result).toBe(true);
     expect(useProfileStore.getState().profiles[0].documents).toEqual([]);
@@ -693,9 +673,7 @@ describe('professional registration CRUD', () => {
       .createProfessionalRegistration(profile.id, {} as never);
 
     expect(result).toEqual(reg);
-    expect(useProfileStore.getState().profiles[0].professionalRegistrations).toEqual([
-      reg,
-    ]);
+    expect(useProfileStore.getState().profiles[0].professionalRegistrations).toEqual([reg]);
   });
 
   it('updates a professional registration and refreshes from DB', async () => {
@@ -726,9 +704,7 @@ describe('professional registration CRUD', () => {
       .deleteProfessionalRegistration(reg.id, profile.id);
 
     expect(result).toBe(true);
-    expect(
-      useProfileStore.getState().profiles[0].professionalRegistrations,
-    ).toEqual([]);
+    expect(useProfileStore.getState().profiles[0].professionalRegistrations).toEqual([]);
   });
 });
 
@@ -745,9 +721,7 @@ describe('emergency contact CRUD', () => {
     const contact = makeEmergencyContact();
     mockCreateEmergencyContact.mockResolvedValue(contact);
 
-    const result = await useProfileStore
-      .getState()
-      .createEmergencyContact(profile.id, {} as never);
+    const result = await useProfileStore.getState().createEmergencyContact(profile.id, {} as never);
 
     expect(result).toEqual(contact);
     expect(useProfileStore.getState().profiles[0].emergencyContacts).toEqual([contact]);
@@ -776,9 +750,7 @@ describe('emergency contact CRUD', () => {
     });
     mockDeleteEmergencyContact.mockResolvedValue(true);
 
-    const result = await useProfileStore
-      .getState()
-      .deleteEmergencyContact(contact.id, profile.id);
+    const result = await useProfileStore.getState().deleteEmergencyContact(contact.id, profile.id);
 
     expect(result).toBe(true);
     expect(useProfileStore.getState().profiles[0].emergencyContacts).toEqual([]);
@@ -874,9 +846,7 @@ describe('selectors', () => {
   });
 
   it('selectProfileById returns profile by ID', () => {
-    expect(selectProfileById('profile-2')(useProfileStore.getState())).toEqual(
-      dependent,
-    );
+    expect(selectProfileById('profile-2')(useProfileStore.getState())).toEqual(dependent);
   });
 
   it('selectProfileById returns null for unknown ID', () => {
@@ -884,15 +854,11 @@ describe('selectors', () => {
   });
 
   it('selectActiveProfileAddresses returns addresses', () => {
-    expect(selectActiveProfileAddresses(useProfileStore.getState())).toEqual(
-      primary.addresses,
-    );
+    expect(selectActiveProfileAddresses(useProfileStore.getState())).toEqual(primary.addresses);
   });
 
   it('selectActiveProfileDocuments returns documents', () => {
-    expect(selectActiveProfileDocuments(useProfileStore.getState())).toEqual(
-      primary.documents,
-    );
+    expect(selectActiveProfileDocuments(useProfileStore.getState())).toEqual(primary.documents);
   });
 
   it('selectActiveProfileRegistrations returns registrations', () => {
