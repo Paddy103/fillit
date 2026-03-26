@@ -174,3 +174,21 @@ export type {
   CreatePageInput,
   UpdatePageInput,
 } from './documentCrud';
+
+// Signature CRUD (S-20)
+export {
+  createSignature,
+  getSignatureById,
+  getSignaturesByProfile,
+  getDefaultSignature,
+  countSignaturesByProfile,
+  updateSignature,
+  setDefaultSignature,
+  deleteSignature,
+  deleteSignaturesByProfile,
+  SignatureServiceError,
+  SignatureNotFoundError,
+  SignatureValidationError,
+} from './signatureService';
+
+export type { CreateSignatureInput, UpdateSignatureInput } from './signatureService';
