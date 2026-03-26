@@ -31,7 +31,8 @@ export interface CardProps {
 }
 
 /** Props for the PressableCard component */
-export interface PressableCardProps extends CardProps, Omit<PressableProps, 'style' | 'children'> {}
+export type PressableCardProps = CardProps &
+  Omit<PressableProps, 'style' | 'children' | 'accessibilityLabel'>;
 
 /**
  * Surface container with elevation and themed styling.
