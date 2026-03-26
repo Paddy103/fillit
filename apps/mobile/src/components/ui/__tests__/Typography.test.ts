@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
+import type * as TypographyModuleType from '../Typography';
 
 // Mock react-native at top level (factory cannot reference outside variables)
 vi.mock('react-native', () => ({
@@ -24,7 +25,7 @@ vi.mock('../../../theme', async () => {
 });
 
 describe('Typography', () => {
-  let Typography: typeof import('../Typography');
+  let Typography: typeof TypographyModuleType;
 
   beforeAll(async () => {
     Typography = await import('../Typography');

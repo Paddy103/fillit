@@ -61,6 +61,76 @@ export interface TabBarProps {
  * - Accessible tab buttons with labels and roles
  * - Pressed state feedback
  */
+/** Resolve the display label for a tab route */
+function resolveTabLabel(options: TabOptions, routeName: string): string {
+  if (typeof options.tabBarLabel === 'string') return options.tabBarLabel;
+  if (typeof options.title === 'string') return options.title;
+  return routeName;
+}
+
+/** Render a single tab item */
+function TabItem({
+  route,
+  options,
+  isFocused,
+  navigation,
+  theme,
+}: {
+  route: TabRoute;
+  options: TabOptions;
+  isFocused: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  navigation: any;
+  theme: ReturnType<typeof useTheme>['theme'];
+}) {
+  const label = resolveTabLabel(options, route.name);
+  const color = isFocused ? theme.colors.primary : theme.colors.onSurfaceVariant;
+
+  const onPress = () => {
+    const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+    if (!isFocused && !event.defaultPrevented) {
+      navigation.navigate(route.name, route.params);
+    }
+  };
+
+  const onLongPress = () => {
+    navigation.emit({ type: 'tabLongPress', target: route.key });
+  };
+
+  return (
+    <Pressable
+      key={route.key}
+      accessibilityRole="tab"
+      accessibilityState={{ selected: isFocused }}
+      accessibilityLabel={options.tabBarAccessibilityLabel ?? `${label} tab`}
+      testID={options.tabBarTestID ?? `tab-${route.name}`}
+      onPress={onPress}
+      onLongPress={onLongPress}
+      style={({ pressed }) => [
+        styles.tab,
+        pressed && styles.tabPressed,
+        isFocused && {
+          backgroundColor:
+            theme.colorScheme === 'dark' ? 'rgba(94, 166, 255, 0.08)' : 'rgba(0, 102, 204, 0.06)',
+        },
+      ]}
+    >
+      {options.tabBarIcon?.({ focused: isFocused, color, size: 24 })}
+      <Text
+        style={[
+          styles.label,
+          theme.typography.labelSmall,
+          { color },
+          isFocused && styles.labelFocused,
+        ]}
+        numberOfLines={1}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
 export function TabBar({ state, descriptors, navigation }: TabBarProps) {
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
@@ -83,75 +153,15 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
         const descriptor = descriptors[route.key];
         if (!descriptor) return null;
         const options = descriptor.options as TabOptions;
-        const label =
-          typeof options.tabBarLabel === 'string'
-            ? options.tabBarLabel
-            : typeof options.title === 'string'
-              ? options.title
-              : route.name;
-
-        const isFocused = state.index === index;
-
-        const onPress = () => {
-          const event = navigation.emit({
-            type: 'tabPress',
-            target: route.key,
-            canPreventDefault: true,
-          });
-
-          if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name, route.params);
-          }
-        };
-
-        const onLongPress = () => {
-          navigation.emit({
-            type: 'tabLongPress',
-            target: route.key,
-          });
-        };
-
-        const activeColor = theme.colors.primary;
-        const inactiveColor = theme.colors.onSurfaceVariant;
-        const color = isFocused ? activeColor : inactiveColor;
-
         return (
-          <Pressable
+          <TabItem
             key={route.key}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: isFocused }}
-            accessibilityLabel={options.tabBarAccessibilityLabel ?? `${label} tab`}
-            testID={options.tabBarTestID ?? `tab-${route.name}`}
-            onPress={onPress}
-            onLongPress={onLongPress}
-            style={({ pressed }) => [
-              styles.tab,
-              pressed && styles.tabPressed,
-              isFocused && {
-                backgroundColor:
-                  theme.colorScheme === 'dark'
-                    ? 'rgba(94, 166, 255, 0.08)'
-                    : 'rgba(0, 102, 204, 0.06)',
-              },
-            ]}
-          >
-            {options.tabBarIcon?.({
-              focused: isFocused,
-              color,
-              size: 24,
-            })}
-            <Text
-              style={[
-                styles.label,
-                theme.typography.labelSmall,
-                { color },
-                isFocused && styles.labelFocused,
-              ]}
-              numberOfLines={1}
-            >
-              {label}
-            </Text>
-          </Pressable>
+            route={route}
+            options={options}
+            isFocused={state.index === index}
+            navigation={navigation}
+            theme={theme}
+          />
         );
       })}
     </View>

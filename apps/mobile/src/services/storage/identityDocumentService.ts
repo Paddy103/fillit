@@ -95,6 +95,39 @@ export interface UpdateIdentityDocumentInput {
 
 // ─── Validation ─────────────────────────────────────────────────────
 
+/** Assert that a required string field is present and non-empty */
+function assertRequiredField(value: string | undefined, field: string, message: string): void {
+  if (!value || value.trim().length === 0) {
+    throw new IdentityDocumentValidationError(field, message);
+  }
+}
+
+/** Validate fields required only for document creation */
+function validateCreateFields(input: CreateIdentityDocumentInput): void {
+  assertRequiredField(input.id, 'id', 'Document ID is required');
+  assertRequiredField(input.profileId, 'profileId', 'Profile ID is required');
+  assertRequiredField(input.label, 'label', 'Document label is required');
+  assertRequiredField(input.number, 'number', 'Document number is required');
+}
+
+/** Validate the label field during an update (may be empty string but not blank) */
+function validateUpdateLabel(label: string | undefined): void {
+  if (label !== undefined && label.trim().length === 0) {
+    throw new IdentityDocumentValidationError('label', 'Document label cannot be empty');
+  }
+}
+
+/** Validate SA ID number when the document type requires it */
+function validateSAIdIfRequired(type: DocumentType | undefined, number: string | undefined): void {
+  if (type === undefined || number === undefined || number.trim().length === 0) return;
+  if (requiresSAIdValidation(type) && !isValidSAIdNumber(number)) {
+    throw new IdentityDocumentValidationError(
+      'number',
+      'Invalid SA ID number: must be 13 digits and pass Luhn checksum',
+    );
+  }
+}
+
 /**
  * Validate a create/update payload. Throws `IdentityDocumentValidationError`
  * when a field is invalid.
@@ -103,53 +136,21 @@ function validateDocumentInput(
   input: CreateIdentityDocumentInput | (UpdateIdentityDocumentInput & { type?: DocumentType }),
   isCreate: boolean,
 ): void {
-  const asCreate = input as CreateIdentityDocumentInput;
-
   if (isCreate) {
-    if (!asCreate.id || asCreate.id.trim().length === 0) {
-      throw new IdentityDocumentValidationError('id', 'Document ID is required');
-    }
-
-    if (!asCreate.profileId || asCreate.profileId.trim().length === 0) {
-      throw new IdentityDocumentValidationError('profileId', 'Profile ID is required');
-    }
-  }
-
-  // Validate type if provided
-  const type = isCreate ? asCreate.type : (input as UpdateIdentityDocumentInput).type;
-  if (type !== undefined) {
-    if (!isValidDocumentType(type)) {
-      throw new IdentityDocumentValidationError('type', `Invalid document type: ${type}`);
-    }
-  }
-
-  // Validate label if required
-  if (isCreate) {
-    if (!asCreate.label || asCreate.label.trim().length === 0) {
-      throw new IdentityDocumentValidationError('label', 'Document label is required');
-    }
+    validateCreateFields(input as CreateIdentityDocumentInput);
   } else {
-    const updateLabel = (input as UpdateIdentityDocumentInput).label;
-    if (updateLabel !== undefined && updateLabel.trim().length === 0) {
-      throw new IdentityDocumentValidationError('label', 'Document label cannot be empty');
-    }
+    validateUpdateLabel((input as UpdateIdentityDocumentInput).label);
   }
 
-  // Validate number
+  const asCreate = input as CreateIdentityDocumentInput;
+  const type = isCreate ? asCreate.type : (input as UpdateIdentityDocumentInput).type;
+
+  if (type !== undefined && !isValidDocumentType(type)) {
+    throw new IdentityDocumentValidationError('type', `Invalid document type: ${type}`);
+  }
+
   const number = isCreate ? asCreate.number : (input as UpdateIdentityDocumentInput).number;
-  if (isCreate && (!number || number.trim().length === 0)) {
-    throw new IdentityDocumentValidationError('number', 'Document number is required');
-  }
-
-  // SA ID validation for sa_id_book and sa_smart_id
-  if (type !== undefined && number !== undefined && number.trim().length > 0) {
-    if (requiresSAIdValidation(type) && !isValidSAIdNumber(number)) {
-      throw new IdentityDocumentValidationError(
-        'number',
-        'Invalid SA ID number: must be 13 digits and pass Luhn checksum',
-      );
-    }
-  }
+  validateSAIdIfRequired(type, number);
 }
 
 // ─── Row ↔ Domain mapping ───────────────────────────────────────────
@@ -301,111 +302,104 @@ export async function getIdentityDocumentsByProfile(
  * @throws {IdentityDocumentValidationError} If validation fails.
  * @throws {IdentityDocumentError} If the operation fails.
  */
+/** Validate SA ID constraints for an update against the existing document */
+function validateUpdateSAIdConstraints(
+  input: UpdateIdentityDocumentInput,
+  existing: IdentityDocument,
+): void {
+  const resolvedType = input.type ?? existing.type;
+  const resolvedNumber = input.number ?? existing.number;
+
+  if (
+    input.number !== undefined &&
+    requiresSAIdValidation(resolvedType) &&
+    !isValidSAIdNumber(resolvedNumber)
+  ) {
+    throw new IdentityDocumentValidationError(
+      'number',
+      'Invalid SA ID number: must be 13 digits and pass Luhn checksum',
+    );
+  }
+
+  if (
+    input.type !== undefined &&
+    requiresSAIdValidation(input.type) &&
+    input.number === undefined &&
+    !isValidSAIdNumber(existing.number)
+  ) {
+    throw new IdentityDocumentValidationError(
+      'number',
+      'Existing document number is not a valid SA ID number for the new document type',
+    );
+  }
+}
+
+/** Build SET clauses and params for identity document update */
+async function buildDocumentUpdateClauses(
+  input: UpdateIdentityDocumentInput,
+): Promise<{ setClauses: string[]; params: (string | null)[] }> {
+  const setClauses: string[] = [];
+  const params: (string | null)[] = [];
+
+  const simpleFields: Array<{ key: keyof UpdateIdentityDocumentInput; column: string }> = [
+    { key: 'type', column: 'type' },
+    { key: 'label', column: 'label' },
+    { key: 'issueDate', column: 'issue_date' },
+    { key: 'expiryDate', column: 'expiry_date' },
+    { key: 'issuingAuthority', column: 'issuing_authority' },
+  ];
+
+  for (const { key, column } of simpleFields) {
+    if (input[key] !== undefined) {
+      setClauses.push(`${column} = ?`);
+      params.push(input[key] as string | null);
+    }
+  }
+
+  if (input.number !== undefined) {
+    setClauses.push('encrypted_number = ?');
+    params.push(await encrypt(input.number));
+  }
+
+  if (input.additionalFields !== undefined) {
+    setClauses.push('additional_fields_encrypted = ?');
+    params.push(
+      Object.keys(input.additionalFields).length > 0
+        ? await encrypt(JSON.stringify(input.additionalFields))
+        : null,
+    );
+  }
+
+  return { setClauses, params };
+}
+
 export async function updateIdentityDocument(
   id: string,
   input: UpdateIdentityDocumentInput,
 ): Promise<IdentityDocument> {
-  // Fetch the existing document to merge with
   const existing = await getIdentityDocumentById(id);
   if (!existing) {
     throw new IdentityDocumentNotFoundError(id);
   }
 
-  // When updating number, we need the resolved type for SA ID validation
-  const resolvedType = input.type ?? existing.type;
-  const resolvedNumber = input.number ?? existing.number;
-
-  // Validate the resolved values
-  if (input.number !== undefined && requiresSAIdValidation(resolvedType)) {
-    if (!isValidSAIdNumber(resolvedNumber)) {
-      throw new IdentityDocumentValidationError(
-        'number',
-        'Invalid SA ID number: must be 13 digits and pass Luhn checksum',
-      );
-    }
-  }
-
-  // Also validate if type changes to SA ID type and existing number needs check
-  if (
-    input.type !== undefined &&
-    requiresSAIdValidation(input.type) &&
-    input.number === undefined
-  ) {
-    if (!isValidSAIdNumber(existing.number)) {
-      throw new IdentityDocumentValidationError(
-        'number',
-        'Existing document number is not a valid SA ID number for the new document type',
-      );
-    }
-  }
-
+  validateUpdateSAIdConstraints(input, existing);
   validateDocumentInput(input, false);
 
   try {
-    const setClauses: string[] = [];
-    const params: (string | null)[] = [];
+    const { setClauses, params } = await buildDocumentUpdateClauses(input);
 
-    if (input.type !== undefined) {
-      setClauses.push('type = ?');
-      params.push(input.type);
-    }
-
-    if (input.label !== undefined) {
-      setClauses.push('label = ?');
-      params.push(input.label);
-    }
-
-    if (input.number !== undefined) {
-      const encryptedNumber = await encrypt(input.number);
-      setClauses.push('encrypted_number = ?');
-      params.push(encryptedNumber);
-    }
-
-    if (input.issueDate !== undefined) {
-      setClauses.push('issue_date = ?');
-      params.push(input.issueDate);
-    }
-
-    if (input.expiryDate !== undefined) {
-      setClauses.push('expiry_date = ?');
-      params.push(input.expiryDate);
-    }
-
-    if (input.issuingAuthority !== undefined) {
-      setClauses.push('issuing_authority = ?');
-      params.push(input.issuingAuthority);
-    }
-
-    if (input.additionalFields !== undefined) {
-      if (Object.keys(input.additionalFields).length > 0) {
-        const encryptedFields = await encrypt(JSON.stringify(input.additionalFields));
-        setClauses.push('additional_fields_encrypted = ?');
-        params.push(encryptedFields);
-      } else {
-        setClauses.push('additional_fields_encrypted = ?');
-        params.push(null);
-      }
-    }
-
-    if (setClauses.length === 0) {
-      // Nothing to update — return existing
-      return existing;
-    }
+    if (setClauses.length === 0) return existing;
 
     params.push(id);
-
     await runQuery(`UPDATE identity_documents SET ${setClauses.join(', ')} WHERE id = ?`, params);
 
-    // Re-read the updated document to ensure consistency
     const updated = await getIdentityDocumentById(id);
     if (!updated) {
       throw new IdentityDocumentError('Document disappeared after update');
     }
     return updated;
   } catch (error) {
-    if (error instanceof IdentityDocumentError) {
-      throw error;
-    }
+    if (error instanceof IdentityDocumentError) throw error;
     throw new IdentityDocumentError(`Failed to update identity document: ${id}`, error);
   }
 }

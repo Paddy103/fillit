@@ -1,4 +1,7 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
+import type * as BadgeModuleType from '../Badge';
+import type { BadgeVariant, ChipVariant, ChipColor } from '../Badge';
+import type { lightTheme as LightThemeType } from '../../../theme/themes';
 
 vi.mock('react-native', () => ({
   View: 'View',
@@ -24,8 +27,8 @@ vi.mock('../../../theme', async () => {
 });
 
 describe('Badge', () => {
-  let BadgeModule: typeof import('../Badge');
-  let lightTheme: typeof import('../../../theme/themes').lightTheme;
+  let BadgeModule: typeof BadgeModuleType;
+  let lightTheme: typeof LightThemeType;
 
   beforeAll(async () => {
     BadgeModule = await import('../Badge');
@@ -47,7 +50,7 @@ describe('Badge', () => {
 
     describe('BadgeVariant type', () => {
       it('should support all variant options', () => {
-        const variants: Array<import('../Badge').BadgeVariant> = [
+        const variants: Array<BadgeVariant> = [
           'default',
           'primary',
           'error',
@@ -167,14 +170,14 @@ describe('Badge', () => {
 
     describe('ChipVariant type', () => {
       it('should support filled and outlined variants', () => {
-        const variants: Array<import('../Badge').ChipVariant> = ['filled', 'outlined'];
+        const variants: Array<ChipVariant> = ['filled', 'outlined'];
         expect(variants).toHaveLength(2);
       });
     });
 
     describe('ChipColor type', () => {
       it('should support all semantic color options', () => {
-        const colors: Array<import('../Badge').ChipColor> = [
+        const colors: Array<ChipColor> = [
           'default',
           'primary',
           'error',

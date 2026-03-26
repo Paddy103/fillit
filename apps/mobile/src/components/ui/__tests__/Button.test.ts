@@ -1,4 +1,7 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
+import type * as ButtonModuleType from '../Button';
+import type { ButtonVariant, ButtonSize } from '../Button';
+import type { lightTheme as LightThemeType } from '../../../theme/themes';
 
 vi.mock('react-native', () => ({
   Pressable: 'Pressable',
@@ -25,8 +28,8 @@ vi.mock('../../../theme', async () => {
 });
 
 describe('Button', () => {
-  let Button: typeof import('../Button');
-  let lightTheme: typeof import('../../../theme/themes').lightTheme;
+  let Button: typeof ButtonModuleType;
+  let lightTheme: typeof LightThemeType;
 
   beforeAll(async () => {
     Button = await import('../Button');
@@ -47,12 +50,7 @@ describe('Button', () => {
 
   describe('ButtonVariant type coverage', () => {
     it('should support primary, secondary, outline, and ghost variants', () => {
-      const variants: Array<import('../Button').ButtonVariant> = [
-        'primary',
-        'secondary',
-        'outline',
-        'ghost',
-      ];
+      const variants: Array<ButtonVariant> = ['primary', 'secondary', 'outline', 'ghost'];
       expect(variants).toHaveLength(4);
       for (const v of variants) {
         expect(typeof v).toBe('string');
@@ -62,7 +60,7 @@ describe('Button', () => {
 
   describe('ButtonSize type coverage', () => {
     it('should support sm, md, and lg sizes', () => {
-      const sizes: Array<import('../Button').ButtonSize> = ['sm', 'md', 'lg'];
+      const sizes: Array<ButtonSize> = ['sm', 'md', 'lg'];
       expect(sizes).toHaveLength(3);
     });
   });

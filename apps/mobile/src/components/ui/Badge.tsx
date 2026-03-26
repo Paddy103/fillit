@@ -8,6 +8,7 @@
 import React from 'react';
 import { View, Text, Pressable, type ViewStyle, type TextStyle, StyleSheet } from 'react-native';
 import { useTheme } from '../../theme';
+import { type Theme } from '../../theme/types';
 
 // ---------------------------------------------------------------------------
 // Badge
@@ -137,34 +138,17 @@ export interface ChipProps {
   readonly style?: ViewStyle;
 }
 
-/**
- * Compact chip for tags, filters, or status labels.
- *
- * @example
- * ```tsx
- * <Chip label="Exported" color="success" />
- * <Chip label="Needs Review" color="warning" variant="outlined" />
- * <Chip label="Tax" onPress={handleFilter} onClose={handleRemove} />
- * ```
- */
-export function Chip({
-  label,
-  variant = 'filled',
-  color = 'default',
-  selected = false,
-  onPress,
-  onClose,
-  icon,
-  disabled = false,
-  style,
-}: ChipProps) {
-  const { theme } = useTheme();
-  const { colors, spacing, radii, typography } = theme;
+/** Color tokens for a single chip color variant */
+interface ChipColorTokens {
+  filledBg: string;
+  filledText: string;
+  outlineBorder: string;
+  outlineText: string;
+}
 
-  const colorTokens: Record<
-    ChipColor,
-    { filledBg: string; filledText: string; outlineBorder: string; outlineText: string }
-  > = {
+/** Build the color token lookup for all chip color variants */
+function buildChipColorTokens(colors: Theme['colors']): Record<ChipColor, ChipColorTokens> {
+  return {
     default: {
       filledBg: colors.surfaceVariant,
       filledText: colors.onSurface,
@@ -202,15 +186,28 @@ export function Chip({
       outlineText: colors.info,
     },
   };
+}
 
-  const tokens = colorTokens[color];
-
+/** Derive container and text styles for a Chip */
+function buildChipStyles(
+  theme: Theme,
+  variant: ChipVariant,
+  color: ChipColor,
+  disabled: boolean,
+  selected: boolean,
+): { container: ViewStyle; textColor: string } {
+  const { colors, spacing, radii } = theme;
+  const tokens = buildChipColorTokens(colors)[color];
   const isFilled = variant === 'filled';
+  const textColor = disabled
+    ? colors.onDisabled
+    : isFilled
+      ? tokens.filledText
+      : tokens.outlineText;
   const containerBg = isFilled ? tokens.filledBg : 'transparent';
-  const textColor = isFilled ? tokens.filledText : tokens.outlineText;
   const borderColor = isFilled ? 'transparent' : tokens.outlineBorder;
 
-  const containerStyle: ViewStyle = {
+  const container: ViewStyle = {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: spacing.xs,
@@ -223,10 +220,40 @@ export function Chip({
     ...(selected ? { borderColor: colors.primary, borderWidth: 2 } : undefined),
   };
 
-  const labelStyle: TextStyle = {
-    ...typography.labelMedium,
-    color: disabled ? colors.onDisabled : textColor,
-  };
+  return { container, textColor };
+}
+
+/**
+ * Compact chip for tags, filters, or status labels.
+ *
+ * @example
+ * ```tsx
+ * <Chip label="Exported" color="success" />
+ * <Chip label="Needs Review" color="warning" variant="outlined" />
+ * <Chip label="Tax" onPress={handleFilter} onClose={handleRemove} />
+ * ```
+ */
+export function Chip({
+  label,
+  variant = 'filled',
+  color = 'default',
+  selected = false,
+  onPress,
+  onClose,
+  icon,
+  disabled = false,
+  style,
+}: ChipProps) {
+  const { theme } = useTheme();
+  const { spacing, typography } = theme;
+  const { container: containerStyle, textColor } = buildChipStyles(
+    theme,
+    variant,
+    color,
+    disabled,
+    selected,
+  );
+  const labelStyle: TextStyle = { ...typography.labelMedium, color: textColor };
 
   const content = (
     <>
@@ -242,14 +269,7 @@ export function Chip({
           accessibilityLabel={`Remove ${label}`}
           style={{ marginLeft: spacing.xs }}
         >
-          <Text
-            style={{
-              ...typography.labelMedium,
-              color: disabled ? colors.onDisabled : textColor,
-            }}
-          >
-            {'\u00D7'}
-          </Text>
+          <Text style={{ ...typography.labelMedium, color: textColor }}>{'\u00D7'}</Text>
         </Pressable>
       ) : null}
     </>

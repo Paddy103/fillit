@@ -1,4 +1,7 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
+import type * as IconModuleType from '../Icon';
+import type { IconSize, IconColor } from '../Icon';
+import type { lightTheme as LightThemeType } from '../../../theme/themes';
 
 vi.mock('react-native', () => ({
   View: 'View',
@@ -23,8 +26,8 @@ vi.mock('../../../theme', async () => {
 });
 
 describe('Icon', () => {
-  let IconModule: typeof import('../Icon');
-  let lightTheme: typeof import('../../../theme/themes').lightTheme;
+  let IconModule: typeof IconModuleType;
+  let lightTheme: typeof LightThemeType;
 
   beforeAll(async () => {
     IconModule = await import('../Icon');
@@ -45,7 +48,7 @@ describe('Icon', () => {
 
   describe('IconSize type coverage', () => {
     it('should support xs, sm, md, lg, and xl sizes', () => {
-      const sizes: Array<import('../Icon').IconSize> = ['xs', 'sm', 'md', 'lg', 'xl'];
+      const sizes: Array<IconSize> = ['xs', 'sm', 'md', 'lg', 'xl'];
       expect(sizes).toHaveLength(5);
     });
   });
@@ -74,7 +77,7 @@ describe('Icon', () => {
 
   describe('IconColor type coverage', () => {
     it('should support all semantic color options', () => {
-      const colors: Array<import('../Icon').IconColor> = [
+      const colors: Array<IconColor> = [
         'default',
         'primary',
         'secondary',

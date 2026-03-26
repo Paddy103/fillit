@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
+import type * as UiModuleType from '../index';
 
 vi.mock('react-native', () => ({
   Text: 'Text',
@@ -26,7 +27,7 @@ vi.mock('../../../theme', async () => {
 });
 
 describe('UI components barrel export', () => {
-  let ui: typeof import('../index');
+  let ui: typeof UiModuleType;
 
   beforeAll(async () => {
     ui = await import('../index');
