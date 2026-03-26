@@ -217,14 +217,17 @@ function createDocumentCrudActions(
       try {
         const updated = await updateDocument(id, input);
         if (updated) {
-          set((s) => ({
-            documents: replaceDocument(s.documents, {
-              ...updated,
-              pages: s.documents.find((d) => d.id === id)?.pages ?? updated.pages,
-              fields: s.documents.find((d) => d.id === id)?.fields ?? updated.fields,
-            }),
-            mutationCount: s.mutationCount - 1,
-          }));
+          set((s) => {
+            const existing = s.documents.find((d) => d.id === id);
+            return {
+              documents: replaceDocument(s.documents, {
+                ...updated,
+                pages: existing?.pages ?? updated.pages,
+                fields: existing?.fields ?? updated.fields,
+              }),
+              mutationCount: s.mutationCount - 1,
+            };
+          });
         } else {
           endMutation();
         }
