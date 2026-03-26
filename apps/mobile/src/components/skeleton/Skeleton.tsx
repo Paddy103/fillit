@@ -21,7 +21,6 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { Animated, View, type ViewStyle } from 'react-native';
 
-import { useTheme } from '../../theme';
 import { type SkeletonProps } from './types';
 import { useSkeletonColors } from './useSkeletonColors';
 
@@ -45,7 +44,6 @@ export function Skeleton({
   style,
   accessibilityLabel = 'Loading...',
 }: SkeletonProps) {
-  const { theme } = useTheme();
   const colors = useSkeletonColors();
   const pulseAnim = useRef(new Animated.Value(0)).current;
 
