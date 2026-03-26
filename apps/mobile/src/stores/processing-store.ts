@@ -196,129 +196,100 @@ function createLifecycleActions(set: SetFn, get: GetFn) {
   };
 }
 
-function createTransitionActions(set: SetFn, get: GetFn) {
+function applyTransition(set: SetFn, nextStage: PipelineStage) {
+  set((s) => {
+    const completedProgress = s.stageProgress[s.currentStage];
+    const updatedCurrentProgress: StageProgressInfo = completedProgress
+      ? {
+          ...completedProgress,
+          progress: 1,
+          completedAt: completedProgress.completedAt ?? new Date().toISOString(),
+        }
+      : {
+          startedAt: new Date().toISOString(),
+          completedAt: new Date().toISOString(),
+          progress: 1,
+        };
+
+    return {
+      currentStage: nextStage,
+      stageProgress: {
+        ...s.stageProgress,
+        [s.currentStage]: updatedCurrentProgress,
+        [nextStage]: initStageProgress(),
+      },
+      stageHistory: [...s.stageHistory, recordTransition(s.currentStage, nextStage)],
+    };
+  });
+}
+
+function guardTransition(get: GetFn, set: SetFn): { currentStage: PipelineStage } | null {
+  const { currentStage, isPaused, error } = get();
+  if (isPaused) {
+    set({
+      error: toProcessingError(
+        'transition',
+        currentStage,
+        new Error('Cannot advance: processing is paused'),
+      ),
+    });
+    return null;
+  }
+  if (error) {
+    set({
+      error: toProcessingError(
+        'transition',
+        currentStage,
+        new Error('Cannot advance: unresolved error'),
+      ),
+    });
+    return null;
+  }
+  return { currentStage };
+}
+
+function createAdvanceAction(set: SetFn, get: GetFn) {
   return {
     advanceStage: () => {
-      const { currentStage, isPaused, error } = get();
-      if (isPaused) {
-        set({
-          error: toProcessingError(
-            'transition',
-            currentStage,
-            new Error('Cannot advance: processing is paused'),
-          ),
-        });
-        return;
-      }
-      if (error) {
-        set({
-          error: toProcessingError(
-            'transition',
-            currentStage,
-            new Error('Cannot advance: unresolved error'),
-          ),
-        });
-        return;
-      }
+      const guard = guardTransition(get, set);
+      if (!guard) return;
 
-      const nextStages = VALID_STAGE_TRANSITIONS[currentStage];
+      const nextStages = VALID_STAGE_TRANSITIONS[guard.currentStage];
       if (nextStages.length === 0) {
         set({
           error: toProcessingError(
             'transition',
-            currentStage,
-            new Error(`No valid transition from "${currentStage}"`),
+            guard.currentStage,
+            new Error(`No valid transition from "${guard.currentStage}"`),
           ),
         });
         return;
       }
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- length checked above
-      const nextStage = nextStages[0]!;
-      set((s) => {
-        const completedProgress = s.stageProgress[s.currentStage];
-        const updatedCurrentProgress: StageProgressInfo = completedProgress
-          ? {
-              ...completedProgress,
-              progress: 1,
-              completedAt: completedProgress.completedAt ?? new Date().toISOString(),
-            }
-          : {
-              startedAt: new Date().toISOString(),
-              completedAt: new Date().toISOString(),
-              progress: 1,
-            };
-
-        return {
-          currentStage: nextStage,
-          stageProgress: {
-            ...s.stageProgress,
-            [s.currentStage]: updatedCurrentProgress,
-            [nextStage]: initStageProgress(),
-          },
-          stageHistory: [...s.stageHistory, recordTransition(s.currentStage, nextStage)],
-        };
-      });
+      applyTransition(set, nextStages[0]!);
     },
+  };
+}
 
+function createTransitionToAction(set: SetFn, get: GetFn) {
+  return {
     transitionTo: (stage: PipelineStage) => {
-      const { currentStage, isPaused, error } = get();
-      if (isPaused) {
+      const guard = guardTransition(get, set);
+      if (!guard) return;
+
+      if (!isValidTransition(guard.currentStage, stage)) {
         set({
           error: toProcessingError(
             'transition',
-            currentStage,
-            new Error('Cannot transition: processing is paused'),
-          ),
-        });
-        return;
-      }
-      if (error) {
-        set({
-          error: toProcessingError(
-            'transition',
-            currentStage,
-            new Error('Cannot transition: unresolved error'),
+            guard.currentStage,
+            new Error(`Invalid transition from "${guard.currentStage}" to "${stage}"`),
           ),
         });
         return;
       }
 
-      if (!isValidTransition(currentStage, stage)) {
-        set({
-          error: toProcessingError(
-            'transition',
-            currentStage,
-            new Error(`Invalid transition from "${currentStage}" to "${stage}"`),
-          ),
-        });
-        return;
-      }
-
-      set((s) => {
-        const completedProgress = s.stageProgress[s.currentStage];
-        const updatedCurrentProgress: StageProgressInfo = completedProgress
-          ? {
-              ...completedProgress,
-              progress: 1,
-              completedAt: completedProgress.completedAt ?? new Date().toISOString(),
-            }
-          : {
-              startedAt: new Date().toISOString(),
-              completedAt: new Date().toISOString(),
-              progress: 1,
-            };
-
-        return {
-          currentStage: stage,
-          stageProgress: {
-            ...s.stageProgress,
-            [s.currentStage]: updatedCurrentProgress,
-            [stage]: initStageProgress(),
-          },
-          stageHistory: [...s.stageHistory, recordTransition(s.currentStage, stage)],
-        };
-      });
+      applyTransition(set, stage);
     },
   };
 }
@@ -432,7 +403,8 @@ function createProcessingStore(set: SetFn, get: GetFn): ProcessingStore {
   return {
     ...DEFAULT_PROCESSING_STATE,
     ...createLifecycleActions(set, get),
-    ...createTransitionActions(set, get),
+    ...createAdvanceAction(set, get),
+    ...createTransitionToAction(set, get),
     ...createProgressActions(set, get),
     ...createPauseResumeActions(set, get),
     ...createErrorActions(set, get),
