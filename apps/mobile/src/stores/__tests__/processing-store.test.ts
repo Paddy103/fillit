@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import {
   useProcessingStore,
@@ -798,15 +798,9 @@ describe('selectors — derived state', () => {
     it('returns approximately 1 when done with all stages complete', () => {
       advanceTo('done');
 
-      const progress = selectOverallProgress(useProcessingStore.getState());
-      // All stages scanning through done should be completed
-      // done stage itself gets initialized by advanceStage, and the progress for exporting
-      // is set to 1. The done stage has progress 0 and no completedAt, so it contributes 0.
-      // But the done stage has completedAt = undefined, so it contributes its progress (0).
-      // Actually let's verify: when we advance to done, exporting→done transition sets
-      // exporting to completed (progress=1, completedAt set) and done gets initStageProgress
-      // (progress=0, no completedAt). So 7 stages completed + done at progress 0 = 7/8.
-      // To get close to 1 we need to complete the done stage too.
+      // When we advance to done, exporting gets completed (progress=1, completedAt set)
+      // and done gets initStageProgress (progress=0). So 7/8 stages completed.
+      // Complete the done stage to reach 1.
       useProcessingStore.getState().completeCurrentStage();
       const finalProgress = selectOverallProgress(useProcessingStore.getState());
       expect(finalProgress).toBe(1);
