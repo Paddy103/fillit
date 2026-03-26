@@ -220,7 +220,7 @@ describe('default state', () => {
     expect(state.profiles).toEqual([]);
     expect(state.activeProfileId).toBeNull();
     expect(state.isLoading).toBe(false);
-    expect(state.isMutating).toBe(false);
+    expect(state.mutationCount).toBe(0);
     expect(state.isInitialized).toBe(false);
     expect(state.error).toBeNull();
   });
@@ -319,7 +319,7 @@ describe('createProfile', () => {
 
     expect(result).toEqual(profile);
     expect(useProfileStore.getState().profiles).toEqual([profile]);
-    expect(useProfileStore.getState().isMutating).toBe(false);
+    expect(useProfileStore.getState().mutationCount).toBe(0);
   });
 
   it('auto-selects primary profile as active', async () => {
@@ -360,7 +360,7 @@ describe('createProfile', () => {
     await expect(useProfileStore.getState().createProfile({} as never)).rejects.toThrow(
       'insert failed',
     );
-    expect(useProfileStore.getState().isMutating).toBe(false);
+    expect(useProfileStore.getState().mutationCount).toBe(0);
     expect(useProfileStore.getState().error?.operation).toBe('create');
   });
 });
@@ -391,7 +391,7 @@ describe('updateProfile', () => {
 
     expect(result?.firstName).toBe('Updated');
     expect(useProfileStore.getState().profiles[0].firstName).toBe('Updated');
-    expect(useProfileStore.getState().isMutating).toBe(false);
+    expect(useProfileStore.getState().mutationCount).toBe(0);
   });
 
   it('handles null return (profile not found)', async () => {
@@ -402,7 +402,7 @@ describe('updateProfile', () => {
       .updateProfile('nonexistent', { firstName: 'X' });
 
     expect(result).toBeNull();
-    expect(useProfileStore.getState().isMutating).toBe(false);
+    expect(useProfileStore.getState().mutationCount).toBe(0);
   });
 
   it('sets error and rethrows on failure', async () => {
@@ -502,6 +502,31 @@ describe('refreshProfile', () => {
     await useProfileStore.getState().refreshProfile('profile-1');
 
     expect(useProfileStore.getState().profiles).toEqual([]);
+  });
+
+  it('clears activeProfileId when active profile is deleted externally', async () => {
+    useProfileStore.setState({
+      profiles: [makeProfile()],
+      activeProfileId: 'profile-1',
+    });
+    mockGetProfileById.mockResolvedValue(null);
+
+    await useProfileStore.getState().refreshProfile('profile-1');
+
+    expect(useProfileStore.getState().activeProfileId).toBeNull();
+  });
+
+  it('switches active to next profile when active is deleted externally', async () => {
+    const dependent = makeDependentProfile();
+    useProfileStore.setState({
+      profiles: [makeProfile(), dependent],
+      activeProfileId: 'profile-1',
+    });
+    mockGetProfileById.mockResolvedValue(null);
+
+    await useProfileStore.getState().refreshProfile('profile-1');
+
+    expect(useProfileStore.getState().activeProfileId).toBe(dependent.id);
   });
 
   it('sets error on failure without throwing', async () => {
@@ -780,7 +805,7 @@ describe('reset', () => {
       profiles: [makeProfile()],
       activeProfileId: 'profile-1',
       isLoading: true,
-      isMutating: true,
+      mutationCount: 1,
       isInitialized: true,
       error: { operation: 'load', message: 'test' },
     });
@@ -791,7 +816,7 @@ describe('reset', () => {
     expect(state.profiles).toEqual([]);
     expect(state.activeProfileId).toBeNull();
     expect(state.isLoading).toBe(false);
-    expect(state.isMutating).toBe(false);
+    expect(state.mutationCount).toBe(0);
     expect(state.isInitialized).toBe(false);
     expect(state.error).toBeNull();
   });
@@ -808,7 +833,7 @@ describe('selectors', () => {
       profiles: [primary, dependent],
       activeProfileId: primary.id,
       isLoading: false,
-      isMutating: true,
+      mutationCount: 1,
       isInitialized: true,
       error: { operation: 'load', message: 'test' },
     });
@@ -891,7 +916,11 @@ describe('selectors', () => {
     expect(selectIsLoading(useProfileStore.getState())).toBe(false);
   });
 
-  it('selectIsMutating returns mutating state', () => {
+  it('selectIsMutating derives from mutationCount', () => {
+    expect(selectIsMutating(useProfileStore.getState())).toBe(true);
+    useProfileStore.setState({ mutationCount: 0 });
+    expect(selectIsMutating(useProfileStore.getState())).toBe(false);
+    useProfileStore.setState({ mutationCount: 3 });
     expect(selectIsMutating(useProfileStore.getState())).toBe(true);
   });
 

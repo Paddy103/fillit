@@ -64,8 +64,8 @@ export interface ProfileState {
   activeProfileId: string | null;
   /** Whether profiles are being loaded from the database */
   isLoading: boolean;
-  /** Whether a mutation (create/update/delete) is in progress */
-  isMutating: boolean;
+  /** Number of in-flight mutations (derived: isMutating = mutationCount > 0) */
+  mutationCount: number;
   /** Whether the store has been initialized from the database */
   isInitialized: boolean;
   /** Last error that occurred, null if no error */
@@ -189,7 +189,7 @@ export const DEFAULT_PROFILE_STATE: ProfileState = {
   profiles: [],
   activeProfileId: null,
   isLoading: false,
-  isMutating: false,
+  mutationCount: 0,
   isInitialized: false,
   error: null,
 };
@@ -219,462 +219,411 @@ function replaceProfile(profiles: UserProfile[], updated: UserProfile): UserProf
 // Store
 // ---------------------------------------------------------------------------
 
-export const useProfileStore = create<ProfileStore>()((set, get) => ({
-  // State
-  ...DEFAULT_PROFILE_STATE,
+export const useProfileStore = create<ProfileStore>()((set, get) => {
+  // Helpers to atomically increment/decrement the mutation counter
+  const startMutation = () => set((s) => ({ mutationCount: s.mutationCount + 1, error: null }));
+  const endMutation = () => set((s) => ({ mutationCount: s.mutationCount - 1 }));
+  const endMutationWithError = (op: ProfileOperation, err: unknown) =>
+    set((s) => ({ mutationCount: s.mutationCount - 1, error: toStoreError(op, err) }));
 
-  // ── Initialization ────────────────────────────────────────────────
+  /**
+   * Update the profiles array for a specific profile using the latest state.
+   * Uses the set-updater pattern to avoid stale reads after awaits.
+   */
+  const updateProfileChildren = (
+    profileId: string,
+    updater: (profile: UserProfile) => Partial<UserProfile>,
+  ) =>
+    set((s) => ({
+      profiles: s.profiles.map((p) => (p.id === profileId ? { ...p, ...updater(p) } : p)),
+      mutationCount: s.mutationCount - 1,
+    }));
 
-  initialize: async () => {
-    const { isInitialized, isLoading } = get();
-    if (isInitialized || isLoading) return;
+  return {
+    // State
+    ...DEFAULT_PROFILE_STATE,
 
-    set({ isLoading: true, error: null });
-    try {
-      const profiles = await listProfiles();
-      const activeId =
-        profiles.find((p) => p.isPrimary)?.id ?? profiles[0]?.id ?? null;
-      set({
-        profiles,
-        activeProfileId: activeId,
-        isLoading: false,
-        isInitialized: true,
-      });
-    } catch (err) {
-      set({
-        isLoading: false,
-        error: toStoreError('load', err),
-      });
-    }
-  },
+    // ── Initialization ────────────────────────────────────────────────
 
-  // ── Active profile ────────────────────────────────────────────────
+    initialize: async () => {
+      const { isInitialized, isLoading } = get();
+      if (isInitialized || isLoading) return;
 
-  setActiveProfileId: (id: string | null) => {
-    set({ activeProfileId: id });
-  },
-
-  // ── Profile CRUD ──────────────────────────────────────────────────
-
-  createProfile: async (input: CreateProfileInput) => {
-    set({ isMutating: true, error: null });
-    try {
-      const profile = await createProfile(input);
-      const { profiles, activeProfileId } = get();
-      set({
-        profiles: [...profiles, profile],
-        // Auto-select if this is the first or primary profile
-        activeProfileId: profile.isPrimary || !activeProfileId ? profile.id : activeProfileId,
-        isMutating: false,
-      });
-      return profile;
-    } catch (err) {
-      set({ isMutating: false, error: toStoreError('create', err) });
-      throw err;
-    }
-  },
-
-  createFullProfile: async (
-    profile: Omit<UserProfile, 'createdAt' | 'updatedAt' | 'signatures'>,
-  ) => {
-    set({ isMutating: true, error: null });
-    try {
-      const created = await createFullProfile(profile);
-      const { profiles, activeProfileId } = get();
-      set({
-        profiles: [...profiles, created],
-        activeProfileId: created.isPrimary || !activeProfileId ? created.id : activeProfileId,
-        isMutating: false,
-      });
-      return created;
-    } catch (err) {
-      set({ isMutating: false, error: toStoreError('create', err) });
-      throw err;
-    }
-  },
-
-  updateProfile: async (id: string, input: UpdateProfileInput) => {
-    set({ isMutating: true, error: null });
-    try {
-      const updated = await updateProfile(id, input);
-      if (updated) {
+      set({ isLoading: true, error: null });
+      try {
+        const profiles = await listProfiles();
+        const activeId =
+          profiles.find((p) => p.isPrimary)?.id ?? profiles[0]?.id ?? null;
         set({
-          profiles: replaceProfile(get().profiles, updated),
-          isMutating: false,
+          profiles,
+          activeProfileId: activeId,
+          isLoading: false,
+          isInitialized: true,
         });
-      } else {
-        set({ isMutating: false });
-      }
-      return updated;
-    } catch (err) {
-      set({ isMutating: false, error: toStoreError('update', err) });
-      throw err;
-    }
-  },
-
-  deleteProfile: async (id: string) => {
-    set({ isMutating: true, error: null });
-    try {
-      const success = await deleteProfile(id);
-      if (success) {
-        const { profiles, activeProfileId } = get();
-        const remaining = profiles.filter((p) => p.id !== id);
-        const newActiveId =
-          activeProfileId === id
-            ? (remaining.find((p) => p.isPrimary)?.id ?? remaining[0]?.id ?? null)
-            : activeProfileId;
+      } catch (err) {
         set({
-          profiles: remaining,
-          activeProfileId: newActiveId,
-          isMutating: false,
+          isLoading: false,
+          error: toStoreError('load', err),
         });
-      } else {
-        set({ isMutating: false });
       }
-      return success;
-    } catch (err) {
-      set({ isMutating: false, error: toStoreError('delete', err) });
-      throw err;
-    }
-  },
+    },
 
-  refreshProfile: async (id: string) => {
-    try {
-      const refreshed = await getProfileById(id);
-      if (refreshed) {
-        set({ profiles: replaceProfile(get().profiles, refreshed) });
-      } else {
-        // Profile was deleted externally — remove from store
-        set({ profiles: get().profiles.filter((p) => p.id !== id) });
+    // ── Active profile ────────────────────────────────────────────────
+
+    setActiveProfileId: (id: string | null) => {
+      set({ activeProfileId: id });
+    },
+
+    // ── Profile CRUD ──────────────────────────────────────────────────
+
+    createProfile: async (input: CreateProfileInput) => {
+      startMutation();
+      try {
+        const profile = await createProfile(input);
+        set((s) => ({
+          profiles: [...s.profiles, profile],
+          activeProfileId:
+            profile.isPrimary || !s.activeProfileId ? profile.id : s.activeProfileId,
+          mutationCount: s.mutationCount - 1,
+        }));
+        return profile;
+      } catch (err) {
+        endMutationWithError('create', err);
+        throw err;
       }
-    } catch (err) {
-      set({ error: toStoreError('load', err) });
-    }
-  },
+    },
 
-  // ── Address CRUD ──────────────────────────────────────────────────
+    createFullProfile: async (
+      profile: Omit<UserProfile, 'createdAt' | 'updatedAt' | 'signatures'>,
+    ) => {
+      startMutation();
+      try {
+        const created = await createFullProfile(profile);
+        set((s) => ({
+          profiles: [...s.profiles, created],
+          activeProfileId:
+            created.isPrimary || !s.activeProfileId ? created.id : s.activeProfileId,
+          mutationCount: s.mutationCount - 1,
+        }));
+        return created;
+      } catch (err) {
+        endMutationWithError('create', err);
+        throw err;
+      }
+    },
 
-  createAddress: async (profileId: string, input: CreateAddressInput) => {
-    set({ isMutating: true, error: null });
-    try {
-      const address = await createProfileAddress(profileId, input);
-      // Refresh addresses for this profile from DB to get correct default state
-      const addresses = await getAddressesByProfileId(profileId);
-      const { profiles } = get();
-      set({
-        profiles: profiles.map((p) =>
-          p.id === profileId ? { ...p, addresses } : p,
-        ),
-        isMutating: false,
-      });
-      return address;
-    } catch (err) {
-      set({ isMutating: false, error: toStoreError('createAddress', err) });
-      throw err;
-    }
-  },
+    updateProfile: async (id: string, input: UpdateProfileInput) => {
+      startMutation();
+      try {
+        const updated = await updateProfile(id, input);
+        if (updated) {
+          set((s) => ({
+            profiles: replaceProfile(s.profiles, updated),
+            mutationCount: s.mutationCount - 1,
+          }));
+        } else {
+          endMutation();
+        }
+        return updated;
+      } catch (err) {
+        endMutationWithError('update', err);
+        throw err;
+      }
+    },
 
-  updateAddress: async (id: string, profileId: string, input: UpdateAddressInput) => {
-    set({ isMutating: true, error: null });
-    try {
-      const updated = await updateProfileAddress(id, profileId, input);
-      if (updated) {
-        // Refresh addresses to reflect default-flag changes
+    deleteProfile: async (id: string) => {
+      startMutation();
+      try {
+        const success = await deleteProfile(id);
+        if (success) {
+          set((s) => {
+            const remaining = s.profiles.filter((p) => p.id !== id);
+            const newActiveId =
+              s.activeProfileId === id
+                ? (remaining.find((p) => p.isPrimary)?.id ?? remaining[0]?.id ?? null)
+                : s.activeProfileId;
+            return {
+              profiles: remaining,
+              activeProfileId: newActiveId,
+              mutationCount: s.mutationCount - 1,
+            };
+          });
+        } else {
+          endMutation();
+        }
+        return success;
+      } catch (err) {
+        endMutationWithError('delete', err);
+        throw err;
+      }
+    },
+
+    refreshProfile: async (id: string) => {
+      try {
+        const refreshed = await getProfileById(id);
+        if (refreshed) {
+          set((s) => ({ profiles: replaceProfile(s.profiles, refreshed) }));
+        } else {
+          // Profile was deleted externally — remove and fix active ID
+          set((s) => {
+            const remaining = s.profiles.filter((p) => p.id !== id);
+            const newActiveId =
+              s.activeProfileId === id
+                ? (remaining.find((p) => p.isPrimary)?.id ?? remaining[0]?.id ?? null)
+                : s.activeProfileId;
+            return { profiles: remaining, activeProfileId: newActiveId };
+          });
+        }
+      } catch (err) {
+        set({ error: toStoreError('load', err) });
+      }
+    },
+
+    // ── Address CRUD ──────────────────────────────────────────────────
+
+    createAddress: async (profileId: string, input: CreateAddressInput) => {
+      startMutation();
+      try {
+        const address = await createProfileAddress(profileId, input);
+        // Refresh addresses from DB to get correct default state
         const addresses = await getAddressesByProfileId(profileId);
-        const { profiles } = get();
-        set({
-          profiles: profiles.map((p) =>
-            p.id === profileId ? { ...p, addresses } : p,
-          ),
-          isMutating: false,
-        });
-      } else {
-        set({ isMutating: false });
+        updateProfileChildren(profileId, () => ({ addresses }));
+        return address;
+      } catch (err) {
+        endMutationWithError('createAddress', err);
+        throw err;
       }
-      return updated;
-    } catch (err) {
-      set({ isMutating: false, error: toStoreError('updateAddress', err) });
-      throw err;
-    }
-  },
+    },
 
-  deleteAddress: async (id: string, profileId: string) => {
-    set({ isMutating: true, error: null });
-    try {
-      const success = await deleteProfileAddress(id, profileId);
-      if (success) {
-        const { profiles } = get();
-        set({
-          profiles: profiles.map((p) =>
-            p.id === profileId
-              ? { ...p, addresses: p.addresses.filter((a: Address) => a.id !== id) }
-              : p,
-          ),
-          isMutating: false,
-        });
-      } else {
-        set({ isMutating: false });
+    updateAddress: async (id: string, profileId: string, input: UpdateAddressInput) => {
+      startMutation();
+      try {
+        const updated = await updateProfileAddress(id, profileId, input);
+        if (updated) {
+          const addresses = await getAddressesByProfileId(profileId);
+          updateProfileChildren(profileId, () => ({ addresses }));
+        } else {
+          endMutation();
+        }
+        return updated;
+      } catch (err) {
+        endMutationWithError('updateAddress', err);
+        throw err;
       }
-      return success;
-    } catch (err) {
-      set({ isMutating: false, error: toStoreError('deleteAddress', err) });
-      throw err;
-    }
-  },
+    },
 
-  // ── Identity Document CRUD ────────────────────────────────────────
-
-  createIdentityDocument: async (
-    profileId: string,
-    input: CreateIdentityDocumentInput,
-  ) => {
-    set({ isMutating: true, error: null });
-    try {
-      const doc = await createProfileIdentityDocument(profileId, input);
-      const { profiles } = get();
-      set({
-        profiles: profiles.map((p) =>
-          p.id === profileId ? { ...p, documents: [...p.documents, doc] } : p,
-        ),
-        isMutating: false,
-      });
-      return doc;
-    } catch (err) {
-      set({ isMutating: false, error: toStoreError('createIdentityDocument', err) });
-      throw err;
-    }
-  },
-
-  updateIdentityDocument: async (
-    id: string,
-    profileId: string,
-    input: UpdateIdentityDocumentInput,
-  ) => {
-    set({ isMutating: true, error: null });
-    try {
-      const updated = await updateProfileIdentityDocument(id, profileId, input);
-      if (updated) {
-        // Refresh from DB to ensure decrypted fields are correct
-        const documents = await getIdentityDocumentsByProfileId(profileId);
-        const { profiles } = get();
-        set({
-          profiles: profiles.map((p) =>
-            p.id === profileId ? { ...p, documents } : p,
-          ),
-          isMutating: false,
-        });
-      } else {
-        set({ isMutating: false });
+    deleteAddress: async (id: string, profileId: string) => {
+      startMutation();
+      try {
+        const success = await deleteProfileAddress(id, profileId);
+        if (success) {
+          updateProfileChildren(profileId, (p) => ({
+            addresses: p.addresses.filter((a: Address) => a.id !== id),
+          }));
+        } else {
+          endMutation();
+        }
+        return success;
+      } catch (err) {
+        endMutationWithError('deleteAddress', err);
+        throw err;
       }
-      return updated;
-    } catch (err) {
-      set({ isMutating: false, error: toStoreError('updateIdentityDocument', err) });
-      throw err;
-    }
-  },
+    },
 
-  deleteIdentityDocument: async (id: string, profileId: string) => {
-    set({ isMutating: true, error: null });
-    try {
-      const success = await deleteProfileIdentityDocument(id, profileId);
-      if (success) {
-        const { profiles } = get();
-        set({
-          profiles: profiles.map((p) =>
-            p.id === profileId
-              ? { ...p, documents: p.documents.filter((d: IdentityDocument) => d.id !== id) }
-              : p,
-          ),
-          isMutating: false,
-        });
-      } else {
-        set({ isMutating: false });
+    // ── Identity Document CRUD ────────────────────────────────────────
+
+    createIdentityDocument: async (
+      profileId: string,
+      input: CreateIdentityDocumentInput,
+    ) => {
+      startMutation();
+      try {
+        const doc = await createProfileIdentityDocument(profileId, input);
+        updateProfileChildren(profileId, (p) => ({
+          documents: [...p.documents, doc],
+        }));
+        return doc;
+      } catch (err) {
+        endMutationWithError('createIdentityDocument', err);
+        throw err;
       }
-      return success;
-    } catch (err) {
-      set({ isMutating: false, error: toStoreError('deleteIdentityDocument', err) });
-      throw err;
-    }
-  },
+    },
 
-  // ── Professional Registration CRUD ────────────────────────────────
-
-  createProfessionalRegistration: async (
-    profileId: string,
-    input: CreateProfessionalRegistrationInput,
-  ) => {
-    set({ isMutating: true, error: null });
-    try {
-      const reg = await createProfessionalRegistration(profileId, input);
-      const { profiles } = get();
-      set({
-        profiles: profiles.map((p) =>
-          p.id === profileId
-            ? { ...p, professionalRegistrations: [...p.professionalRegistrations, reg] }
-            : p,
-        ),
-        isMutating: false,
-      });
-      return reg;
-    } catch (err) {
-      set({
-        isMutating: false,
-        error: toStoreError('createProfessionalRegistration', err),
-      });
-      throw err;
-    }
-  },
-
-  updateProfessionalRegistration: async (
-    id: string,
-    profileId: string,
-    input: UpdateProfessionalRegistrationInput,
-  ) => {
-    set({ isMutating: true, error: null });
-    try {
-      const updated = await updateProfessionalRegistration(id, profileId, input);
-      if (updated) {
-        const registrations = await getProfessionalRegistrationsByProfileId(profileId);
-        const { profiles } = get();
-        set({
-          profiles: profiles.map((p) =>
-            p.id === profileId ? { ...p, professionalRegistrations: registrations } : p,
-          ),
-          isMutating: false,
-        });
-      } else {
-        set({ isMutating: false });
+    updateIdentityDocument: async (
+      id: string,
+      profileId: string,
+      input: UpdateIdentityDocumentInput,
+    ) => {
+      startMutation();
+      try {
+        const updated = await updateProfileIdentityDocument(id, profileId, input);
+        if (updated) {
+          // Refresh from DB to ensure decrypted fields are correct
+          const documents = await getIdentityDocumentsByProfileId(profileId);
+          updateProfileChildren(profileId, () => ({ documents }));
+        } else {
+          endMutation();
+        }
+        return updated;
+      } catch (err) {
+        endMutationWithError('updateIdentityDocument', err);
+        throw err;
       }
-      return updated;
-    } catch (err) {
-      set({
-        isMutating: false,
-        error: toStoreError('updateProfessionalRegistration', err),
-      });
-      throw err;
-    }
-  },
+    },
 
-  deleteProfessionalRegistration: async (id: string, profileId: string) => {
-    set({ isMutating: true, error: null });
-    try {
-      const success = await deleteProfessionalRegistration(id, profileId);
-      if (success) {
-        const { profiles } = get();
-        set({
-          profiles: profiles.map((p) =>
-            p.id === profileId
-              ? {
-                  ...p,
-                  professionalRegistrations: p.professionalRegistrations.filter(
-                    (r: ProfessionalRegistration) => r.id !== id,
-                  ),
-                }
-              : p,
-          ),
-          isMutating: false,
-        });
-      } else {
-        set({ isMutating: false });
+    deleteIdentityDocument: async (id: string, profileId: string) => {
+      startMutation();
+      try {
+        const success = await deleteProfileIdentityDocument(id, profileId);
+        if (success) {
+          updateProfileChildren(profileId, (p) => ({
+            documents: p.documents.filter((d: IdentityDocument) => d.id !== id),
+          }));
+        } else {
+          endMutation();
+        }
+        return success;
+      } catch (err) {
+        endMutationWithError('deleteIdentityDocument', err);
+        throw err;
       }
-      return success;
-    } catch (err) {
-      set({
-        isMutating: false,
-        error: toStoreError('deleteProfessionalRegistration', err),
-      });
-      throw err;
-    }
-  },
+    },
 
-  // ── Emergency Contact CRUD ────────────────────────────────────────
+    // ── Professional Registration CRUD ────────────────────────────────
 
-  createEmergencyContact: async (
-    profileId: string,
-    input: CreateEmergencyContactInput,
-  ) => {
-    set({ isMutating: true, error: null });
-    try {
-      const contact = await createEmergencyContact(profileId, input);
-      const { profiles } = get();
-      set({
-        profiles: profiles.map((p) =>
-          p.id === profileId
-            ? { ...p, emergencyContacts: [...p.emergencyContacts, contact] }
-            : p,
-        ),
-        isMutating: false,
-      });
-      return contact;
-    } catch (err) {
-      set({ isMutating: false, error: toStoreError('createEmergencyContact', err) });
-      throw err;
-    }
-  },
-
-  updateEmergencyContact: async (
-    id: string,
-    profileId: string,
-    input: UpdateEmergencyContactInput,
-  ) => {
-    set({ isMutating: true, error: null });
-    try {
-      const updated = await updateEmergencyContact(id, profileId, input);
-      if (updated) {
-        const contacts = await getEmergencyContactsByProfileId(profileId);
-        const { profiles } = get();
-        set({
-          profiles: profiles.map((p) =>
-            p.id === profileId ? { ...p, emergencyContacts: contacts } : p,
-          ),
-          isMutating: false,
-        });
-      } else {
-        set({ isMutating: false });
+    createProfessionalRegistration: async (
+      profileId: string,
+      input: CreateProfessionalRegistrationInput,
+    ) => {
+      startMutation();
+      try {
+        const reg = await createProfessionalRegistration(profileId, input);
+        updateProfileChildren(profileId, (p) => ({
+          professionalRegistrations: [...p.professionalRegistrations, reg],
+        }));
+        return reg;
+      } catch (err) {
+        endMutationWithError('createProfessionalRegistration', err);
+        throw err;
       }
-      return updated;
-    } catch (err) {
-      set({ isMutating: false, error: toStoreError('updateEmergencyContact', err) });
-      throw err;
-    }
-  },
+    },
 
-  deleteEmergencyContact: async (id: string, profileId: string) => {
-    set({ isMutating: true, error: null });
-    try {
-      const success = await deleteEmergencyContact(id, profileId);
-      if (success) {
-        const { profiles } = get();
-        set({
-          profiles: profiles.map((p) =>
-            p.id === profileId
-              ? { ...p, emergencyContacts: p.emergencyContacts.filter((c: EmergencyContact) => c.id !== id) }
-              : p,
-          ),
-          isMutating: false,
-        });
-      } else {
-        set({ isMutating: false });
+    updateProfessionalRegistration: async (
+      id: string,
+      profileId: string,
+      input: UpdateProfessionalRegistrationInput,
+    ) => {
+      startMutation();
+      try {
+        const updated = await updateProfessionalRegistration(id, profileId, input);
+        if (updated) {
+          const registrations = await getProfessionalRegistrationsByProfileId(profileId);
+          updateProfileChildren(profileId, () => ({
+            professionalRegistrations: registrations,
+          }));
+        } else {
+          endMutation();
+        }
+        return updated;
+      } catch (err) {
+        endMutationWithError('updateProfessionalRegistration', err);
+        throw err;
       }
-      return success;
-    } catch (err) {
-      set({ isMutating: false, error: toStoreError('deleteEmergencyContact', err) });
-      throw err;
-    }
-  },
+    },
 
-  // ── Error handling ────────────────────────────────────────────────
+    deleteProfessionalRegistration: async (id: string, profileId: string) => {
+      startMutation();
+      try {
+        const success = await deleteProfessionalRegistration(id, profileId);
+        if (success) {
+          updateProfileChildren(profileId, (p) => ({
+            professionalRegistrations: p.professionalRegistrations.filter(
+              (r: ProfessionalRegistration) => r.id !== id,
+            ),
+          }));
+        } else {
+          endMutation();
+        }
+        return success;
+      } catch (err) {
+        endMutationWithError('deleteProfessionalRegistration', err);
+        throw err;
+      }
+    },
 
-  clearError: () => {
-    set({ error: null });
-  },
+    // ── Emergency Contact CRUD ────────────────────────────────────────
 
-  // ── Reset ─────────────────────────────────────────────────────────
+    createEmergencyContact: async (
+      profileId: string,
+      input: CreateEmergencyContactInput,
+    ) => {
+      startMutation();
+      try {
+        const contact = await createEmergencyContact(profileId, input);
+        updateProfileChildren(profileId, (p) => ({
+          emergencyContacts: [...p.emergencyContacts, contact],
+        }));
+        return contact;
+      } catch (err) {
+        endMutationWithError('createEmergencyContact', err);
+        throw err;
+      }
+    },
 
-  reset: () => {
-    set({ ...DEFAULT_PROFILE_STATE });
-  },
-}));
+    updateEmergencyContact: async (
+      id: string,
+      profileId: string,
+      input: UpdateEmergencyContactInput,
+    ) => {
+      startMutation();
+      try {
+        const updated = await updateEmergencyContact(id, profileId, input);
+        if (updated) {
+          const contacts = await getEmergencyContactsByProfileId(profileId);
+          updateProfileChildren(profileId, () => ({ emergencyContacts: contacts }));
+        } else {
+          endMutation();
+        }
+        return updated;
+      } catch (err) {
+        endMutationWithError('updateEmergencyContact', err);
+        throw err;
+      }
+    },
+
+    deleteEmergencyContact: async (id: string, profileId: string) => {
+      startMutation();
+      try {
+        const success = await deleteEmergencyContact(id, profileId);
+        if (success) {
+          updateProfileChildren(profileId, (p) => ({
+            emergencyContacts: p.emergencyContacts.filter(
+              (c: EmergencyContact) => c.id !== id,
+            ),
+          }));
+        } else {
+          endMutation();
+        }
+        return success;
+      } catch (err) {
+        endMutationWithError('deleteEmergencyContact', err);
+        throw err;
+      }
+    },
+
+    // ── Error handling ────────────────────────────────────────────────
+
+    clearError: () => {
+      set({ error: null });
+    },
+
+    // ── Reset ─────────────────────────────────────────────────────────
+
+    reset: () => {
+      set({ ...DEFAULT_PROFILE_STATE });
+    },
+  };
+});
 
 // ---------------------------------------------------------------------------
 // Typed selectors
@@ -731,8 +680,8 @@ export const selectActiveProfileEmergencyContacts = (
 /** Select whether profiles are loading */
 export const selectIsLoading = (state: ProfileStore): boolean => state.isLoading;
 
-/** Select whether a mutation is in progress */
-export const selectIsMutating = (state: ProfileStore): boolean => state.isMutating;
+/** Select whether any mutation is in progress */
+export const selectIsMutating = (state: ProfileStore): boolean => state.mutationCount > 0;
 
 /** Select whether the store has been initialized */
 export const selectIsInitialized = (state: ProfileStore): boolean => state.isInitialized;
