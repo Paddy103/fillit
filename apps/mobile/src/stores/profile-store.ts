@@ -232,10 +232,11 @@ export const useProfileStore = create<ProfileStore>()((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const profiles = await listProfiles();
-      const primary = profiles.find((p) => p.isPrimary) ?? null;
+      const activeId =
+        profiles.find((p) => p.isPrimary)?.id ?? profiles[0]?.id ?? null;
       set({
         profiles,
-        activeProfileId: primary?.id ?? null,
+        activeProfileId: activeId,
         isLoading: false,
         isInitialized: true,
       });
