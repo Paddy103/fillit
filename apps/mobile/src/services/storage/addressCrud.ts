@@ -10,7 +10,6 @@ import { randomUUID } from 'expo-crypto';
 import type { Address } from '@fillit/shared';
 
 import { getFirst, getAll, runQuery, withTransaction } from './database';
-import { QueryError } from './databaseErrors';
 
 // ─── Database Row Shape ──────────────────────────────────────────────
 

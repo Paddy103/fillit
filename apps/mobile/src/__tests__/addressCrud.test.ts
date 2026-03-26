@@ -42,9 +42,8 @@ import {
   getDefaultAddress,
   setDefaultAddress,
   deleteAddressesByProfile,
+  type CreateAddressInput,
 } from '../services/storage/addressCrud';
-
-import type { CreateAddressInput, UpdateAddressInput } from '../services/storage/addressCrud';
 
 // ---------------------------------------------------------------------------
 // Test helpers
