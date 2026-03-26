@@ -48,11 +48,11 @@ import {
   createDocumentWithPages,
   deleteDocumentWithCleanup,
   isValidStatusTransition,
+  type CreateDocumentInput,
+  type CreatePageInput,
 } from '../services/storage/documentCrud';
 
 import { QueryError } from '../services/storage/databaseErrors';
-
-import type { CreateDocumentInput, CreatePageInput } from '../services/storage/documentCrud';
 
 // ---------------------------------------------------------------------------
 // Helpers
