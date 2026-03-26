@@ -5,6 +5,7 @@
     "owner": "paddy103",
     "version": "0.1.0",
     "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
     "scheme": "fillit",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -12,17 +13,33 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.paddy103.fillit",
+      "icon": "./assets/images/icon.png",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#0066CC"
       },
       "package": "com.fillit.app"
     },
-    "plugins": ["expo-router", "expo-secure-store"],
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-light.png",
+          "backgroundColor": "#F5F5F5",
+          "dark": {
+            "image": "./assets/images/splash-dark.png",
+            "backgroundColor": "#121212"
+          }
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     },
