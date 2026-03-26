@@ -41,6 +41,22 @@ Check every documentation file in the repo against the changes. The key files to
 - `packages/shared/README.md` — if shared package changed
 - Any new package should have a README created
 
+#### next-stories.md (root)
+
+- **Completed section**: Add the story that was just built to the completed list
+- **Unblocked Stories**: Remove the story that was just completed. Check if any previously blocked stories are now unblocked by this completion (search issue bodies for `Depends on:` and check if all deps are now closed). Add any newly unblocked stories to the appropriate section.
+- **Parallel Groups**: Update group tables to remove completed stories and add newly unblocked ones
+- **Maximum Parallelism**: Update the story count and prioritization guidance
+
+To check what's newly unblocked, run:
+```bash
+# Get closed issues (completed stories)
+gh issue list --state closed --limit 100 --json number,title --jq '.[] | "#\(.number)"'
+
+# For each open story, check if all deps are now satisfied
+gh issue view <number> --json body --jq '.body' | grep -i "depends on"
+```
+
 #### Other .md files
 
 - Search for any `.md` files that reference changed code:
@@ -125,6 +141,7 @@ Before marking docs as complete, verify:
 - [ ] CLAUDE.md repo structure matches actual `ls` output
 - [ ] No broken internal links (references to files/sections that don't exist)
 - [ ] No references to removed/renamed files
+- [ ] `next-stories.md` is updated: completed story moved, newly unblocked stories added
 - [ ] New conventions or patterns are documented for future developers
 - [ ] API changes are reflected in relevant docs
 - [ ] Setup/install instructions still work with any new dependencies

@@ -129,6 +129,7 @@ User kicks off story → Issue moved to "In Progress" on project board
 - `apps/mobile/src/services/storage/secureStore.ts` — Secure key management (iOS Keychain / Android Keystore)
 - `apps/mobile/src/utils/encryption.ts` — AES-256-GCM encryption (uses secureStore for keys)
 - `apps/mobile/src/theme/` — Design token system (colors, typography, spacing, dark/light mode)
+- `apps/mobile/src/stores/profile-store.ts` — Profile Zustand store (SQLite-backed, manages profiles + child entities)
 - `apps/mobile/src/services/storage/database.ts` — SQLite database service (init, migrations, query helpers)
 - `apps/mobile/src/services/storage/fileStorage.ts` — Local file storage service (expo-file-system SDK 55+)
 - `apps/mobile/.maestro/` — Maestro E2E test flows and config
