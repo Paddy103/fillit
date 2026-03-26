@@ -243,7 +243,7 @@ function createInitActions(set: SetFn, get: GetFn) {
   };
 }
 
-function createProfileActions(
+function createProfileCrudActions(
   set: SetFn,
   { startMutation, endMutation, endMutationWithError }: ReturnType<typeof createMutationHelpers>,
 ) {
@@ -300,7 +300,14 @@ function createProfileActions(
         throw err;
       }
     },
+  };
+}
 
+function createProfileLifecycleActions(
+  set: SetFn,
+  { startMutation, endMutation, endMutationWithError }: ReturnType<typeof createMutationHelpers>,
+) {
+  return {
     deleteProfile: async (id: string) => {
       startMutation();
       try {
@@ -603,7 +610,8 @@ function createProfileStore(set: SetFn, get: GetFn): ProfileStore {
   return {
     ...DEFAULT_PROFILE_STATE,
     ...createInitActions(set, get),
-    ...createProfileActions(set, mutationHelpers),
+    ...createProfileCrudActions(set, mutationHelpers),
+    ...createProfileLifecycleActions(set, mutationHelpers),
     ...createAddressActions(mutationHelpers),
     ...createIdentityDocumentActions(mutationHelpers),
     ...createProfessionalRegistrationActions(mutationHelpers),
