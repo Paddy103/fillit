@@ -128,6 +128,7 @@ User kicks off story → Issue moved to "In Progress" on project board
 - `.dockerignore` — Docker build context exclusions
 - `apps/mobile/src/services/storage/secureStore.ts` — Secure key management (iOS Keychain / Android Keystore)
 - `apps/mobile/src/utils/encryption.ts` — AES-256-GCM encryption (uses secureStore for keys)
+- `implementation-plan/brand_guidelines.md` — Brand identity guidelines (logo, colors, typography, usage rules)
 - `apps/mobile/src/theme/` — Design token system (colors, typography, spacing, dark/light mode)
 - `apps/mobile/src/stores/profile-store.ts` — Profile Zustand store (SQLite-backed, manages profiles + child entities)
 - `apps/mobile/src/stores/document-store.ts` — Document Zustand store (SQLite-backed, manages documents + pages + fields)

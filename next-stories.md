@@ -2,7 +2,7 @@
 
 ## Completed
 
-S-01 through S-07 (foundation + server deployment + mobile build), S-08 (profile types), S-09 (document types), S-10 (SA ID validation), S-11 (field normalization), S-12 (provinces), S-13 (encryption), S-14 (secure key management), S-15 (SQLite schema), S-16 through S-20 (all CRUD operations), S-21 (file storage), S-22 (profile Zustand store), S-23 (settings store), S-24 (document Zustand store), S-25 (processing state machine store), S-26 (theme tokens), S-27 (custom fonts), S-28 (UI components), S-29 (navigation shell), S-30 (skeleton loading), S-46 (server middleware), S-55 (server deploy), S-96 (Maestro E2E infra) are all merged.
+S-01 through S-07 (foundation + server deployment + mobile build), S-08 (profile types), S-09 (document types), S-10 (SA ID validation), S-11 (field normalization), S-12 (provinces), S-13 (encryption), S-14 (secure key management), S-15 (SQLite schema), S-16 through S-20 (all CRUD operations), S-21 (file storage), S-22 (profile Zustand store), S-23 (settings store), S-24 (document Zustand store), S-25 (processing state machine store), S-26 (theme tokens), S-27 (custom fonts), S-28 (UI components), S-29 (navigation shell), S-30 (skeleton loading), S-46 (server middleware), S-55 (server deploy), S-96 (Maestro E2E infra), S-97 (app logo & brand identity) are all merged.
 
 ## Unblocked Stories
 
@@ -13,12 +13,6 @@ These stories have all dependencies satisfied and are ready to build **now**.
 | Issue | Story                            | Description                                      | Unblocked by     |
 | ----- | -------------------------------- | ------------------------------------------------ | ---------------- |
 | #32   | **S-31**: Profile form component | Form fields with SA ID smart fill and validation | S-22, S-28, S-10 |
-
-### Phase 1 — Brand
-
-| Issue | Story                               | Description                                  | Unblocked by |
-| ----- | ----------------------------------- | -------------------------------------------- | ------------ |
-| #148  | **S-97**: App logo & brand identity | Design logo, brand identity, apply to assets | None         |
 
 ### Phase 2 — Scanning
 
