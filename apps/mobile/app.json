@@ -26,19 +26,19 @@
       "package": "com.fillit.app"
     },
     "plugins": [
-        "expo-router", 
-        "expo-secure-store",
-        [
-            "expo-splash-screen",
-            {
-                "image": "./assets/images/splash-light.png",
-                "backgroundColor": "#F5F5F5",
-                "dark": {
-                    "image": "./assets/images/splash-dark.png",
-                    "backgroundColor": "#121212"
-                }
-            }
-        ]
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-light.png",
+          "backgroundColor": "#F5F5F5",
+          "dark": {
+            "image": "./assets/images/splash-dark.png",
+            "backgroundColor": "#121212"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
