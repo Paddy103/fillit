@@ -38,18 +38,16 @@ import {
   updateEmergencyContact,
   deleteEmergencyContact,
   createFullProfile,
-} from '../services/storage/profileCrud';
-import type {
-  CreateProfileInput,
-  UpdateProfileInput,
-  CreateAddressInput,
-  UpdateAddressInput,
-  CreateIdentityDocumentInput,
-  UpdateIdentityDocumentInput,
-  CreateProfessionalRegistrationInput,
-  UpdateProfessionalRegistrationInput,
-  CreateEmergencyContactInput,
-  UpdateEmergencyContactInput,
+  type CreateProfileInput,
+  type UpdateProfileInput,
+  type CreateAddressInput,
+  type UpdateAddressInput,
+  type CreateIdentityDocumentInput,
+  type UpdateIdentityDocumentInput,
+  type CreateProfessionalRegistrationInput,
+  type UpdateProfessionalRegistrationInput,
+  type CreateEmergencyContactInput,
+  type UpdateEmergencyContactInput,
 } from '../services/storage/profileCrud';
 
 // ---------------------------------------------------------------------------
