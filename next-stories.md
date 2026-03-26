@@ -2,17 +2,11 @@
 
 ## Completed
 
-S-01 through S-07 (foundation + server deployment + mobile build), S-08 (profile types), S-09 (document types), S-10 (SA ID validation), S-11 (field normalization), S-12 (provinces), S-13 (encryption), S-14 (secure key management), S-15 (SQLite schema), S-16 through S-20 (all CRUD operations), S-21 (file storage), S-22 (profile Zustand store), S-23 (settings store), S-26 (theme tokens), S-27 (custom fonts), S-28 (UI components), S-29 (navigation shell), S-30 (skeleton loading), S-46 (server middleware), S-55 (server deploy), S-96 (Maestro E2E infra) are all merged.
+S-01 through S-07 (foundation + server deployment + mobile build), S-08 (profile types), S-09 (document types), S-10 (SA ID validation), S-11 (field normalization), S-12 (provinces), S-13 (encryption), S-14 (secure key management), S-15 (SQLite schema), S-16 through S-20 (all CRUD operations), S-21 (file storage), S-22 (profile Zustand store), S-23 (settings store), S-24 (document Zustand store), S-26 (theme tokens), S-27 (custom fonts), S-28 (UI components), S-29 (navigation shell), S-30 (skeleton loading), S-46 (server middleware), S-55 (server deploy), S-96 (Maestro E2E infra) are all merged.
 
 ## Unblocked Stories
 
 These stories have all dependencies satisfied and are ready to build **now**.
-
-### Phase 1 — State Management (critical path)
-
-| Issue | Story                            | Description                                       | Unblocked by |
-| ----- | -------------------------------- | ------------------------------------------------- | ------------ |
-| #25   | **S-24**: Document Zustand store | Document list, current doc, CRUD synced to SQLite | S-19         |
 
 ### Phase 1 — Profile UI (newly unblocked by S-22)
 
@@ -93,11 +87,10 @@ These stories have all dependencies satisfied and are ready to build **now**.
 
 These stories are independent and can be built simultaneously. Prioritize by what unblocks the most downstream work.
 
-### Group A — State Management + Profile UI (critical path)
+### Group A — Profile UI (critical path)
 
 | Story                            | Why                                                                     |
 | -------------------------------- | ----------------------------------------------------------------------- |
-| **S-24**: Document Zustand store | Gates S-25 (state machine) → S-38 (home dashboard), S-78 (doc history)  |
 | **S-31**: Profile form component | Gates S-32 (profile edit) → entire profile UI chain (S-33 through S-37) |
 
 ### Group B — Scanning Pipeline
@@ -135,9 +128,9 @@ These stories are independent and can be built simultaneously. Prioritize by wha
 
 ## Maximum Parallelism
 
-All 5 groups (A–E) are fully independent — **up to 21 stories** can be built in parallel. For practical prioritization:
+All 5 groups (A–E) are fully independent — **up to 20 stories** can be built in parallel. For practical prioritization:
 
-1. **Groups A + C** (6 stories) — critical path, unblocks the most downstream work
+1. **Groups A + C** (5 stories) — critical path, unblocks the most downstream work
 2. **Group B** (3 stories) — unblocks the scanning/OCR pipeline
 3. **Groups D + E** (6 stories) — can run alongside once bandwidth allows
 4. **Phase 5/6 stories** (6 stories) — lower priority, no downstream blockers

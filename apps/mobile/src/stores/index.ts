@@ -53,3 +53,29 @@ export type {
   ProfileStoreError,
   ProfileOperation,
 } from './profile-store';
+
+// Document Store (S-24)
+export {
+  useDocumentStore,
+  selectDocuments,
+  selectCurrentDocumentId,
+  selectCurrentDocument,
+  selectDocumentsByStatus,
+  selectDocumentsSorted,
+  selectDocumentCount,
+  selectDocumentById,
+  selectCurrentDocumentPages,
+  selectCurrentDocumentFields,
+  selectIsLoading as selectDocumentIsLoading,
+  selectIsMutating as selectDocumentIsMutating,
+  selectIsInitialized as selectDocumentIsInitialized,
+  selectError as selectDocumentError,
+  DEFAULT_DOCUMENT_STATE,
+} from './document-store';
+export type {
+  DocumentState,
+  DocumentActions,
+  DocumentStore,
+  DocumentStoreError,
+  DocumentOperation,
+} from './document-store';

@@ -56,6 +56,14 @@ const { oldKey, newKey } = await rotateKey();
 
 AES-256-GCM encryption module that delegates key management to the secure store service. Encrypts data in the format `base64(iv):base64(ciphertext+tag)`.
 
+### Stores
+
+State management lives in `src/stores/` using Zustand with SQLite persistence.
+
+- **Profile store** (`profile-store.ts`) — Manages profiles and child entities (addresses, dependants, etc.), synced to SQLite
+- **Document store** (`document-store.ts`) — Manages documents, pages, and fields, synced to SQLite. Follows the same factory-function pattern as the profile store.
+- **Settings store** — App-level settings and preferences
+
 ## Testing
 
 ```bash
