@@ -131,6 +131,7 @@ User kicks off story → Issue moved to "In Progress" on project board
 - `apps/mobile/src/theme/` — Design token system (colors, typography, spacing, dark/light mode)
 - `apps/mobile/src/stores/profile-store.ts` — Profile Zustand store (SQLite-backed, manages profiles + child entities)
 - `apps/mobile/src/stores/document-store.ts` — Document Zustand store (SQLite-backed, manages documents + pages + fields)
+- `apps/mobile/src/stores/processing-store.ts` — Processing pipeline state machine (ephemeral Zustand store, manages stage transitions)
 - `apps/mobile/src/services/storage/database.ts` — SQLite database service (init, migrations, query helpers)
 - `apps/mobile/src/services/storage/fileStorage.ts` — Local file storage service (expo-file-system SDK 55+)
 - `apps/mobile/.maestro/` — Maestro E2E test flows and config
