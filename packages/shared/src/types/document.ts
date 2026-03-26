@@ -17,6 +17,18 @@ export type ProcessingStatus =
   | 'reviewed'
   | 'exported';
 
+/** Processing pipeline stages (broader than ProcessingStatus — includes active/transitional states) */
+export type PipelineStage =
+  | 'idle'
+  | 'scanning'
+  | 'reviewing'
+  | 'ocr'
+  | 'detecting'
+  | 'matching'
+  | 'signing'
+  | 'exporting'
+  | 'done';
+
 /** How the document was acquired. */
 export type DocumentSourceType = 'camera' | 'import';
 

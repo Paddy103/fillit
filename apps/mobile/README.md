@@ -62,6 +62,7 @@ State management lives in `src/stores/` using Zustand with SQLite persistence.
 
 - **Profile store** (`profile-store.ts`) — Manages profiles and child entities (addresses, dependants, etc.), synced to SQLite
 - **Document store** (`document-store.ts`) — Manages documents, pages, and fields, synced to SQLite. Follows the same factory-function pattern as the profile store.
+- **Processing store** (`processing-store.ts`) — Ephemeral state machine for the document processing pipeline (idle->scanning->reviewing->ocr->detecting->matching->signing->exporting->done). Not persisted to SQLite.
 - **Settings store** — App-level settings and preferences
 
 ## Testing

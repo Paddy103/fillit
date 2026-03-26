@@ -28,6 +28,7 @@ export {
   type DetectedFieldType,
   type DocumentPage,
   type DocumentSourceType,
+  type PipelineStage,
   type ProcessedDocument,
   type ProcessingStatus,
 } from './document.js';
