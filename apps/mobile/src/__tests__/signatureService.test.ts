@@ -52,9 +52,8 @@ import {
   deleteSignaturesByProfile,
   SignatureNotFoundError,
   SignatureValidationError,
+  type CreateSignatureInput,
 } from '../services/storage/signatureService';
-
-import type { CreateSignatureInput } from '../services/storage/signatureService';
 
 // ---------------------------------------------------------------------------
 // Test helpers
