@@ -46,15 +46,25 @@ export interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> 
   readonly style?: ViewStyle;
 }
 
+/** Options for deriving container styles */
+interface ContainerStyleOptions {
+  theme: Theme;
+  variant: ButtonVariant;
+  size: ButtonSize;
+  disabled: boolean;
+  pressed: boolean;
+  fullWidth: boolean;
+}
+
 /** Derive container styles from variant, size, disabled state, and pressed state */
-function getContainerStyle(
-  theme: Theme,
-  variant: ButtonVariant,
-  size: ButtonSize,
-  disabled: boolean,
-  pressed: boolean,
-  fullWidth: boolean,
-): ViewStyle {
+function getContainerStyle({
+  theme,
+  variant,
+  size,
+  disabled,
+  pressed,
+  fullWidth,
+}: ContainerStyleOptions): ViewStyle {
   const { colors, spacing, radii } = theme;
 
   // Size-specific padding and minHeight
@@ -181,7 +191,7 @@ export function Button({
       disabled={isDisabled}
       style={({ pressed }) =>
         StyleSheet.flatten([
-          getContainerStyle(theme, variant, size, isDisabled, pressed, fullWidth),
+          getContainerStyle({ theme, variant, size, disabled: isDisabled, pressed, fullWidth }),
           style,
         ])
       }

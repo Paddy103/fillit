@@ -179,39 +179,85 @@ function generateId(): string {
 
 // ─── Row Mappers ────────────────────────────────────────────────────
 
+/** Convert nullable DB values to undefined for optional model fields */
+function orUndefined<T>(value: T | null): T | undefined {
+  return value ?? undefined;
+}
+
+/** Map personal details from a profile row */
+function mapPersonalDetails(
+  row: ProfileRow,
+): Pick<
+  UserProfile,
+  | 'relationship'
+  | 'middleName'
+  | 'maidenName'
+  | 'dateOfBirth'
+  | 'gender'
+  | 'nationality'
+  | 'maritalStatus'
+  | 'citizenship'
+> {
+  return {
+    relationship: orUndefined(row.relationship) as ProfileRelationship | undefined,
+    middleName: orUndefined(row.middle_name),
+    maidenName: orUndefined(row.maiden_name),
+    dateOfBirth: row.date_of_birth ?? '',
+    gender: orUndefined(row.gender) as Gender | undefined,
+    nationality: row.nationality ?? 'South African',
+    maritalStatus: orUndefined(row.marital_status) as MaritalStatus | undefined,
+    citizenship: orUndefined(row.citizenship) as Citizenship | undefined,
+  };
+}
+
+/** Map contact and employment details from a profile row */
+function mapContactAndEmployment(
+  row: ProfileRow,
+): Pick<
+  UserProfile,
+  | 'email'
+  | 'phoneMobile'
+  | 'phoneWork'
+  | 'employer'
+  | 'jobTitle'
+  | 'workPhone'
+  | 'employeeNumber'
+  | 'industry'
+  | 'highestQualification'
+  | 'institution'
+  | 'yearCompleted'
+  | 'studentNumber'
+> {
+  return {
+    email: row.email ?? '',
+    phoneMobile: row.phone_mobile ?? '',
+    phoneWork: orUndefined(row.phone_work),
+    employer: orUndefined(row.employer),
+    jobTitle: orUndefined(row.job_title),
+    workPhone: orUndefined(row.work_phone),
+    employeeNumber: orUndefined(row.employee_number),
+    industry: orUndefined(row.industry),
+    highestQualification: orUndefined(row.highest_qualification),
+    institution: orUndefined(row.institution),
+    yearCompleted: orUndefined(row.year_completed),
+    studentNumber: orUndefined(row.student_number),
+  };
+}
+
 /** Convert a database row to a UserProfile (without child entities). */
 async function profileRowToModel(row: ProfileRow): Promise<UserProfile> {
-  let saIdNumber: string | undefined;
-  if (row.sa_id_number_encrypted) {
-    saIdNumber = await decrypt(row.sa_id_number_encrypted);
-  }
+  const saIdNumber = row.sa_id_number_encrypted
+    ? await decrypt(row.sa_id_number_encrypted)
+    : undefined;
 
   return {
     id: row.id,
     isPrimary: row.is_primary === 1,
-    relationship: (row.relationship as ProfileRelationship) ?? undefined,
     firstName: row.first_name,
-    middleName: row.middle_name ?? undefined,
     lastName: row.last_name,
-    maidenName: row.maiden_name ?? undefined,
-    dateOfBirth: row.date_of_birth ?? '',
-    gender: (row.gender as Gender) ?? undefined,
-    nationality: row.nationality ?? 'South African',
-    maritalStatus: (row.marital_status as MaritalStatus) ?? undefined,
     saIdNumber,
-    citizenship: (row.citizenship as Citizenship) ?? undefined,
-    email: row.email ?? '',
-    phoneMobile: row.phone_mobile ?? '',
-    phoneWork: row.phone_work ?? undefined,
-    employer: row.employer ?? undefined,
-    jobTitle: row.job_title ?? undefined,
-    workPhone: row.work_phone ?? undefined,
-    employeeNumber: row.employee_number ?? undefined,
-    industry: row.industry ?? undefined,
-    highestQualification: row.highest_qualification ?? undefined,
-    institution: row.institution ?? undefined,
-    yearCompleted: row.year_completed ?? undefined,
-    studentNumber: row.student_number ?? undefined,
+    ...mapPersonalDetails(row),
+    ...mapContactAndEmployment(row),
     addresses: [],
     documents: [],
     professionalRegistrations: [],
@@ -297,14 +343,63 @@ function emergencyContactRowToModel(row: EmergencyContactRow): EmergencyContact 
  * @param input - Profile data. The `id` field is used as-is; provide a UUID.
  * @returns The created profile with all child entity arrays empty.
  */
+/** Convert undefined/empty to null for SQL parameter binding */
+function toNull(value: string | number | undefined | null): string | number | null {
+  if (value === undefined || value === '') return null;
+  return value;
+}
+
+/**
+ * Build the SQL parameter array for profile insertion.
+ * Column order: id, is_primary, relationship, first_name, middle_name,
+ * last_name, maiden_name, date_of_birth, gender, nationality, marital_status,
+ * sa_id_number_encrypted, citizenship, email, phone_mobile, phone_work,
+ * employer, job_title, work_phone, employee_number, industry,
+ * highest_qualification, institution, year_completed, student_number,
+ * created_at, updated_at
+ */
+function buildCreateProfileParams(
+  id: string,
+  input: CreateProfileInput,
+  saIdEncrypted: string | null,
+  now: string,
+): (string | number | null)[] {
+  const n = toNull;
+  return [
+    id,
+    input.isPrimary ? 1 : 0,
+    n(input.relationship),
+    input.firstName,
+    n(input.middleName),
+    input.lastName,
+    n(input.maidenName),
+    n(input.dateOfBirth),
+    n(input.gender),
+    input.nationality ?? 'South African',
+    n(input.maritalStatus),
+    saIdEncrypted,
+    n(input.citizenship),
+    n(input.email),
+    n(input.phoneMobile),
+    n(input.phoneWork),
+    n(input.employer),
+    n(input.jobTitle),
+    n(input.workPhone),
+    n(input.employeeNumber),
+    n(input.industry),
+    n(input.highestQualification),
+    n(input.institution),
+    n(input.yearCompleted),
+    n(input.studentNumber),
+    now,
+    now,
+  ];
+}
+
 export async function createProfile(input: CreateProfileInput): Promise<UserProfile> {
   const now = new Date().toISOString();
   const id = input.id || generateId();
-
-  let saIdEncrypted: string | null = null;
-  if (input.saIdNumber) {
-    saIdEncrypted = await encrypt(input.saIdNumber);
-  }
+  const saIdEncrypted = input.saIdNumber ? await encrypt(input.saIdNumber) : null;
 
   await runQuery(
     `INSERT INTO profiles (
@@ -317,35 +412,7 @@ export async function createProfile(input: CreateProfileInput): Promise<UserProf
       highest_qualification, institution, year_completed, student_number,
       created_at, updated_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      id,
-      input.isPrimary ? 1 : 0,
-      input.relationship ?? null,
-      input.firstName,
-      input.middleName ?? null,
-      input.lastName,
-      input.maidenName ?? null,
-      input.dateOfBirth || null,
-      input.gender ?? null,
-      input.nationality ?? 'South African',
-      input.maritalStatus ?? null,
-      saIdEncrypted,
-      input.citizenship ?? null,
-      input.email || null,
-      input.phoneMobile || null,
-      input.phoneWork ?? null,
-      input.employer ?? null,
-      input.jobTitle ?? null,
-      input.workPhone ?? null,
-      input.employeeNumber ?? null,
-      input.industry ?? null,
-      input.highestQualification ?? null,
-      input.institution ?? null,
-      input.yearCompleted ?? null,
-      input.studentNumber ?? null,
-      now,
-      now,
-    ],
+    buildCreateProfileParams(id, input, saIdEncrypted, now),
   );
 
   return {
@@ -762,6 +829,54 @@ export async function getIdentityDocumentsByProfileId(
  *
  * @returns The updated document, or `null` if not found.
  */
+/** Build SET clauses for identity document update in profile context */
+async function buildIdentityDocUpdateClauses(
+  input: UpdateIdentityDocumentInput,
+): Promise<{ setClauses: string[]; params: (string | number | null)[] }> {
+  const setClauses: string[] = [];
+  const params: (string | number | null)[] = [];
+
+  // Direct string fields
+  const directFields: Array<{ key: keyof UpdateIdentityDocumentInput; column: string }> = [
+    { key: 'type', column: 'type' },
+    { key: 'label', column: 'label' },
+  ];
+  for (const { key, column } of directFields) {
+    if (key in input && input[key] !== undefined) {
+      setClauses.push(`${column} = ?`);
+      params.push(input[key] as string);
+    }
+  }
+
+  if ('number' in input && input.number !== undefined) {
+    setClauses.push('encrypted_number = ?');
+    params.push(await encrypt(input.number));
+  }
+
+  // Nullable string fields
+  const nullableFields: Array<{ key: keyof UpdateIdentityDocumentInput; column: string }> = [
+    { key: 'issueDate', column: 'issue_date' },
+    { key: 'expiryDate', column: 'expiry_date' },
+    { key: 'issuingAuthority', column: 'issuing_authority' },
+  ];
+  for (const { key, column } of nullableFields) {
+    if (key in input) {
+      setClauses.push(`${column} = ?`);
+      params.push((input[key] as string | undefined) ?? null);
+    }
+  }
+
+  if ('additionalFields' in input) {
+    setClauses.push('additional_fields_encrypted = ?');
+    const fields = input.additionalFields;
+    params.push(
+      fields && Object.keys(fields).length > 0 ? await encrypt(JSON.stringify(fields)) : null,
+    );
+  }
+
+  return { setClauses, params };
+}
+
 export async function updateIdentityDocument(
   id: string,
   profileId: string,
@@ -771,54 +886,14 @@ export async function updateIdentityDocument(
     'SELECT * FROM identity_documents WHERE id = ?',
     [id],
   );
-  if (!existing) {
-    return null;
-  }
+  if (!existing) return null;
 
-  const setClauses: string[] = [];
-  const params: (string | number | null)[] = [];
-
-  if ('type' in input && input.type !== undefined) {
-    setClauses.push('type = ?');
-    params.push(input.type);
-  }
-  if ('label' in input && input.label !== undefined) {
-    setClauses.push('label = ?');
-    params.push(input.label);
-  }
-  if ('number' in input && input.number !== undefined) {
-    setClauses.push('encrypted_number = ?');
-    params.push(await encrypt(input.number));
-  }
-  if ('issueDate' in input) {
-    setClauses.push('issue_date = ?');
-    params.push(input.issueDate ?? null);
-  }
-  if ('expiryDate' in input) {
-    setClauses.push('expiry_date = ?');
-    params.push(input.expiryDate ?? null);
-  }
-  if ('issuingAuthority' in input) {
-    setClauses.push('issuing_authority = ?');
-    params.push(input.issuingAuthority ?? null);
-  }
-  if ('additionalFields' in input) {
-    setClauses.push('additional_fields_encrypted = ?');
-    if (input.additionalFields && Object.keys(input.additionalFields).length > 0) {
-      params.push(await encrypt(JSON.stringify(input.additionalFields)));
-    } else {
-      params.push(null);
-    }
-  }
-
-  if (setClauses.length === 0) {
-    return identityDocumentRowToModel(existing);
-  }
+  const { setClauses, params } = await buildIdentityDocUpdateClauses(input);
+  if (setClauses.length === 0) return identityDocumentRowToModel(existing);
 
   await withTransaction(async () => {
     params.push(id);
     await runQuery(`UPDATE identity_documents SET ${setClauses.join(', ')} WHERE id = ?`, params);
-
     await runQuery('UPDATE profiles SET updated_at = ? WHERE id = ?', [
       new Date().toISOString(),
       profileId,
@@ -1043,29 +1118,20 @@ export async function getEmergencyContactsByProfileId(
  *
  * @returns The updated contact, or `null` if not found.
  */
-export async function updateEmergencyContact(
-  id: string,
-  profileId: string,
+/** Build SET clauses for emergency contact update */
+function buildEmergencyContactUpdateClauses(
   input: UpdateEmergencyContactInput,
-): Promise<EmergencyContact | null> {
-  const existing = await getFirst<EmergencyContactRow>(
-    'SELECT * FROM emergency_contacts WHERE id = ?',
-    [id],
-  );
-  if (!existing) {
-    return null;
-  }
-
+  existingName: string,
+): { setClauses: string[]; params: (string | number | null)[] } {
   const setClauses: string[] = [];
   const params: (string | number | null)[] = [];
 
-  // Handle name update (concatenate first + last)
   if ('firstName' in input || 'lastName' in input) {
-    const currentFirstName = existing.name.split(' ')[0] ?? '';
-    const currentLastName = existing.name.split(' ').slice(1).join(' ') || '';
-    const newFirstName = input.firstName ?? currentFirstName;
-    const newLastName = input.lastName ?? currentLastName;
-    const fullName = [newFirstName, newLastName].filter(Boolean).join(' ');
+    const currentFirstName = existingName.split(' ')[0] ?? '';
+    const currentLastName = existingName.split(' ').slice(1).join(' ') || '';
+    const fullName = [input.firstName ?? currentFirstName, input.lastName ?? currentLastName]
+      .filter(Boolean)
+      .join(' ');
     setClauses.push('name = ?');
     params.push(fullName);
   }
@@ -1083,14 +1149,26 @@ export async function updateEmergencyContact(
     params.push(input.email ?? null);
   }
 
-  if (setClauses.length === 0) {
-    return emergencyContactRowToModel(existing);
-  }
+  return { setClauses, params };
+}
+
+export async function updateEmergencyContact(
+  id: string,
+  profileId: string,
+  input: UpdateEmergencyContactInput,
+): Promise<EmergencyContact | null> {
+  const existing = await getFirst<EmergencyContactRow>(
+    'SELECT * FROM emergency_contacts WHERE id = ?',
+    [id],
+  );
+  if (!existing) return null;
+
+  const { setClauses, params } = buildEmergencyContactUpdateClauses(input, existing.name);
+  if (setClauses.length === 0) return emergencyContactRowToModel(existing);
 
   await withTransaction(async () => {
     params.push(id);
     await runQuery(`UPDATE emergency_contacts SET ${setClauses.join(', ')} WHERE id = ?`, params);
-
     await runQuery('UPDATE profiles SET updated_at = ? WHERE id = ?', [
       new Date().toISOString(),
       profileId,

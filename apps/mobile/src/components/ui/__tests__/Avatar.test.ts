@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
+import type { AvatarSize } from '../Avatar';
+import type * as AvatarModuleType from '../Avatar';
 
 vi.mock('react-native', () => ({
   View: 'View',
@@ -23,7 +25,7 @@ vi.mock('../../../theme', async () => {
 });
 
 describe('Avatar', () => {
-  let AvatarModule: typeof import('../Avatar');
+  let AvatarModule: typeof AvatarModuleType;
 
   beforeAll(async () => {
     AvatarModule = await import('../Avatar');
@@ -52,7 +54,7 @@ describe('Avatar', () => {
 
   describe('AvatarSize type coverage', () => {
     it('should support xs, sm, md, lg, and xl sizes', () => {
-      const sizes: Array<import('../Avatar').AvatarSize> = ['xs', 'sm', 'md', 'lg', 'xl'];
+      const sizes: Array<AvatarSize> = ['xs', 'sm', 'md', 'lg', 'xl'];
       expect(sizes).toHaveLength(5);
     });
   });

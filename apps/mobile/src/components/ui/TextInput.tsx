@@ -17,6 +17,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useTheme } from '../../theme';
+import { type Theme } from '../../theme/types';
 
 /** Input visual variants */
 export type TextInputVariant = 'outlined' | 'filled' | 'underlined';
@@ -43,24 +44,149 @@ export interface TextInputProps extends Omit<RNTextInputProps, 'style' | 'placeh
   readonly inputStyle?: TextStyle;
 }
 
+/** State for computing input styles */
+interface InputState {
+  hasError: boolean;
+  focused: boolean;
+  disabled: boolean;
+}
+
+/** Resolve the border color based on the current input state */
+function resolveBorderColor(colors: Theme['colors'], state: InputState): string {
+  if (state.hasError) return colors.error;
+  if (state.focused) return colors.primary;
+  if (state.disabled) return colors.disabled;
+  return colors.outline;
+}
+
+/** Resolve the background color for the input variant */
+function resolveBackgroundColor(
+  colors: Theme['colors'],
+  variant: TextInputVariant,
+  disabled: boolean,
+): string {
+  if (variant === 'filled') {
+    return disabled ? colors.surfaceVariant : colors.surface;
+  }
+  return 'transparent';
+}
+
+/** Build the input container style for the given variant and state */
+function buildInputContainerStyle(
+  theme: Theme,
+  variant: TextInputVariant,
+  state: InputState,
+): ViewStyle {
+  const { colors, spacing, radii } = theme;
+  const borderColor = resolveBorderColor(colors, state);
+  const backgroundColor = resolveBackgroundColor(colors, variant, state.disabled);
+  const borderWidth = state.focused || state.hasError ? 2 : 1;
+
+  const variantStyles: Record<TextInputVariant, ViewStyle> = {
+    outlined: { borderWidth, borderColor, borderRadius: radii.md, backgroundColor },
+    filled: {
+      borderWidth: 0,
+      borderBottomWidth: borderWidth,
+      borderBottomColor: borderColor,
+      borderTopLeftRadius: radii.md,
+      borderTopRightRadius: radii.md,
+      backgroundColor,
+    },
+    underlined: {
+      borderWidth: 0,
+      borderBottomWidth: borderWidth,
+      borderBottomColor: borderColor,
+      backgroundColor: 'transparent',
+    },
+  };
+
+  return {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    minHeight: 48,
+    ...variantStyles[variant],
+  };
+}
+
+/** Resolve the label color from the current state */
+function resolveLabelColor(colors: Theme['colors'], state: InputState): string {
+  if (state.hasError) return colors.error;
+  if (state.focused) return colors.primary;
+  return colors.onSurfaceVariant;
+}
+
+/** Adornment wrapper that hides content from the accessibility tree */
+function Adornment({
+  children,
+  side,
+  spacing,
+}: {
+  children: React.ReactNode;
+  side: 'left' | 'right';
+  spacing: number;
+}) {
+  const style = side === 'left' ? { marginRight: spacing } : { marginLeft: spacing };
+  return (
+    <View style={style} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      {children}
+    </View>
+  );
+}
+
+/** Build the base text style for the native input element */
+function buildBaseInputStyle(theme: Theme, disabled: boolean): TextStyle {
+  const { colors, spacing, typography } = theme;
+  return {
+    ...typography.bodyMedium,
+    color: disabled ? colors.onDisabled : colors.onBackground,
+    flex: 1,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: 0,
+  };
+}
+
+/** Renders the label text above the input */
+function InputLabel({ label, theme, state }: { label: string; theme: Theme; state: InputState }) {
+  return (
+    <Text
+      style={StyleSheet.flatten([
+        theme.typography.labelMedium,
+        { color: resolveLabelColor(theme.colors, state), marginBottom: theme.spacing.xs },
+      ])}
+      accessibilityRole="text"
+    >
+      {label}
+    </Text>
+  );
+}
+
+/** Renders helper or error text below the input */
+function BottomText({ text, hasError, theme }: { text: string; hasError: boolean; theme: Theme }) {
+  return (
+    <Text
+      style={StyleSheet.flatten([
+        theme.typography.caption,
+        {
+          color: hasError ? theme.colors.error : theme.colors.onSurfaceVariant,
+          marginTop: theme.spacing.xs,
+        },
+      ])}
+      accessibilityRole="text"
+      accessibilityLiveRegion={hasError ? 'polite' : 'none'}
+    >
+      {text}
+    </Text>
+  );
+}
+
 /**
  * Themed text input with label, helper text, and error state.
  *
  * @example
  * ```tsx
- * <TextInput
- *   label="Email"
- *   placeholder="Enter your email"
- *   keyboardType="email-address"
- *   error={errors.email}
- * />
- * <TextInput
- *   label="SA ID Number"
- *   variant="filled"
- *   helperText="13-digit South African ID number"
- *   keyboardType="numeric"
- *   maxLength={13}
- * />
+ * <TextInput label="Email" placeholder="Enter your email" error={errors.email} />
+ * <TextInput label="SA ID Number" variant="filled" helperText="13-digit SA ID" />
  * ```
  */
 export function TextInput({
@@ -81,10 +207,8 @@ export function TextInput({
   const { theme } = useTheme();
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<RNTextInput>(null);
-
-  const { colors, spacing, radii, typography } = theme;
-
   const hasError = Boolean(error);
+  const state: InputState = { hasError, focused, disabled };
 
   const handleFocus = useCallback(
     (e: Parameters<NonNullable<RNTextInputProps['onFocus']>>[0]) => {
@@ -93,7 +217,6 @@ export function TextInput({
     },
     [onFocus],
   );
-
   const handleBlur = useCallback(
     (e: Parameters<NonNullable<RNTextInputProps['onBlur']>>[0]) => {
       setFocused(false);
@@ -101,107 +224,28 @@ export function TextInput({
     },
     [onBlur],
   );
-
   const handleContainerPress = useCallback(() => {
     inputRef.current?.focus();
   }, []);
-
-  // Determine border/background color based on state
-  const getBorderColor = (): string => {
-    if (hasError) return colors.error;
-    if (focused) return colors.primary;
-    if (disabled) return colors.disabled;
-    return colors.outline;
-  };
-
-  const getBackgroundColor = (): string => {
-    if (variant === 'filled') {
-      return disabled ? colors.surfaceVariant : colors.surface;
-    }
-    return 'transparent';
-  };
-
-  // Container styles per variant
-  const variantContainerStyles: Record<TextInputVariant, ViewStyle> = {
-    outlined: {
-      borderWidth: focused || hasError ? 2 : 1,
-      borderColor: getBorderColor(),
-      borderRadius: radii.md,
-      backgroundColor: getBackgroundColor(),
-    },
-    filled: {
-      borderWidth: 0,
-      borderBottomWidth: focused || hasError ? 2 : 1,
-      borderBottomColor: getBorderColor(),
-      borderTopLeftRadius: radii.md,
-      borderTopRightRadius: radii.md,
-      backgroundColor: getBackgroundColor(),
-    },
-    underlined: {
-      borderWidth: 0,
-      borderBottomWidth: focused || hasError ? 2 : 1,
-      borderBottomColor: getBorderColor(),
-      backgroundColor: 'transparent',
-    },
-  };
-
-  const inputContainerStyle: ViewStyle = {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    minHeight: 48,
-    ...variantContainerStyles[variant],
-  };
-
-  const baseInputStyle: TextStyle = {
-    ...typography.bodyMedium,
-    color: disabled ? colors.onDisabled : colors.onBackground,
-    flex: 1,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: 0,
-  };
-
-  const labelColor = hasError ? colors.error : focused ? colors.primary : colors.onSurfaceVariant;
-
   const bottomText = error ?? helperText;
-  const bottomTextColor = hasError ? colors.error : colors.onSurfaceVariant;
 
   return (
-    <View style={StyleSheet.flatten([{ marginBottom: spacing.lg }, containerStyle])}>
-      {label ? (
-        <Text
-          style={StyleSheet.flatten([
-            typography.labelMedium,
-            {
-              color: labelColor,
-              marginBottom: spacing.xs,
-            },
-          ])}
-          accessibilityRole="text"
-        >
-          {label}
-        </Text>
-      ) : null}
-
+    <View style={StyleSheet.flatten([{ marginBottom: theme.spacing.lg }, containerStyle])}>
+      {label ? <InputLabel label={label} theme={theme} state={state} /> : null}
       <Pressable
         onPress={handleContainerPress}
-        style={inputContainerStyle}
+        style={buildInputContainerStyle(theme, variant, state)}
         accessibilityRole="none"
       >
         {leftAdornment ? (
-          <View
-            style={{ marginRight: spacing.sm }}
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
-          >
+          <Adornment side="left" spacing={theme.spacing.sm}>
             {leftAdornment}
-          </View>
+          </Adornment>
         ) : null}
-
         <RNTextInput
           ref={inputRef}
-          style={StyleSheet.flatten([baseInputStyle, inputStyle])}
-          placeholderTextColor={colors.onSurfaceVariant}
+          style={StyleSheet.flatten([buildBaseInputStyle(theme, disabled), inputStyle])}
+          placeholderTextColor={theme.colors.onSurfaceVariant}
           editable={!disabled}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -209,33 +253,13 @@ export function TextInput({
           accessibilityState={{ disabled }}
           {...rest}
         />
-
         {rightAdornment ? (
-          <View
-            style={{ marginLeft: spacing.sm }}
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
-          >
+          <Adornment side="right" spacing={theme.spacing.sm}>
             {rightAdornment}
-          </View>
+          </Adornment>
         ) : null}
       </Pressable>
-
-      {bottomText ? (
-        <Text
-          style={StyleSheet.flatten([
-            typography.caption,
-            {
-              color: bottomTextColor,
-              marginTop: spacing.xs,
-            },
-          ])}
-          accessibilityRole="text"
-          accessibilityLiveRegion={hasError ? 'polite' : 'none'}
-        >
-          {bottomText}
-        </Text>
-      ) : null}
+      {bottomText ? <BottomText text={bottomText} hasError={hasError} theme={theme} /> : null}
     </View>
   );
 }

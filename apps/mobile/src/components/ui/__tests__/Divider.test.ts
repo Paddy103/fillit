@@ -1,4 +1,7 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
+import type * as DividerModuleType from '../Divider';
+import type { DividerOrientation } from '../Divider';
+import type { lightTheme as LightThemeType } from '../../../theme/themes';
 
 vi.mock('react-native', () => ({
   View: 'View',
@@ -22,8 +25,8 @@ vi.mock('../../../theme', async () => {
 });
 
 describe('Divider', () => {
-  let DividerModule: typeof import('../Divider');
-  let lightTheme: typeof import('../../../theme/themes').lightTheme;
+  let DividerModule: typeof DividerModuleType;
+  let lightTheme: typeof LightThemeType;
 
   beforeAll(async () => {
     DividerModule = await import('../Divider');
@@ -44,10 +47,7 @@ describe('Divider', () => {
 
   describe('DividerOrientation type', () => {
     it('should support horizontal and vertical orientations', () => {
-      const orientations: Array<import('../Divider').DividerOrientation> = [
-        'horizontal',
-        'vertical',
-      ];
+      const orientations: Array<DividerOrientation> = ['horizontal', 'vertical'];
       expect(orientations).toHaveLength(2);
     });
   });

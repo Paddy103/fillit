@@ -1,4 +1,7 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
+import type * as TextInputModuleType from '../TextInput';
+import type { TextInputVariant } from '../TextInput';
+import type { lightTheme as LightThemeType } from '../../../theme/themes';
 
 vi.mock('react-native', () => ({
   View: 'View',
@@ -25,8 +28,8 @@ vi.mock('../../../theme', async () => {
 });
 
 describe('TextInput', () => {
-  let TextInputModule: typeof import('../TextInput');
-  let lightTheme: typeof import('../../../theme/themes').lightTheme;
+  let TextInputModule: typeof TextInputModuleType;
+  let lightTheme: typeof LightThemeType;
 
   beforeAll(async () => {
     TextInputModule = await import('../TextInput');
@@ -47,11 +50,7 @@ describe('TextInput', () => {
 
   describe('TextInputVariant type coverage', () => {
     it('should support outlined, filled, and underlined variants', () => {
-      const variants: Array<import('../TextInput').TextInputVariant> = [
-        'outlined',
-        'filled',
-        'underlined',
-      ];
+      const variants: Array<TextInputVariant> = ['outlined', 'filled', 'underlined'];
       expect(variants).toHaveLength(3);
     });
   });

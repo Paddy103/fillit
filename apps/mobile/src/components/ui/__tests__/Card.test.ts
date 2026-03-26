@@ -1,4 +1,7 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
+import type * as CardModuleType from '../Card';
+import type { CardElevation } from '../Card';
+import type { lightTheme as LightThemeType } from '../../../theme/themes';
 
 vi.mock('react-native', () => ({
   View: 'View',
@@ -23,8 +26,8 @@ vi.mock('../../../theme', async () => {
 });
 
 describe('Card', () => {
-  let CardModule: typeof import('../Card');
-  let lightTheme: typeof import('../../../theme/themes').lightTheme;
+  let CardModule: typeof CardModuleType;
+  let lightTheme: typeof LightThemeType;
 
   beforeAll(async () => {
     CardModule = await import('../Card');
@@ -54,7 +57,7 @@ describe('Card', () => {
 
   describe('CardElevation type coverage', () => {
     it('should support none, sm, md, lg, and xl elevations', () => {
-      const elevations: Array<import('../Card').CardElevation> = ['none', 'sm', 'md', 'lg', 'xl'];
+      const elevations: Array<CardElevation> = ['none', 'sm', 'md', 'lg', 'xl'];
       expect(elevations).toHaveLength(5);
 
       for (const elev of elevations) {
