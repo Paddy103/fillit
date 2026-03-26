@@ -13,8 +13,13 @@
  * shared `@fillit/shared` validation utilities before persistence.
  */
 
-import type { DocumentType, IdentityDocument } from '@fillit/shared';
-import { isValidDocumentType, isValidSAIdNumber, requiresSAIdValidation } from '@fillit/shared';
+import {
+  type DocumentType,
+  type IdentityDocument,
+  isValidDocumentType,
+  isValidSAIdNumber,
+  requiresSAIdValidation,
+} from '@fillit/shared';
 
 import { encrypt, decrypt } from '../../utils/encryption';
 

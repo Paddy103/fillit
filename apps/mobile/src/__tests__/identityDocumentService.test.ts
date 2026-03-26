@@ -46,11 +46,7 @@ import {
   IdentityDocumentError,
   IdentityDocumentNotFoundError,
   IdentityDocumentValidationError,
-} from '../services/storage/identityDocumentService';
-
-import type {
-  CreateIdentityDocumentInput,
-  UpdateIdentityDocumentInput,
+  type CreateIdentityDocumentInput,
 } from '../services/storage/identityDocumentService';
 
 // ---------------------------------------------------------------------------
