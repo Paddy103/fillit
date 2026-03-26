@@ -1167,15 +1167,17 @@ export async function createFullProfile(
 
   // Create child entities
   const addresses = await Promise.all(
-    profile.addresses.map((addr) => createAddress(createdProfile.id, addr)),
+    profile.addresses.map((addr: CreateAddressInput) => createAddress(createdProfile.id, addr)),
   );
 
   const documents = await Promise.all(
-    profile.documents.map((doc) => createIdentityDocument(createdProfile.id, doc)),
+    profile.documents.map((doc: CreateIdentityDocumentInput) =>
+      createIdentityDocument(createdProfile.id, doc),
+    ),
   );
 
   const professionalRegistrations = await Promise.all(
-    profile.professionalRegistrations.map((reg) =>
+    profile.professionalRegistrations.map((reg: CreateProfessionalRegistrationInput) =>
       createProfessionalRegistration(createdProfile.id, reg),
     ),
   );
@@ -1184,7 +1186,7 @@ export async function createFullProfile(
   const emergencyContacts = await Promise.all(
     profile.emergencyContacts
       .slice(0, 2)
-      .map((ec) => createEmergencyContact(createdProfile.id, ec)),
+      .map((ec: CreateEmergencyContactInput) => createEmergencyContact(createdProfile.id, ec)),
   );
 
   return {
