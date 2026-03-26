@@ -101,29 +101,15 @@ export type ProfileOperation =
 
 /** Actions available on the profile store */
 export interface ProfileActions {
-  // ── Initialization ──────────────────────────────────────────────
-  /** Load all profiles from the database. Call once at app start. */
   initialize: () => Promise<void>;
-
-  // ── Active profile ──────────────────────────────────────────────
-  /** Set the active profile by ID */
   setActiveProfileId: (id: string | null) => void;
-
-  // ── Profile CRUD ────────────────────────────────────────────────
-  /** Create a new profile and add it to the store */
   createProfile: (input: CreateProfileInput) => Promise<UserProfile>;
-  /** Create a profile with all child entities in one call */
   createFullProfile: (
     profile: Omit<UserProfile, 'createdAt' | 'updatedAt' | 'signatures'>,
   ) => Promise<UserProfile>;
-  /** Update an existing profile */
   updateProfile: (id: string, input: UpdateProfileInput) => Promise<UserProfile | null>;
-  /** Delete a profile and remove it from the store */
   deleteProfile: (id: string) => Promise<boolean>;
-  /** Reload a single profile from the database */
   refreshProfile: (id: string) => Promise<void>;
-
-  // ── Address CRUD ────────────────────────────────────────────────
   createAddress: (profileId: string, input: CreateAddressInput) => Promise<Address>;
   updateAddress: (
     id: string,
@@ -131,8 +117,6 @@ export interface ProfileActions {
     input: UpdateAddressInput,
   ) => Promise<Address | null>;
   deleteAddress: (id: string, profileId: string) => Promise<boolean>;
-
-  // ── Identity Document CRUD ──────────────────────────────────────
   createIdentityDocument: (
     profileId: string,
     input: CreateIdentityDocumentInput,
@@ -143,8 +127,6 @@ export interface ProfileActions {
     input: UpdateIdentityDocumentInput,
   ) => Promise<IdentityDocument | null>;
   deleteIdentityDocument: (id: string, profileId: string) => Promise<boolean>;
-
-  // ── Professional Registration CRUD ──────────────────────────────
   createProfessionalRegistration: (
     profileId: string,
     input: CreateProfessionalRegistrationInput,
@@ -155,8 +137,6 @@ export interface ProfileActions {
     input: UpdateProfessionalRegistrationInput,
   ) => Promise<ProfessionalRegistration | null>;
   deleteProfessionalRegistration: (id: string, profileId: string) => Promise<boolean>;
-
-  // ── Emergency Contact CRUD ──────────────────────────────────────
   createEmergencyContact: (
     profileId: string,
     input: CreateEmergencyContactInput,
@@ -167,13 +147,7 @@ export interface ProfileActions {
     input: UpdateEmergencyContactInput,
   ) => Promise<EmergencyContact | null>;
   deleteEmergencyContact: (id: string, profileId: string) => Promise<boolean>;
-
-  // ── Error handling ──────────────────────────────────────────────
-  /** Clear the current error */
   clearError: () => void;
-
-  // ── Reset ───────────────────────────────────────────────────────
-  /** Reset the store to its default state */
   reset: () => void;
 }
 
@@ -196,7 +170,11 @@ export const DEFAULT_PROFILE_STATE: ProfileState = {
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Build a ProfileStoreError from a caught value */
+type SetFn = {
+  (partial: Partial<ProfileStore> | ((state: ProfileStore) => Partial<ProfileStore>)): void;
+};
+type GetFn = () => ProfileStore;
+
 function toStoreError(operation: ProfileOperation, err: unknown): ProfileStoreError {
   return {
     operation,
@@ -205,29 +183,32 @@ function toStoreError(operation: ProfileOperation, err: unknown): ProfileStoreEr
   };
 }
 
-/**
- * Replace a single profile in the profiles array.
- * Returns a new array with the matching profile replaced.
- */
 function replaceProfile(profiles: UserProfile[], updated: UserProfile): UserProfile[] {
   return profiles.map((p) => (p.id === updated.id ? updated : p));
 }
 
+/**
+ * Pick the best active profile ID after a profile is removed.
+ * Prefers the primary profile, then falls back to the first remaining.
+ */
+function pickActiveAfterRemoval(
+  removedId: string,
+  currentActiveId: string | null,
+  remaining: UserProfile[],
+): string | null {
+  if (currentActiveId !== removedId) return currentActiveId;
+  return remaining.find((p) => p.isPrimary)?.id ?? remaining[0]?.id ?? null;
+}
+
 // ---------------------------------------------------------------------------
-// Store
+// Action factories — each returns a slice of the store actions
 // ---------------------------------------------------------------------------
 
-export const useProfileStore = create<ProfileStore>()((set, get) => {
-  // Helpers to atomically increment/decrement the mutation counter
+function createMutationHelpers(set: SetFn) {
   const startMutation = () => set((s) => ({ mutationCount: s.mutationCount + 1, error: null }));
   const endMutation = () => set((s) => ({ mutationCount: s.mutationCount - 1 }));
   const endMutationWithError = (op: ProfileOperation, err: unknown) =>
     set((s) => ({ mutationCount: s.mutationCount - 1, error: toStoreError(op, err) }));
-
-  /**
-   * Update the profiles array for a specific profile using the latest state.
-   * Uses the set-updater pattern to avoid stale reads after awaits.
-   */
   const updateProfileChildren = (
     profileId: string,
     updater: (profile: UserProfile) => Partial<UserProfile>,
@@ -237,12 +218,11 @@ export const useProfileStore = create<ProfileStore>()((set, get) => {
       mutationCount: s.mutationCount - 1,
     }));
 
+  return { startMutation, endMutation, endMutationWithError, updateProfileChildren };
+}
+
+function createInitActions(set: SetFn, get: GetFn) {
   return {
-    // State
-    ...DEFAULT_PROFILE_STATE,
-
-    // ── Initialization ────────────────────────────────────────────────
-
     initialize: async () => {
       const { isInitialized, isLoading } = get();
       if (isInitialized || isLoading) return;
@@ -251,28 +231,24 @@ export const useProfileStore = create<ProfileStore>()((set, get) => {
       try {
         const profiles = await listProfiles();
         const activeId = profiles.find((p) => p.isPrimary)?.id ?? profiles[0]?.id ?? null;
-        set({
-          profiles,
-          activeProfileId: activeId,
-          isLoading: false,
-          isInitialized: true,
-        });
+        set({ profiles, activeProfileId: activeId, isLoading: false, isInitialized: true });
       } catch (err) {
-        set({
-          isLoading: false,
-          error: toStoreError('load', err),
-        });
+        set({ isLoading: false, error: toStoreError('load', err) });
       }
     },
-
-    // ── Active profile ────────────────────────────────────────────────
 
     setActiveProfileId: (id: string | null) => {
       set({ activeProfileId: id });
     },
+  };
+}
 
-    // ── Profile CRUD ──────────────────────────────────────────────────
-
+function createProfileActions(
+  set: SetFn,
+  get: GetFn,
+  { startMutation, endMutation, endMutationWithError }: ReturnType<typeof createMutationHelpers>,
+) {
+  return {
     createProfile: async (input: CreateProfileInput) => {
       startMutation();
       try {
@@ -333,13 +309,9 @@ export const useProfileStore = create<ProfileStore>()((set, get) => {
         if (success) {
           set((s) => {
             const remaining = s.profiles.filter((p) => p.id !== id);
-            const newActiveId =
-              s.activeProfileId === id
-                ? (remaining.find((p) => p.isPrimary)?.id ?? remaining[0]?.id ?? null)
-                : s.activeProfileId;
             return {
               profiles: remaining,
-              activeProfileId: newActiveId,
+              activeProfileId: pickActiveAfterRemoval(id, s.activeProfileId, remaining),
               mutationCount: s.mutationCount - 1,
             };
           });
@@ -359,28 +331,32 @@ export const useProfileStore = create<ProfileStore>()((set, get) => {
         if (refreshed) {
           set((s) => ({ profiles: replaceProfile(s.profiles, refreshed) }));
         } else {
-          // Profile was deleted externally — remove and fix active ID
           set((s) => {
             const remaining = s.profiles.filter((p) => p.id !== id);
-            const newActiveId =
-              s.activeProfileId === id
-                ? (remaining.find((p) => p.isPrimary)?.id ?? remaining[0]?.id ?? null)
-                : s.activeProfileId;
-            return { profiles: remaining, activeProfileId: newActiveId };
+            return {
+              profiles: remaining,
+              activeProfileId: pickActiveAfterRemoval(id, s.activeProfileId, remaining),
+            };
           });
         }
       } catch (err) {
         set({ error: toStoreError('load', err) });
       }
     },
+  };
+}
 
-    // ── Address CRUD ──────────────────────────────────────────────────
-
+function createAddressActions({
+  startMutation,
+  endMutation,
+  endMutationWithError,
+  updateProfileChildren,
+}: ReturnType<typeof createMutationHelpers>) {
+  return {
     createAddress: async (profileId: string, input: CreateAddressInput) => {
       startMutation();
       try {
         const address = await createProfileAddress(profileId, input);
-        // Refresh addresses from DB to get correct default state
         const addresses = await getAddressesByProfileId(profileId);
         updateProfileChildren(profileId, () => ({ addresses }));
         return address;
@@ -424,16 +400,21 @@ export const useProfileStore = create<ProfileStore>()((set, get) => {
         throw err;
       }
     },
+  };
+}
 
-    // ── Identity Document CRUD ────────────────────────────────────────
-
+function createIdentityDocumentActions({
+  startMutation,
+  endMutation,
+  endMutationWithError,
+  updateProfileChildren,
+}: ReturnType<typeof createMutationHelpers>) {
+  return {
     createIdentityDocument: async (profileId: string, input: CreateIdentityDocumentInput) => {
       startMutation();
       try {
         const doc = await createProfileIdentityDocument(profileId, input);
-        updateProfileChildren(profileId, (p) => ({
-          documents: [...p.documents, doc],
-        }));
+        updateProfileChildren(profileId, (p) => ({ documents: [...p.documents, doc] }));
         return doc;
       } catch (err) {
         endMutationWithError('createIdentityDocument', err);
@@ -450,7 +431,6 @@ export const useProfileStore = create<ProfileStore>()((set, get) => {
       try {
         const updated = await updateProfileIdentityDocument(id, profileId, input);
         if (updated) {
-          // Refresh from DB to ensure decrypted fields are correct
           const documents = await getIdentityDocumentsByProfileId(profileId);
           updateProfileChildren(profileId, () => ({ documents }));
         } else {
@@ -480,9 +460,16 @@ export const useProfileStore = create<ProfileStore>()((set, get) => {
         throw err;
       }
     },
+  };
+}
 
-    // ── Professional Registration CRUD ────────────────────────────────
-
+function createProfessionalRegistrationActions({
+  startMutation,
+  endMutation,
+  endMutationWithError,
+  updateProfileChildren,
+}: ReturnType<typeof createMutationHelpers>) {
+  return {
     createProfessionalRegistration: async (
       profileId: string,
       input: CreateProfessionalRegistrationInput,
@@ -510,9 +497,7 @@ export const useProfileStore = create<ProfileStore>()((set, get) => {
         const updated = await updateProfessionalRegistration(id, profileId, input);
         if (updated) {
           const registrations = await getProfessionalRegistrationsByProfileId(profileId);
-          updateProfileChildren(profileId, () => ({
-            professionalRegistrations: registrations,
-          }));
+          updateProfileChildren(profileId, () => ({ professionalRegistrations: registrations }));
         } else {
           endMutation();
         }
@@ -542,9 +527,16 @@ export const useProfileStore = create<ProfileStore>()((set, get) => {
         throw err;
       }
     },
+  };
+}
 
-    // ── Emergency Contact CRUD ────────────────────────────────────────
-
+function createEmergencyContactActions({
+  startMutation,
+  endMutation,
+  endMutationWithError,
+  updateProfileChildren,
+}: ReturnType<typeof createMutationHelpers>) {
+  return {
     createEmergencyContact: async (profileId: string, input: CreateEmergencyContactInput) => {
       startMutation();
       try {
@@ -597,20 +589,30 @@ export const useProfileStore = create<ProfileStore>()((set, get) => {
         throw err;
       }
     },
-
-    // ── Error handling ────────────────────────────────────────────────
-
-    clearError: () => {
-      set({ error: null });
-    },
-
-    // ── Reset ─────────────────────────────────────────────────────────
-
-    reset: () => {
-      set({ ...DEFAULT_PROFILE_STATE });
-    },
   };
-});
+}
+
+// ---------------------------------------------------------------------------
+// Store
+// ---------------------------------------------------------------------------
+
+export const useProfileStore = create<ProfileStore>()(createProfileStore);
+
+function createProfileStore(set: SetFn, get: GetFn): ProfileStore {
+  const mutationHelpers = createMutationHelpers(set);
+
+  return {
+    ...DEFAULT_PROFILE_STATE,
+    ...createInitActions(set, get),
+    ...createProfileActions(set, get, mutationHelpers),
+    ...createAddressActions(mutationHelpers),
+    ...createIdentityDocumentActions(mutationHelpers),
+    ...createProfessionalRegistrationActions(mutationHelpers),
+    ...createEmergencyContactActions(mutationHelpers),
+    clearError: () => set({ error: null }),
+    reset: () => set({ ...DEFAULT_PROFILE_STATE }),
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Typed selectors
