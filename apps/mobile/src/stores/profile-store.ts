@@ -245,7 +245,6 @@ function createInitActions(set: SetFn, get: GetFn) {
 
 function createProfileActions(
   set: SetFn,
-  get: GetFn,
   { startMutation, endMutation, endMutationWithError }: ReturnType<typeof createMutationHelpers>,
 ) {
   return {
@@ -604,7 +603,7 @@ function createProfileStore(set: SetFn, get: GetFn): ProfileStore {
   return {
     ...DEFAULT_PROFILE_STATE,
     ...createInitActions(set, get),
-    ...createProfileActions(set, get, mutationHelpers),
+    ...createProfileActions(set, mutationHelpers),
     ...createAddressActions(mutationHelpers),
     ...createIdentityDocumentActions(mutationHelpers),
     ...createProfessionalRegistrationActions(mutationHelpers),
