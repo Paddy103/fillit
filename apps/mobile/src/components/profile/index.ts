@@ -8,3 +8,8 @@ export { AddressCard } from './AddressCard';
 export { ProvincePicker } from './ProvincePicker';
 export { DependentCard } from './DependentCard';
 export { DependentList } from './DependentList';
+export { DocumentForm } from './DocumentForm';
+export type { DocumentFormProps } from './DocumentForm';
+export { DocumentList } from './DocumentList';
+export { DocumentCard } from './DocumentCard';
+export { DocumentTypePicker } from './DocumentTypePicker';
