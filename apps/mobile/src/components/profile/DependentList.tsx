@@ -57,7 +57,7 @@ export function DependentList() {
   }, []);
 
   const handleEditDependent = useCallback((id: string) => {
-    router.push(`/profile/dependent/${id}`);
+    router.push(`/profile/dependent/${id}` as never);
   }, []);
 
   const handleSetActive = useCallback(

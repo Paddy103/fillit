@@ -97,7 +97,7 @@ function CardIcon({ type }: { type: IdentityDocument['type'] }) {
       style={[
         styles.iconContainer,
         {
-          backgroundColor: theme.colors.primaryContainer,
+          backgroundColor: theme.colors.surfaceVariant,
           borderRadius: theme.radii.md,
           width: 40,
           height: 40,

@@ -12,7 +12,11 @@ import type { EmergencyContact } from '@fillit/shared';
 import { useTheme } from '../../theme';
 import { Button, TextInput, Card } from '../ui';
 import { SectionHeader } from './ProfileFormSections';
-import { useEmergencyContactForm, type EmergencyContactFormData } from './useEmergencyContactForm';
+import {
+  useEmergencyContactForm,
+  type EmergencyContactFormData,
+  type EmergencyContactFormErrors,
+} from './useEmergencyContactForm';
 
 // ─── Types ───────────────────────────────────────────────────────────
 
@@ -31,7 +35,7 @@ function NameFields({
   updateField,
 }: {
   form: EmergencyContactFormData;
-  errors: Record<string, string | undefined>;
+  errors: EmergencyContactFormErrors;
   updateField: <K extends keyof EmergencyContactFormData>(
     field: K,
     value: EmergencyContactFormData[K],
@@ -74,7 +78,7 @@ function PhoneFields({
   updateField,
 }: {
   form: EmergencyContactFormData;
-  errors: Record<string, string | undefined>;
+  errors: EmergencyContactFormErrors;
   updateField: <K extends keyof EmergencyContactFormData>(
     field: K,
     value: EmergencyContactFormData[K],

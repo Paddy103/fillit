@@ -30,7 +30,7 @@ export default function EmergencyContactsScreen() {
   }, []);
 
   const handleEdit = useCallback((contact: EmergencyContact) => {
-    router.push(`/profile/emergency/${contact.id}`);
+    router.push(`/profile/emergency/${contact.id}` as never);
   }, []);
 
   const handleDelete = useCallback(

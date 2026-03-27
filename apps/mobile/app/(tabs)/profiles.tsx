@@ -188,7 +188,7 @@ function ManagementButtons() {
       <Button
         label="Manage Addresses"
         variant="outline"
-        onPress={() => router.push('/profile/address')}
+        onPress={() => router.push('/profile/address' as never)}
         fullWidth
         iconLeft={<Ionicons name="location-outline" size={18} color={theme.colors.primary} />}
         testID="manage-addresses-button"
@@ -196,7 +196,7 @@ function ManagementButtons() {
       <Button
         label="Identity Documents"
         variant="outline"
-        onPress={() => router.push('/profile/document')}
+        onPress={() => router.push('/profile/document' as never)}
         fullWidth
         iconLeft={<Ionicons name="document-text-outline" size={18} color={theme.colors.primary} />}
         style={{ marginTop: theme.spacing.sm }}
@@ -205,7 +205,7 @@ function ManagementButtons() {
       <Button
         label="Emergency Contacts"
         variant="outline"
-        onPress={() => router.push('/profile/emergency')}
+        onPress={() => router.push('/profile/emergency' as never)}
         fullWidth
         iconLeft={<Ionicons name="medkit-outline" size={18} color={theme.colors.primary} />}
         style={{ marginTop: theme.spacing.sm }}
