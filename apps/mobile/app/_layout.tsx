@@ -44,6 +44,9 @@ function RootNavigator() {
       <Stack.Screen name="profile/document/index" options={{ headerShown: false }} />
       <Stack.Screen name="profile/document/add" options={{ headerShown: false }} />
       <Stack.Screen name="profile/document/[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/emergency/index" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/emergency/add" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/emergency/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="__e2e" options={{ headerShown: true, headerTitle: 'E2E Tests' }} />
     </Stack>
   );

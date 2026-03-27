@@ -13,3 +13,7 @@ export type { DocumentFormProps } from './DocumentForm';
 export { DocumentList } from './DocumentList';
 export { DocumentCard } from './DocumentCard';
 export { DocumentTypePicker } from './DocumentTypePicker';
+export { EmergencyContactForm } from './EmergencyContactForm';
+export type { EmergencyContactFormProps } from './EmergencyContactForm';
+export { EmergencyContactList } from './EmergencyContactList';
+export type { EmergencyContactListProps } from './EmergencyContactList';
