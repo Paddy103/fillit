@@ -2,7 +2,9 @@
  * Profiles tab screen.
  *
  * Shows the primary profile card with completeness indicator,
+ * quick-access management buttons, dependent profiles list,
  * or an empty state prompting the user to create a profile.
+ * Uses skeleton loading while profiles initialize.
  */
 
 import { useEffect, useCallback, useMemo } from 'react';
@@ -14,6 +16,7 @@ import { useTheme } from '../../src/theme';
 import { Card, Button } from '../../src/components/ui';
 import { ProfileCard } from '../../src/components/profile/ProfileCard';
 import { DependentList } from '../../src/components/profile/DependentList';
+import { SkeletonProfileCard, SkeletonCard } from '../../src/components/skeleton';
 import type { UserProfile } from '@fillit/shared';
 import {
   useProfileStore,
@@ -99,6 +102,25 @@ function EmptyState({ onGetStarted }: { onGetStarted: () => void }) {
   );
 }
 
+// ─── Skeleton Loading ───────────────────────────────────────────────
+
+function ProfilesSkeleton() {
+  const { theme } = useTheme();
+  return (
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.colors.background, padding: theme.spacing.lg },
+      ]}
+      testID="profiles-screen-loading"
+    >
+      <SkeletonCard style={{ marginBottom: theme.spacing.lg }} />
+      <SkeletonProfileCard style={{ marginBottom: theme.spacing.lg }} />
+      <SkeletonProfileCard />
+    </View>
+  );
+}
+
 // ─── Completeness Card ──────────────────────────────────────────────
 
 function CompletenessCard({ completeness }: { completeness: number }) {
@@ -157,6 +179,42 @@ function CompletenessCard({ completeness }: { completeness: number }) {
   );
 }
 
+// ─── Management Buttons ─────────────────────────────────────────────
+
+function ManagementButtons() {
+  const { theme } = useTheme();
+  return (
+    <View style={{ marginTop: theme.spacing.md, marginBottom: theme.spacing.lg }}>
+      <Button
+        label="Manage Addresses"
+        variant="outline"
+        onPress={() => router.push('/profile/address')}
+        fullWidth
+        iconLeft={<Ionicons name="location-outline" size={18} color={theme.colors.primary} />}
+        testID="manage-addresses-button"
+      />
+      <Button
+        label="Identity Documents"
+        variant="outline"
+        onPress={() => router.push('/profile/document')}
+        fullWidth
+        iconLeft={<Ionicons name="document-text-outline" size={18} color={theme.colors.primary} />}
+        style={{ marginTop: theme.spacing.sm }}
+        testID="manage-documents-button"
+      />
+      <Button
+        label="Emergency Contacts"
+        variant="outline"
+        onPress={() => router.push('/profile/emergency')}
+        fullWidth
+        iconLeft={<Ionicons name="medkit-outline" size={18} color={theme.colors.primary} />}
+        style={{ marginTop: theme.spacing.sm }}
+        testID="manage-emergency-button"
+      />
+    </View>
+  );
+}
+
 // ─── Screen ─────────────────────────────────────────────────────────
 
 export default function ProfilesScreen() {
@@ -180,21 +238,8 @@ export default function ProfilesScreen() {
     router.push('/profile/edit');
   }, []);
 
-  const handleManageAddresses = useCallback(() => {
-    router.push('/profile/address');
-  }, []);
-
   if (isLoading || !isInitialized) {
-    return (
-      <View
-        style={[styles.container, styles.center, { backgroundColor: theme.colors.background }]}
-        testID="profiles-screen-loading"
-      >
-        <Text style={[theme.typography.bodyMedium, { color: theme.colors.onSurfaceVariant }]}>
-          Loading profiles...
-        </Text>
-      </View>
-    );
+    return <ProfilesSkeleton />;
   }
 
   if (!profile) {
@@ -227,15 +272,7 @@ export default function ProfilesScreen() {
         iconLeft={<Ionicons name="create-outline" size={18} color={theme.colors.primary} />}
         testID="edit-profile-button"
       />
-      <Button
-        label="Manage Addresses"
-        variant="outline"
-        onPress={handleManageAddresses}
-        fullWidth
-        iconLeft={<Ionicons name="location-outline" size={18} color={theme.colors.primary} />}
-        style={{ marginTop: theme.spacing.sm }}
-        testID="manage-addresses-button"
-      />
+      <ManagementButtons />
       <DependentList />
     </ScrollView>
   );
@@ -244,10 +281,6 @@ export default function ProfilesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  center: {
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   emptyState: {
     alignItems: 'center',
