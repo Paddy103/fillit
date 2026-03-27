@@ -56,7 +56,7 @@
 | AI processing       | Cloud AI (Claude) + offline heuristic | Best accuracy online, graceful degradation offline     |
 | Authentication      | OAuth (Google + Apple Sign-In)        | No password management, enables per-user quotas        |
 | Repo structure      | Monorepo (pnpm workspaces)            | Shared types, single CI config, easier to keep in sync |
-| Hosting             | Fly.io                                | Best free tier, Docker-based, cost-optimized           |
+| Hosting             | Render                                | Docker-based, auto-deploy from GitHub, cost-optimized  |
 | Package manager     | pnpm                                  | Fast, disk-efficient, great workspace support          |
 | Mobile distribution | EAS Build + TestFlight/Play Console   | Proper beta testing pipeline                           |
 
@@ -243,7 +243,7 @@ fillit/
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml                    # PR: lint + type-check + test
-│       ├── deploy-server.yml         # Main push: deploy to Fly.io
+│       ├── deploy-server.yml         # Main push: deploy to Render
 │       └── build-mobile.yml          # Release: EAS Build → TestFlight/Play
 │
 ├── package.json                      # Root workspace config
@@ -922,11 +922,11 @@ GET  /health          # Health check
 GET  /usage           # User's own usage stats
 ```
 
-### 9.6 Hosting: Fly.io
+### 9.6 Hosting: Render
 
-- Generous free tier (3 shared VMs, 3GB storage)
-- Docker-based deployment
-- Redis add-on available (or Upstash for free tier)
+- Docker-based deployment via Render Blueprint (`render.yaml`)
+- Auto-deploy from GitHub on push to main
+- Health check endpoint for zero-downtime deploys
 - Easy to scale if needed
 - Latency acceptable — Claude API itself adds latency, so proxy overhead is minimal
 
@@ -1061,7 +1061,7 @@ Network detection: `@react-native-community/netinfo` with `addEventListener`. St
 
 1. Run full test suite
 2. Build server Docker image
-3. Deploy to Fly.io (production)
+3. Deploy to Render (production)
 4. Smoke test deployed endpoint (health + auth + analyze with mock)
 5. Notify on failure (GitHub notification)
 
@@ -1118,7 +1118,7 @@ Network detection: `@react-native-community/netinfo` with `addEventListener`. St
 - [ ] Implement Claude API integration with prompt engineering
 - [ ] Implement template caching (in-memory → Redis)
 - [ ] Implement OAuth token verification (Google + Apple)
-- [ ] Deploy proxy to Fly.io with Docker
+- [ ] Deploy proxy to Render with Docker
 - [ ] Build mobile OAuth sign-in flow
 - [ ] Build offline heuristic matcher with label dictionary
 - [ ] Implement network-aware AI routing (cloud vs. offline)
