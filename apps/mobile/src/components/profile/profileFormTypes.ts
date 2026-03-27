@@ -8,6 +8,7 @@ import {
   type Gender,
   type MaritalStatus,
   type Citizenship,
+  type ProfileRelationship,
   type UserProfile,
 } from '@fillit/shared';
 
@@ -62,6 +63,13 @@ export const MARITAL_OPTIONS: { label: string; value: MaritalStatus }[] = [
 export const CITIZENSHIP_OPTIONS: { label: string; value: Citizenship }[] = [
   { label: 'SA Citizen', value: 'citizen' },
   { label: 'Permanent Resident', value: 'permanent_resident' },
+];
+
+export const RELATIONSHIP_OPTIONS: { label: string; value: ProfileRelationship }[] = [
+  { label: 'Spouse', value: 'spouse' },
+  { label: 'Child', value: 'child' },
+  { label: 'Parent', value: 'parent' },
+  { label: 'Other', value: 'other' },
 ];
 
 const EMPTY_FORM: ProfileFormData = {
@@ -137,13 +145,20 @@ function optionalString<K extends string>(key: K, value: string): Record<K, stri
   return trimmed ? ({ [key]: trimmed } as Record<K, string>) : undefined;
 }
 
+/** Optional overrides for dependent profile creation. */
+export interface BuildProfileOverrides {
+  isPrimary?: boolean;
+  relationship?: ProfileRelationship;
+}
+
 export function buildProfileInput(
   form: ProfileFormData,
   initialData?: UserProfile,
+  overrides?: BuildProfileOverrides,
 ): CreateProfileInput {
   return {
     id: initialData?.id ?? crypto.randomUUID(),
-    isPrimary: initialData?.isPrimary ?? true,
+    isPrimary: overrides?.isPrimary ?? initialData?.isPrimary ?? true,
     firstName: form.firstName.trim(),
     lastName: form.lastName.trim(),
     dateOfBirth: form.dateOfBirth || '',
@@ -160,6 +175,7 @@ export function buildProfileInput(
     ...(form.gender ? { gender: form.gender as Gender } : undefined),
     ...(form.maritalStatus ? { maritalStatus: form.maritalStatus as MaritalStatus } : undefined),
     ...(form.citizenship ? { citizenship: form.citizenship as Citizenship } : undefined),
+    ...(overrides?.relationship ? { relationship: overrides.relationship } : undefined),
   };
 }
 
