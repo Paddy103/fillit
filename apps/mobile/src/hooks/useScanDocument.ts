@@ -9,7 +9,7 @@
  *   5. Advance the processing pipeline to the review stage
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 
 import { scanDocument, type ScanConfig } from '../services/scanner/documentScanner';
@@ -65,18 +65,33 @@ export interface UseScanDocumentReturn {
 export function useScanDocument(options?: UseScanDocumentOptions): UseScanDocumentReturn {
   const [isScanning, setIsScanning] = useState(false);
 
+  // Synchronous guard to prevent double-tap race condition.
+  // useState alone is insufficient because the setter is async —
+  // two rapid taps can both read isScanning=false before the first
+  // setState commits.
+  const isScanningRef = useRef(false);
+
+  // Stable ref for options to avoid useCallback re-creation on every render.
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
+
   const createDocument = useDocumentStore((s) => s.createDocument);
+  const deleteDocument = useDocumentStore((s) => s.deleteDocument);
   const createPage = useDocumentStore((s) => s.createPage);
   const startProcessing = useProcessingStore((s) => s.startProcessing);
   const completeCurrentStage = useProcessingStore((s) => s.completeCurrentStage);
   const advanceStage = useProcessingStore((s) => s.advanceStage);
+  const resetProcessing = useProcessingStore((s) => s.reset);
 
   const scan = useCallback(async () => {
-    if (isScanning) return;
+    if (isScanningRef.current) return;
+    isScanningRef.current = true;
     setIsScanning(true);
 
+    let documentId: string | null = null;
+
     try {
-      const result = await scanDocument(options?.config);
+      const result = await scanDocument(optionsRef.current?.config);
 
       if (result.status === 'canceled') {
         return;
@@ -88,7 +103,7 @@ export function useScanDocument(options?: UseScanDocumentOptions): UseScanDocume
       }
 
       // Create document record in SQLite
-      const documentId = generateId();
+      documentId = generateId();
       await createDocument({
         id: documentId,
         title: `Scan ${new Date().toLocaleDateString()}`,
@@ -119,23 +134,35 @@ export function useScanDocument(options?: UseScanDocumentOptions): UseScanDocume
       completeCurrentStage();
       advanceStage();
 
-      options?.onSuccess?.(documentId, pages.length);
+      optionsRef.current?.onSuccess?.(documentId, pages.length);
+      documentId = null; // Mark success — skip cleanup
     } catch (error) {
+      // Roll back partial state on failure
+      if (documentId) {
+        try {
+          await deleteDocument(documentId);
+        } catch {
+          // Cleanup failure is non-fatal
+        }
+        resetProcessing();
+      }
+
       Alert.alert(
         'Scan Error',
         error instanceof Error ? error.message : 'An unexpected error occurred while scanning.',
       );
     } finally {
+      isScanningRef.current = false;
       setIsScanning(false);
     }
   }, [
-    isScanning,
-    options,
     createDocument,
+    deleteDocument,
     createPage,
     startProcessing,
     completeCurrentStage,
     advanceStage,
+    resetProcessing,
   ]);
 
   return { scan, isScanning };
