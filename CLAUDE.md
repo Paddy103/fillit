@@ -135,6 +135,8 @@ User kicks off story → Issue moved to "In Progress" on project board
 - `apps/mobile/src/stores/processing-store.ts` — Processing pipeline state machine (ephemeral Zustand store, manages stage transitions)
 - `apps/mobile/src/services/storage/database.ts` — SQLite database service (init, migrations, query helpers)
 - `apps/mobile/src/services/storage/fileStorage.ts` — Local file storage service (expo-file-system SDK 55+)
+- `apps/mobile/src/services/scanner/documentScanner.ts` — ML Kit document scanner service (native camera scanning with edge detection)
+- `apps/mobile/src/hooks/useScanDocument.ts` — Document scanning hook (orchestrates scan → save → pipeline flow)
 - `apps/mobile/.maestro/` — Maestro E2E test flows and config
 - `apps/mobile/src/e2e/` — E2E test suite runners (used by harness screen)
 - `apps/mobile/app/__e2e.tsx` — E2E test harness screen (Maestro interacts with this)
