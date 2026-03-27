@@ -13,6 +13,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTheme } from '../../src/theme';
 import { Card, Button } from '../../src/components/ui';
 import { ProfileCard } from '../../src/components/profile/ProfileCard';
+import type { UserProfile } from '@fillit/shared';
 import {
   useProfileStore,
   selectPrimaryProfile,
@@ -35,9 +36,9 @@ const COMPLETENESS_FIELDS = [
   'citizenship',
 ] as const;
 
-function calcCompleteness(profile: Record<string, unknown>): number {
+function calcCompleteness(profile: UserProfile): number {
   const filled = COMPLETENESS_FIELDS.filter((f) => {
-    const v = profile[f];
+    const v = profile[f as keyof UserProfile];
     return typeof v === 'string' && v.trim().length > 0;
   }).length;
   return Math.round((filled / COMPLETENESS_FIELDS.length) * 100);
