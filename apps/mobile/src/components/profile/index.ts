@@ -1,5 +1,10 @@
 export { ProfileForm } from './ProfileForm';
 export type { ProfileFormProps } from './ProfileForm';
 export { ProfileCard } from './ProfileCard';
+export { AddressForm } from './AddressForm';
+export type { AddressFormProps } from './AddressForm';
+export { AddressList } from './AddressList';
+export { AddressCard } from './AddressCard';
+export { ProvincePicker } from './ProvincePicker';
 export { DependentCard } from './DependentCard';
 export { DependentList } from './DependentList';

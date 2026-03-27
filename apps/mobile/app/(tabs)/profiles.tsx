@@ -180,6 +180,10 @@ export default function ProfilesScreen() {
     router.push('/profile/edit');
   }, []);
 
+  const handleManageAddresses = useCallback(() => {
+    router.push('/profile/address');
+  }, []);
+
   if (isLoading || !isInitialized) {
     return (
       <View
@@ -222,6 +226,15 @@ export default function ProfilesScreen() {
         fullWidth
         iconLeft={<Ionicons name="create-outline" size={18} color={theme.colors.primary} />}
         testID="edit-profile-button"
+      />
+      <Button
+        label="Manage Addresses"
+        variant="outline"
+        onPress={handleManageAddresses}
+        fullWidth
+        iconLeft={<Ionicons name="location-outline" size={18} color={theme.colors.primary} />}
+        style={{ marginTop: theme.spacing.sm }}
+        testID="manage-addresses-button"
       />
       <DependentList />
     </ScrollView>
