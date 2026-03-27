@@ -27,6 +27,8 @@ export interface ProfileFormProps {
   readonly onCancel?: () => void;
   readonly onDirtyChange?: (isDirty: boolean) => void;
   readonly isSaving?: boolean;
+  /** Optional content rendered above the form sections (e.g. relationship picker). */
+  readonly headerContent?: React.ReactNode;
 }
 
 export function ProfileForm({
@@ -35,6 +37,7 @@ export function ProfileForm({
   onCancel,
   onDirtyChange,
   isSaving = false,
+  headerContent,
 }: ProfileFormProps) {
   const { theme } = useTheme();
   const isEditing = Boolean(initialData);
@@ -57,6 +60,7 @@ export function ProfileForm({
         keyboardShouldPersistTaps="handled"
         testID="profile-form-scroll"
       >
+        {headerContent}
         <SaIdSection
           form={form}
           errors={errors}

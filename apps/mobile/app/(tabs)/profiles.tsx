@@ -13,6 +13,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTheme } from '../../src/theme';
 import { Card, Button } from '../../src/components/ui';
 import { ProfileCard } from '../../src/components/profile/ProfileCard';
+import { DependentList } from '../../src/components/profile/DependentList';
 import type { UserProfile } from '@fillit/shared';
 import {
   useProfileStore,
@@ -179,6 +180,10 @@ export default function ProfilesScreen() {
     router.push('/profile/edit');
   }, []);
 
+  const handleManageAddresses = useCallback(() => {
+    router.push('/profile/address');
+  }, []);
+
   if (isLoading || !isInitialized) {
     return (
       <View
@@ -222,6 +227,16 @@ export default function ProfilesScreen() {
         iconLeft={<Ionicons name="create-outline" size={18} color={theme.colors.primary} />}
         testID="edit-profile-button"
       />
+      <Button
+        label="Manage Addresses"
+        variant="outline"
+        onPress={handleManageAddresses}
+        fullWidth
+        iconLeft={<Ionicons name="location-outline" size={18} color={theme.colors.primary} />}
+        style={{ marginTop: theme.spacing.sm }}
+        testID="manage-addresses-button"
+      />
+      <DependentList />
     </ScrollView>
   );
 }

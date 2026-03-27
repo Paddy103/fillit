@@ -36,6 +36,14 @@ function RootNavigator() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="profile/create" options={{ headerShown: false }} />
       <Stack.Screen name="profile/edit" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/address/index" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/address/add" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/address/[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/dependent/add" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/dependent/[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/document/index" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/document/add" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/document/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="profile/emergency/index" options={{ headerShown: false }} />
       <Stack.Screen name="profile/emergency/add" options={{ headerShown: false }} />
       <Stack.Screen name="profile/emergency/[id]" options={{ headerShown: false }} />
