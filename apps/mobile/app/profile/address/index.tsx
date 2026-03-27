@@ -33,7 +33,7 @@ export default function AddressListScreen() {
   }, []);
 
   const handleEdit = useCallback((id: string) => {
-    router.push(`/profile/address/${id}`);
+    router.push(`/profile/address/${id}` as never);
   }, []);
 
   const handleDelete = useCallback(

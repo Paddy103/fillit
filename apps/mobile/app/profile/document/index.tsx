@@ -25,7 +25,7 @@ export default function DocumentListScreen() {
   const deleteDocument = useProfileStore((s) => s.deleteIdentityDocument);
 
   const handlePress = useCallback((id: string) => {
-    router.push(`/profile/document/${id}`);
+    router.push(`/profile/document/${id}` as never);
   }, []);
 
   const handleAdd = useCallback(() => {

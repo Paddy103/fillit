@@ -13,7 +13,10 @@ import { useTheme } from '../../../src/theme';
 import { ScreenHeader } from '../../../src/components/profile/ScreenHeader';
 import { AddressForm } from '../../../src/components/profile/AddressForm';
 import { useProfileStore, selectActiveProfile } from '../../../src/stores/profile-store';
-import type { CreateAddressInput } from '../../../src/services/storage/profileCrud';
+import type {
+  CreateAddressInput,
+  UpdateAddressInput,
+} from '../../../src/services/storage/profileCrud';
 
 function confirmDiscard(): Promise<boolean> {
   return new Promise((resolve) => {
@@ -52,10 +55,10 @@ export default function AddAddressScreen() {
   }, []);
 
   const handleSubmit = useCallback(
-    async (data: CreateAddressInput) => {
+    async (data: CreateAddressInput | UpdateAddressInput) => {
       if (!profile) return;
       try {
-        await createAddress(profile.id, data);
+        await createAddress(profile.id, data as CreateAddressInput);
         Alert.alert('Address Added', 'Your address has been saved.', [
           { text: 'OK', onPress: () => router.back() },
         ]);

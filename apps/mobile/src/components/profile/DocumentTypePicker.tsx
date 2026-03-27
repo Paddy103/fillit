@@ -51,7 +51,7 @@ function TypeItem({
       style={[
         styles.typeItem,
         {
-          backgroundColor: selected ? theme.colors.primaryContainer : 'transparent',
+          backgroundColor: selected ? theme.colors.surfaceVariant : 'transparent',
           paddingVertical: theme.spacing.sm,
           paddingHorizontal: theme.spacing.md,
         },
