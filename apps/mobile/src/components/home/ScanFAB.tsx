@@ -19,6 +19,8 @@ const FAB_SIZE = 64;
 export interface ScanFABProps {
   /** Override the default press handler */
   readonly onPress?: () => void;
+  /** Whether the FAB is disabled (e.g., while scanning is in progress) */
+  readonly disabled?: boolean;
   /** Test ID for E2E tests */
   readonly testID?: string;
 }
@@ -32,10 +34,11 @@ export interface ScanFABProps {
  * <ScanFAB onPress={() => router.push('/scan')} />
  * ```
  */
-export function ScanFAB({ onPress, testID = 'scan-fab' }: ScanFABProps) {
+export function ScanFAB({ onPress, disabled = false, testID = 'scan-fab' }: ScanFABProps) {
   const { theme } = useTheme();
 
   const handlePress = () => {
+    if (disabled) return;
     if (onPress) {
       onPress();
       return;
@@ -47,14 +50,17 @@ export function ScanFAB({ onPress, testID = 'scan-fab' }: ScanFABProps) {
     ...styles.fab,
     backgroundColor: theme.colors.primary,
     ...theme.elevations.lg,
+    ...(disabled ? { opacity: 0.5 } : undefined),
   };
 
   return (
     <Pressable
       onPress={handlePress}
-      style={({ pressed }) => [fabStyle, pressed && styles.pressed]}
+      disabled={disabled}
+      style={({ pressed }) => [fabStyle, pressed && !disabled && styles.pressed]}
       accessibilityRole="button"
       accessibilityLabel="Scan a document"
+      accessibilityState={{ disabled }}
       testID={testID}
     >
       <Ionicons name="scan" size={28} color={theme.colors.onPrimary} />
