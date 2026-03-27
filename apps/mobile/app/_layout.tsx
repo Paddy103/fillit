@@ -39,6 +39,8 @@ function RootNavigator() {
       <Stack.Screen name="profile/address/index" options={{ headerShown: false }} />
       <Stack.Screen name="profile/address/add" options={{ headerShown: false }} />
       <Stack.Screen name="profile/address/[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/dependent/add" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/dependent/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="__e2e" options={{ headerShown: true, headerTitle: 'E2E Tests' }} />
     </Stack>
   );

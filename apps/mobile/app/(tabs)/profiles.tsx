@@ -13,6 +13,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTheme } from '../../src/theme';
 import { Card, Button } from '../../src/components/ui';
 import { ProfileCard } from '../../src/components/profile/ProfileCard';
+import { DependentList } from '../../src/components/profile/DependentList';
 import type { UserProfile } from '@fillit/shared';
 import {
   useProfileStore,
@@ -235,6 +236,7 @@ export default function ProfilesScreen() {
         style={{ marginTop: theme.spacing.sm }}
         testID="manage-addresses-button"
       />
+      <DependentList />
     </ScrollView>
   );
 }

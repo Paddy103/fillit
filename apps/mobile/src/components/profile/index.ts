@@ -6,3 +6,5 @@ export type { AddressFormProps } from './AddressForm';
 export { AddressList } from './AddressList';
 export { AddressCard } from './AddressCard';
 export { ProvincePicker } from './ProvincePicker';
+export { DependentCard } from './DependentCard';
+export { DependentList } from './DependentList';
