@@ -4,7 +4,7 @@
  * Handles field updates, SA ID smart-fill, validation, and submission.
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import type { UserProfile } from '@fillit/shared';
 
 import type { CreateProfileInput } from '../../services/storage/profileCrud';
@@ -24,6 +24,9 @@ export function useProfileForm(
   const [form, setForm] = useState<ProfileFormData>(() => initFormData(initialData));
   const [errors, setErrors] = useState<FormErrors>({});
   const [smartFillApplied, setSmartFillApplied] = useState(false);
+  const initialSnapshot = useRef(JSON.stringify(initFormData(initialData)));
+
+  const isDirty = useMemo(() => JSON.stringify(form) !== initialSnapshot.current, [form]);
 
   const updateField = useCallback(
     <K extends keyof ProfileFormData>(field: K, value: ProfileFormData[K]) => {
@@ -83,5 +86,5 @@ export function useProfileForm(
     [smartFillApplied],
   );
 
-  return { form, errors, updateField, handleSaIdChange, handleSubmit, saIdHelperText };
+  return { form, errors, isDirty, updateField, handleSaIdChange, handleSubmit, saIdHelperText };
 }

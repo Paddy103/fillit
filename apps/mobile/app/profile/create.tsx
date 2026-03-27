@@ -2,16 +2,16 @@
  * Profile creation screen.
  *
  * Renders the ProfileForm for creating a new primary profile.
- * Navigates back to the profiles tab on successful creation.
+ * Shows success feedback and navigates back on completion.
  */
 
 import { useCallback } from 'react';
-import { View, Text, Pressable, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { router } from 'expo-router';
-import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { useTheme } from '../../src/theme';
 import { ProfileForm } from '../../src/components/profile';
+import { ScreenHeader } from '../../src/components/profile/ScreenHeader';
 import { useProfileStore } from '../../src/stores/profile-store';
 import type { CreateProfileInput } from '../../src/services/storage/profileCrud';
 
@@ -24,7 +24,9 @@ export default function CreateProfileScreen() {
     async (data: CreateProfileInput) => {
       try {
         await createProfile(data);
-        router.back();
+        Alert.alert('Profile Created', 'Your profile has been set up successfully.', [
+          { text: 'OK', onPress: () => router.back() },
+        ]);
       } catch (err) {
         Alert.alert(
           'Error',
@@ -37,40 +39,8 @@ export default function CreateProfileScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {/* Header */}
-      <View
-        style={[
-          styles.header,
-          {
-            backgroundColor: theme.colors.surface,
-            paddingHorizontal: theme.spacing.lg,
-            paddingTop: theme.spacing['3xl'],
-            paddingBottom: theme.spacing.md,
-            borderBottomWidth: 1,
-            borderBottomColor: theme.colors.outline,
-          },
-        ]}
-      >
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={12}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          testID="back-button"
-        >
-          <Ionicons name="arrow-back" size={24} color={theme.colors.onSurface} />
-        </Pressable>
-        <Text
-          style={[
-            theme.typography.titleLarge,
-            { color: theme.colors.onSurface, marginLeft: theme.spacing.md, flex: 1 },
-          ]}
-        >
-          Create Profile
-        </Text>
-      </View>
-
-      <ProfileForm onSubmit={handleSubmit} isSaving={isMutating} />
+      <ScreenHeader title="Create Profile" onBack={() => router.back()} />
+      <ProfileForm onSubmit={handleSubmit} onCancel={() => router.back()} isSaving={isMutating} />
     </View>
   );
 }
@@ -78,9 +48,5 @@ export default function CreateProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
 });
