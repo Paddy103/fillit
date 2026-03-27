@@ -36,6 +36,9 @@ function RootNavigator() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="profile/create" options={{ headerShown: false }} />
       <Stack.Screen name="profile/edit" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/document/index" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/document/add" options={{ headerShown: false }} />
+      <Stack.Screen name="profile/document/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="__e2e" options={{ headerShown: true, headerTitle: 'E2E Tests' }} />
     </Stack>
   );
