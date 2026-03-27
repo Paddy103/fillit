@@ -13,6 +13,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTheme } from '../../src/theme';
 import { Button, DisplayMedium, BodyLarge } from '../../src/components/ui';
 import { ScanFAB, QuickStats, RecentDocuments } from '../../src/components/home';
+import { useScanDocument } from '../../src/hooks/useScanDocument';
 import {
   useDocumentStore,
   selectDocuments,
@@ -28,11 +29,16 @@ import {
 
 export default function HomeScreen() {
   useStoreInitialization();
+  const { scan, isScanning } = useScanDocument({
+    onSuccess: (_id, pageCount) => {
+      Alert.alert('Scan Complete', `Successfully scanned ${pageCount} page(s).`);
+    },
+  });
 
   return (
     <View style={styles.root} testID="home-screen">
-      <DashboardContent />
-      <ScanFAB />
+      <DashboardContent scan={scan} isScanning={isScanning} />
+      <ScanFAB onPress={scan} disabled={isScanning} />
     </View>
   );
 }
@@ -57,7 +63,7 @@ function useStoreInitialization() {
 // ---------------------------------------------------------------------------
 
 /** Scrollable dashboard body with hero, actions, stats, and documents */
-function DashboardContent() {
+function DashboardContent({ scan, isScanning }: { scan: () => void; isScanning: boolean }) {
   const { theme } = useTheme();
   const documents = useDocumentStore(selectDocuments);
   const isLoading = useDocumentStore(selectDocIsLoading);
@@ -78,7 +84,7 @@ function DashboardContent() {
       contentContainerStyle={[styles.content, { padding: theme.spacing.lg }]}
     >
       <HeroSection />
-      <QuickActions />
+      <QuickActions scan={scan} isScanning={isScanning} />
 
       {storesReady ? (
         <>
@@ -121,12 +127,8 @@ function HeroSection() {
 HeroSection.displayName = 'HeroSection';
 
 /** Scan and Import action buttons */
-function QuickActions() {
+function QuickActions({ scan, isScanning }: { scan: () => void; isScanning: boolean }) {
   const { theme } = useTheme();
-
-  const handleScan = () => {
-    Alert.alert('Coming Soon', 'Document scanning will be available in a future update.');
-  };
 
   const handleImport = () => {
     Alert.alert('Coming Soon', 'Document import will be available in a future update.');
@@ -135,12 +137,15 @@ function QuickActions() {
   return (
     <View style={[styles.quickActions, { gap: theme.spacing.md, marginBottom: theme.spacing.xl }]}>
       <Button
-        label="Scan"
+        label={isScanning ? 'Scanning...' : 'Scan'}
         variant="primary"
         size="lg"
         fullWidth
-        onPress={handleScan}
-        iconLeft={<Ionicons name="scan" size={22} color={theme.colors.onPrimary} />}
+        onPress={scan}
+        loading={isScanning}
+        iconLeft={
+          isScanning ? undefined : <Ionicons name="scan" size={22} color={theme.colors.onPrimary} />
+        }
         accessibilityLabel="Scan a document"
         testID="action-scan"
         style={{ flex: 1 }}
