@@ -6,6 +6,7 @@
  * DOB, gender, and citizenship.
  */
 
+import { useEffect } from 'react';
 import { ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import type { UserProfile } from '@fillit/shared';
 
@@ -23,14 +24,26 @@ import {
 export interface ProfileFormProps {
   readonly initialData?: UserProfile;
   readonly onSubmit: (data: CreateProfileInput) => Promise<void>;
+  readonly onCancel?: () => void;
+  readonly onDirtyChange?: (isDirty: boolean) => void;
   readonly isSaving?: boolean;
 }
 
-export function ProfileForm({ initialData, onSubmit, isSaving = false }: ProfileFormProps) {
+export function ProfileForm({
+  initialData,
+  onSubmit,
+  onCancel,
+  onDirtyChange,
+  isSaving = false,
+}: ProfileFormProps) {
   const { theme } = useTheme();
   const isEditing = Boolean(initialData);
-  const { form, errors, updateField, handleSaIdChange, handleSubmit, saIdHelperText } =
+  const { form, errors, isDirty, updateField, handleSaIdChange, handleSubmit, saIdHelperText } =
     useProfileForm(initialData, onSubmit);
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   return (
     <KeyboardAvoidingView
@@ -62,6 +75,17 @@ export function ProfileForm({ initialData, onSubmit, isSaving = false }: Profile
           size="lg"
           testID="submit-profile"
         />
+        {onCancel ? (
+          <Button
+            label="Cancel"
+            variant="ghost"
+            onPress={onCancel}
+            fullWidth
+            size="md"
+            style={{ marginTop: theme.spacing.sm }}
+            testID="cancel-profile"
+          />
+        ) : null}
       </ScrollView>
     </KeyboardAvoidingView>
   );
