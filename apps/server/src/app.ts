@@ -11,6 +11,7 @@ import {
 } from './middleware/index.js';
 import { createVerifiers } from './auth/index.js';
 import { RateLimiter, RATE_LIMIT_TIERS } from './services/rate-limiter.js';
+import { analyzeRoutes } from './routes/analyze.js';
 
 const app = new Hono<AppEnv>();
 
@@ -47,6 +48,9 @@ app.get('/health', (c) => {
 app.get('/', (c) => {
   return c.json({ name: 'FillIt API', version: '0.1.0' });
 });
+
+// API routes
+app.route('/api', analyzeRoutes);
 
 // Authenticated route: verify token and return user info
 app.get('/api/auth/me', (c) => {
