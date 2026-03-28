@@ -24,9 +24,8 @@ export default function ScanReviewScreen() {
   const { pages, isBusy, movePageUp, movePageDown, removePage, retakePage, confirm, canConfirm } =
     useScanReview({
       documentId: id ?? '',
-      onConfirm: () => {
-        // Navigate back to home for now — OCR screen comes in a later story
-        router.replace('/(tabs)/home');
+      onConfirm: (docId) => {
+        router.push(`/ocr/${docId}` as never);
       },
     });
 
