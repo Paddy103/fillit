@@ -12,11 +12,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '../../../src/theme';
 import { ScreenHeader } from '../../../src/components/profile/ScreenHeader';
 import { AddressForm } from '../../../src/components/profile/AddressForm';
-import {
-  useProfileStore,
-  selectActiveProfile,
-  selectActiveProfileAddresses,
-} from '../../../src/stores/profile-store';
+import { useProfileStore, selectActiveProfile } from '../../../src/stores/profile-store';
 import type { UpdateAddressInput } from '../../../src/services/storage/profileCrud';
 
 function confirmDiscard(): Promise<boolean> {
@@ -40,7 +36,7 @@ export default function EditAddressScreen() {
   const { theme } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const profile = useProfileStore(selectActiveProfile);
-  const addresses = useProfileStore(selectActiveProfileAddresses);
+  const addresses = profile?.addresses ?? [];
   const updateAddress = useProfileStore((s) => s.updateAddress);
   const isMutating = useProfileStore((s) => s.mutationCount > 0);
   const isDirtyRef = useRef(false);

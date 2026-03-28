@@ -28,6 +28,9 @@ const SCHEMA_VERSION_TABLE = '_schema_version';
 /** Singleton database instance. */
 let db: SQLite.SQLiteDatabase | null = null;
 
+/** Shared promise to prevent concurrent initialization. */
+let initPromise: Promise<SQLite.SQLiteDatabase> | null = null;
+
 /**
  * Get the database instance. Throws if not initialized.
  */
@@ -44,6 +47,7 @@ export function getDatabase(): SQLite.SQLiteDatabase {
  * Opens (or creates) the database file, enables WAL mode and foreign keys,
  * creates the schema version tracking table, and applies any pending migrations.
  *
+ * Safe to call concurrently — subsequent calls share the same initialization promise.
  * Must be called once during app startup before any database operations.
  *
  * @returns The initialized database instance.
@@ -55,6 +59,21 @@ export async function initializeDatabase(): Promise<SQLite.SQLiteDatabase> {
     return db;
   }
 
+  if (initPromise) {
+    return initPromise;
+  }
+
+  initPromise = doInitializeDatabase();
+  try {
+    return await initPromise;
+  } catch (error) {
+    // Reset so retry is possible after failure
+    initPromise = null;
+    throw error;
+  }
+}
+
+async function doInitializeDatabase(): Promise<SQLite.SQLiteDatabase> {
   try {
     db = await SQLite.openDatabaseAsync(DATABASE_NAME);
 
@@ -81,6 +100,19 @@ export async function initializeDatabase(): Promise<SQLite.SQLiteDatabase> {
 
     // Run pending migrations
     await runMigrations();
+
+    // Verify critical tables exist (handles stale schema version from prior installs)
+    const tableCheck = await db.getFirstAsync<{ name: string }>(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='profiles'",
+    );
+    if (!tableCheck) {
+      console.warn('[FillIt] Schema version is set but tables are missing — forcing re-migration');
+      await db.runAsync(
+        `UPDATE ${SCHEMA_VERSION_TABLE} SET version = 0, applied_at = ? WHERE id = 1`,
+        new Date().toISOString(),
+      );
+      await runMigrations();
+    }
 
     return db;
   } catch (error) {
@@ -253,5 +285,6 @@ export const _testing = {
   SCHEMA_VERSION_TABLE,
   resetInstance: () => {
     db = null;
+    initPromise = null;
   },
 };

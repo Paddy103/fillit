@@ -4,13 +4,10 @@
  * Wraps @infinitered/react-native-mlkit-document-scanner to provide a
  * typed, result-oriented API for launching the native document scanner.
  * Handles auto-edge detection, perspective correction, and multi-page scanning.
+ *
+ * Supports iOS (VisionKit) and Android (ML Kit) via the native module.
  */
 
-import {
-  launchDocumentScannerAsync,
-  ResultFormatOptions,
-  ScannerModeOptions,
-} from '@infinitered/react-native-mlkit-document-scanner';
 import { Platform } from 'react-native';
 
 // ---------------------------------------------------------------------------
@@ -68,6 +65,10 @@ export async function scanDocument(config?: ScanConfig): Promise<ScanResult> {
   }
 
   try {
+    // Dynamic import avoids crashing if the native module is missing
+    const { launchDocumentScannerAsync, ResultFormatOptions, ScannerModeOptions } =
+      await import('@infinitered/react-native-mlkit-document-scanner');
+
     const result = await launchDocumentScannerAsync({
       pageLimit: config?.pageLimit ?? DEFAULT_PAGE_LIMIT,
       galleryImportAllowed: config?.galleryImportAllowed ?? true,

@@ -8,14 +8,14 @@
     "icon": "./assets/images/icon.png",
     "scheme": "fillit",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "platforms": ["ios", "android"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.paddy103.fillit",
       "icon": "./assets/images/icon.png",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "FillIt uses the camera to scan documents for form filling."
       }
     },
     "android": {

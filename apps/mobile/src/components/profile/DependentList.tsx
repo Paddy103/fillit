@@ -15,11 +15,7 @@ import type { UserProfile } from '@fillit/shared';
 import { useTheme } from '../../theme';
 import { Button } from '../ui';
 import { DependentCard } from './DependentCard';
-import {
-  useProfileStore,
-  selectDependentProfiles,
-  selectActiveProfileId,
-} from '../../stores/profile-store';
+import { useProfileStore, selectProfiles, selectActiveProfileId } from '../../stores/profile-store';
 
 // ─── Helpers ────────────────────────────────────────────────────────
 
@@ -48,7 +44,8 @@ function calcCompleteness(profile: UserProfile): number {
 
 export function DependentList() {
   const { theme } = useTheme();
-  const dependents = useProfileStore(selectDependentProfiles);
+  const profiles = useProfileStore(selectProfiles);
+  const dependents = profiles.filter((p) => !p.isPrimary);
   const activeProfileId = useProfileStore(selectActiveProfileId);
   const setActiveProfileId = useProfileStore((s) => s.setActiveProfileId);
 
