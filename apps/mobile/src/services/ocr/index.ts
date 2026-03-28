@@ -1,4 +1,13 @@
-export { performOcr, performOcrBatch, extractPlainText, extractBlocks } from './ocrService';
+// Public API
+export {
+  performOcr,
+  performOcrBatch,
+  extractPlainText,
+  extractBlocks,
+  getActiveProviderName,
+} from './ocrService';
+
+// Types (re-exported from types.ts for consumers)
 export type {
   OcrElement,
   OcrLine,
@@ -6,4 +15,5 @@ export type {
   OcrPageResult,
   OcrResult,
   OcrOptions,
-} from './ocrService';
+  OcrProvider,
+} from './types';
