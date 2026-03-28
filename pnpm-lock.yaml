@@ -92,6 +92,9 @@ importers:
       expo-font:
         specifier: ^55.0.4
         version: 55.0.4(expo@55.0.8)(react-native@0.83.2(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)
+      expo-image-manipulator:
+        specifier: 55.0.12-canary-20260327-0789fbc
+        version: 55.0.12-canary-20260327-0789fbc(expo@55.0.8)
       expo-linking:
         specifier: ~55.0.8
         version: 55.0.8(expo@55.0.8)(react-native@0.83.2(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
@@ -2400,6 +2403,16 @@ packages:
       expo: '*'
       react: '*'
       react-native: '*'
+
+  expo-image-loader@55.0.1-canary-20260327-0789fbc:
+    resolution: {integrity: sha512-wcKQ5WZjhgDEP6M302HzSsHOlhEh1TQrl0oJb99m3zIRYKL9C60zN3Dl/An6x5oNmiLwGQE8l/6Uq6W8yyGpwg==}
+    peerDependencies:
+      expo: 55.0.10-canary-20260327-0789fbc
+
+  expo-image-manipulator@55.0.12-canary-20260327-0789fbc:
+    resolution: {integrity: sha512-ICQwdu+cR6GN2BGMM18LPvUPwlQjttg42CwVz6TqoE1GtHPVcr8FpilNfddVJlBrh6YQ4x+Uq1/Y1IaWxfK0kg==}
+    peerDependencies:
+      expo: 55.0.10-canary-20260327-0789fbc
 
   expo-image@55.0.6:
     resolution: {integrity: sha512-TKuu0uBmgTZlhd91Glv+V4vSBMlfl0bdQxfl97oKKZUo3OBC13l3eLik7v3VNLJN7PZbiwOAiXkZkqSOBx/Xsw==}
@@ -6744,6 +6757,15 @@ snapshots:
       expo: 55.0.8(@babel/core@7.29.0)(@expo/dom-webview@55.0.3)(@expo/metro-runtime@55.0.6)(expo-router@55.0.7)(react-dom@19.2.0(react@19.2.0))(react-native@0.83.2(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
       react: 19.2.0
       react-native: 0.83.2(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.0)
+
+  expo-image-loader@55.0.1-canary-20260327-0789fbc(expo@55.0.8):
+    dependencies:
+      expo: 55.0.8(@babel/core@7.29.0)(@expo/dom-webview@55.0.3)(@expo/metro-runtime@55.0.6)(expo-router@55.0.7)(react-dom@19.2.0(react@19.2.0))(react-native@0.83.2(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
+
+  expo-image-manipulator@55.0.12-canary-20260327-0789fbc(expo@55.0.8):
+    dependencies:
+      expo: 55.0.8(@babel/core@7.29.0)(@expo/dom-webview@55.0.3)(@expo/metro-runtime@55.0.6)(expo-router@55.0.7)(react-dom@19.2.0(react@19.2.0))(react-native@0.83.2(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
+      expo-image-loader: 55.0.1-canary-20260327-0789fbc(expo@55.0.8)
 
   expo-image@55.0.6(expo@55.0.8)(react-native@0.83.2(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.0))(react@19.2.0):
     dependencies:
