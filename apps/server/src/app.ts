@@ -1,8 +1,16 @@
 import { Hono } from 'hono';
 import { APP_NAME } from '@fillit/shared';
 import type { AppEnv } from './types.js';
-import { requestId, cors, logger, errorHandler, createAuthMiddleware } from './middleware/index.js';
+import {
+  requestId,
+  cors,
+  logger,
+  errorHandler,
+  createAuthMiddleware,
+  createRateLimitMiddleware,
+} from './middleware/index.js';
 import { createVerifiers } from './auth/index.js';
+import { RateLimiter, RATE_LIMIT_TIERS } from './services/rate-limiter.js';
 
 const app = new Hono<AppEnv>();
 
@@ -18,6 +26,10 @@ app.onError(errorHandler);
 const verifiers = createVerifiers();
 const auth = createAuthMiddleware(verifiers);
 app.use('/api/*', auth);
+
+// Rate limiting — applied after auth so userId is available
+const rateLimiter = new RateLimiter(RATE_LIMIT_TIERS.free);
+app.use('/api/*', createRateLimitMiddleware(rateLimiter));
 
 // Public routes
 const startTime = Date.now();
