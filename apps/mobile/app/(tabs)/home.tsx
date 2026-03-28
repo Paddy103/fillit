@@ -15,6 +15,7 @@ import { useTheme } from '../../src/theme';
 import { Button, DisplayMedium, BodyLarge } from '../../src/components/ui';
 import { ScanFAB, QuickStats, RecentDocuments } from '../../src/components/home';
 import { useScanDocument } from '../../src/hooks/useScanDocument';
+import { useImportDocument } from '../../src/hooks/useImportDocument';
 import {
   useDocumentStore,
   selectDocuments,
@@ -36,11 +37,21 @@ export default function HomeScreen() {
       router.push(`/scan/${id}` as never);
     },
   });
+  const { importFiles, isImporting } = useImportDocument({
+    onSuccess: (_id, pageCount) => {
+      Alert.alert('Import Complete', `Successfully imported ${pageCount} image(s).`);
+    },
+  });
 
   return (
     <View style={styles.root} testID="home-screen">
-      <DashboardContent scan={scan} isScanning={isScanning} />
-      <ScanFAB onPress={scan} disabled={isScanning} />
+      <DashboardContent
+        scan={scan}
+        isScanning={isScanning}
+        importFiles={importFiles}
+        isImporting={isImporting}
+      />
+      <ScanFAB onPress={scan} disabled={isScanning || isImporting} />
     </View>
   );
 }
@@ -65,7 +76,17 @@ function useStoreInitialization() {
 // ---------------------------------------------------------------------------
 
 /** Scrollable dashboard body with hero, actions, stats, and documents */
-function DashboardContent({ scan, isScanning }: { scan: () => void; isScanning: boolean }) {
+function DashboardContent({
+  scan,
+  isScanning,
+  importFiles,
+  isImporting,
+}: {
+  scan: () => void;
+  isScanning: boolean;
+  importFiles: () => void;
+  isImporting: boolean;
+}) {
   const { theme } = useTheme();
   const documents = useDocumentStore(selectDocuments);
   const isLoading = useDocumentStore(selectDocIsLoading);
@@ -86,7 +107,12 @@ function DashboardContent({ scan, isScanning }: { scan: () => void; isScanning: 
       contentContainerStyle={[styles.content, { padding: theme.spacing.lg }]}
     >
       <HeroSection />
-      <QuickActions scan={scan} isScanning={isScanning} />
+      <QuickActions
+        scan={scan}
+        isScanning={isScanning}
+        importFiles={importFiles}
+        isImporting={isImporting}
+      />
 
       {storesReady ? (
         <>
@@ -129,12 +155,18 @@ function HeroSection() {
 HeroSection.displayName = 'HeroSection';
 
 /** Scan and Import action buttons */
-function QuickActions({ scan, isScanning }: { scan: () => void; isScanning: boolean }) {
+function QuickActions({
+  scan,
+  isScanning,
+  importFiles,
+  isImporting,
+}: {
+  scan: () => void;
+  isScanning: boolean;
+  importFiles: () => void;
+  isImporting: boolean;
+}) {
   const { theme } = useTheme();
-
-  const handleImport = () => {
-    Alert.alert('Coming Soon', 'Document import will be available in a future update.');
-  };
 
   return (
     <View style={[styles.quickActions, { gap: theme.spacing.md, marginBottom: theme.spacing.xl }]}>
@@ -145,6 +177,7 @@ function QuickActions({ scan, isScanning }: { scan: () => void; isScanning: bool
         fullWidth
         onPress={scan}
         loading={isScanning}
+        disabled={isImporting}
         iconLeft={
           isScanning ? undefined : <Ionicons name="scan" size={22} color={theme.colors.onPrimary} />
         }
@@ -153,13 +186,17 @@ function QuickActions({ scan, isScanning }: { scan: () => void; isScanning: bool
         style={{ flex: 1 }}
       />
       <Button
-        label="Import"
+        label={isImporting ? 'Importing...' : 'Import'}
         variant="outline"
         size="lg"
         fullWidth
-        onPress={handleImport}
+        onPress={importFiles}
+        loading={isImporting}
+        disabled={isScanning}
         iconLeft={
-          <Ionicons name="document-attach-outline" size={22} color={theme.colors.primary} />
+          isImporting ? undefined : (
+            <Ionicons name="document-attach-outline" size={22} color={theme.colors.primary} />
+          )
         }
         accessibilityLabel="Import a document"
         testID="action-import"
