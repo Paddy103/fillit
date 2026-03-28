@@ -80,6 +80,15 @@ const { mockDb, mockOpenDatabase, mockDeleteDatabase } = vi.hoisted(() => {
         return { version: schemaVersion };
       }
 
+      // Handle table existence check (sqlite_master) — return matching tracked table
+      if (sql.includes('sqlite_master') && sql.includes("type='table'")) {
+        const nameMatch = sql.match(/name='(\w+)'/);
+        if (nameMatch && tables.has(nameMatch[1]!)) {
+          return { name: nameMatch[1] };
+        }
+        return null;
+      }
+
       // Handle generic SELECT from tracked tables
       const selectMatch = sql.match(/SELECT .+ FROM (\w+)/i);
       if (selectMatch) {

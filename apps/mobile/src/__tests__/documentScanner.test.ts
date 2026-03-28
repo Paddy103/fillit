@@ -20,6 +20,12 @@ vi.mock('react-native', () => ({
   Platform: mockPlatform,
 }));
 
+vi.mock('react-native-document-scanner-plugin', () => ({
+  default: {
+    scanDocument: mockLaunchScanner,
+  },
+}));
+
 // ---------------------------------------------------------------------------
 // Module under test
 // ---------------------------------------------------------------------------
@@ -169,9 +175,8 @@ describe('documentScanner', () => {
     it('works on iOS platform', async () => {
       mockPlatform.OS = 'ios';
       mockLaunchScanner.mockResolvedValue({
-        canceled: false,
-        pages: ['file:///tmp/page1.jpg'],
-        pdf: null,
+        scannedImages: ['file:///tmp/page1.jpg'],
+        status: 'success',
       });
 
       const result = await scanDocument();
