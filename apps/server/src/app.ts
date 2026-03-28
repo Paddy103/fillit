@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
 import { APP_NAME } from '@fillit/shared';
 import type { AppEnv } from './types.js';
-import { requestId, cors, logger, errorHandler } from './middleware/index.js';
+import { requestId, cors, logger, errorHandler, createAuthMiddleware } from './middleware/index.js';
+import { createVerifiers } from './auth/index.js';
 
 const app = new Hono<AppEnv>();
 
@@ -13,7 +14,12 @@ app.use('*', logger);
 // Error handler
 app.onError(errorHandler);
 
-// Routes
+// Auth middleware — applied to /api/* routes only (health + root stay public)
+const verifiers = createVerifiers();
+const auth = createAuthMiddleware(verifiers);
+app.use('/api/*', auth);
+
+// Public routes
 const startTime = Date.now();
 
 app.get('/health', (c) => {
@@ -28,6 +34,14 @@ app.get('/health', (c) => {
 
 app.get('/', (c) => {
   return c.json({ name: 'FillIt API', version: '0.1.0' });
+});
+
+// Authenticated route: verify token and return user info
+app.get('/api/auth/me', (c) => {
+  return c.json({
+    userId: c.get('userId'),
+    provider: c.get('authProvider'),
+  });
 });
 
 // Not found handler
