@@ -29,6 +29,7 @@ import {
   type UpdateDocumentInput,
   type UpdatePageInput,
 } from '../services/storage/documentCrud';
+import { initializeDatabase } from '../services/storage/database';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -168,6 +169,7 @@ function createInitActions(set: SetFn, get: GetFn) {
 
       set({ isLoading: true, error: null });
       try {
+        await initializeDatabase();
         const docs = await listDocuments();
         const docsWithPages = await Promise.all(
           docs.map(async (doc) => {
@@ -181,6 +183,8 @@ function createInitActions(set: SetFn, get: GetFn) {
           isInitialized: true,
         });
       } catch (err) {
+        const cause = err instanceof Error && 'cause' in err ? (err as any).cause : undefined;
+        console.error('[FillIt] Document store init failed:', err, 'Cause:', cause);
         set({ isLoading: false, error: toStoreError('load', err) });
       }
     },

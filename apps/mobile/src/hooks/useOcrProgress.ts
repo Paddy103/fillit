@@ -9,7 +9,7 @@
  *   5. Advance pipeline to the detecting stage on completion
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useDocumentStore, selectDocumentById } from '../stores/document-store';
 import { useProcessingStore } from '../stores/processing-store';
@@ -67,7 +67,8 @@ export function useOcrProgress({
   const cancelledRef = useRef(false);
   const startedRef = useRef(false);
 
-  const document = useDocumentStore(selectDocumentById(documentId));
+  const selector = useMemo(() => selectDocumentById(documentId), [documentId]);
+  const document = useDocumentStore(selector);
   const updatePage = useDocumentStore((s) => s.updatePage);
   const updateStatus = useDocumentStore((s) => s.updateStatus);
   const updateProgress = useProcessingStore((s) => s.updateProgress);

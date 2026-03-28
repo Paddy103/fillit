@@ -6,7 +6,7 @@
  * This is the primary landing screen after app launch.
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
@@ -21,7 +21,6 @@ import {
   selectDocuments,
   selectIsLoading as selectDocIsLoading,
   selectIsInitialized as selectDocIsInitialized,
-  selectDocumentsByStatus,
 } from '../../src/stores/document-store';
 import {
   useProfileStore,
@@ -93,10 +92,14 @@ function DashboardContent({
   const docInitialized = useDocumentStore(selectDocIsInitialized);
   const profileInitialized = useProfileStore(selectProfileIsInitialized);
   const profileCount = useProfileStore(selectProfileCount);
-  const exportedCount = useDocumentStore(selectDocumentsByStatus('exported')).length;
+  const exportedCount = documents.filter((d) => d.status === 'exported').length;
 
-  const sortedDocs = [...documents].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  const sortedDocs = useMemo(
+    () =>
+      [...documents].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      ),
+    [documents],
   );
 
   const storesReady = docInitialized && profileInitialized;

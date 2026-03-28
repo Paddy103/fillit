@@ -12,16 +12,12 @@ import { router } from 'expo-router';
 import { useTheme } from '../../../src/theme';
 import { ScreenHeader } from '../../../src/components/profile/ScreenHeader';
 import { AddressList } from '../../../src/components/profile/AddressList';
-import {
-  useProfileStore,
-  selectActiveProfile,
-  selectActiveProfileAddresses,
-} from '../../../src/stores/profile-store';
+import { useProfileStore, selectActiveProfile } from '../../../src/stores/profile-store';
 
 export default function AddressListScreen() {
   const { theme } = useTheme();
   const profile = useProfileStore(selectActiveProfile);
-  const addresses = useProfileStore(selectActiveProfileAddresses);
+  const addresses = profile?.addresses ?? [];
   const deleteAddress = useProfileStore((s) => s.deleteAddress);
 
   const handleBack = useCallback(() => {

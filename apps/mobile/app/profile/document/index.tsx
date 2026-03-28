@@ -12,16 +12,12 @@ import { router } from 'expo-router';
 import { useTheme } from '../../../src/theme';
 import { ScreenHeader } from '../../../src/components/profile/ScreenHeader';
 import { DocumentList } from '../../../src/components/profile';
-import {
-  useProfileStore,
-  selectActiveProfile,
-  selectActiveProfileDocuments,
-} from '../../../src/stores/profile-store';
+import { useProfileStore, selectActiveProfile } from '../../../src/stores/profile-store';
 
 export default function DocumentListScreen() {
   const { theme } = useTheme();
   const profile = useProfileStore(selectActiveProfile);
-  const documents = useProfileStore(selectActiveProfileDocuments);
+  const documents = profile?.documents ?? [];
   const deleteDocument = useProfileStore((s) => s.deleteIdentityDocument);
 
   const handlePress = useCallback((id: string) => {

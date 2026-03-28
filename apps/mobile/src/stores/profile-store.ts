@@ -49,6 +49,7 @@ import {
   type CreateEmergencyContactInput,
   type UpdateEmergencyContactInput,
 } from '../services/storage/profileCrud';
+import { initializeDatabase } from '../services/storage/database';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -229,10 +230,13 @@ function createInitActions(set: SetFn, get: GetFn) {
 
       set({ isLoading: true, error: null });
       try {
+        await initializeDatabase();
         const profiles = await listProfiles();
         const activeId = profiles.find((p) => p.isPrimary)?.id ?? profiles[0]?.id ?? null;
         set({ profiles, activeProfileId: activeId, isLoading: false, isInitialized: true });
       } catch (err) {
+        const cause = err instanceof Error && 'cause' in err ? (err as any).cause : undefined;
+        console.error('[FillIt] Profile store init failed:', err, 'Cause:', cause);
         set({ isLoading: false, error: toStoreError('load', err) });
       }
     },

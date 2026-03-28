@@ -6,6 +6,7 @@
  * with confirmation dialog.
  */
 
+import { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 
@@ -22,7 +23,8 @@ import { useEditDependent } from './useEditDependent';
 export default function EditDependentScreen() {
   const { theme } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const profile = useProfileStore(selectProfileById(id ?? ''));
+  const selector = useMemo(() => selectProfileById(id ?? ''), [id]);
+  const profile = useProfileStore(selector);
   const {
     relationship,
     isMutating,

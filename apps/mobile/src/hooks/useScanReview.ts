@@ -9,7 +9,7 @@
  *   - Confirm and advance pipeline to OCR
  */
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 
 import type { DocumentPage } from '@fillit/shared';
@@ -53,7 +53,8 @@ export function useScanReview({
   const [isBusy, setIsBusy] = useState(false);
   const isBusyRef = useRef(false);
 
-  const document = useDocumentStore(selectDocumentById(documentId));
+  const selector = useMemo(() => selectDocumentById(documentId), [documentId]);
+  const document = useDocumentStore(selector);
   const updatePage = useDocumentStore((s) => s.updatePage);
   const deletePage = useDocumentStore((s) => s.deletePage);
   const completeCurrentStage = useProcessingStore((s) => s.completeCurrentStage);
