@@ -78,6 +78,8 @@ export interface CreatePageInput {
 
 /** Input for updating an existing page. */
 export interface UpdatePageInput {
+  pageNumber?: number;
+  originalImageUri?: string;
   processedImageUri?: string;
   ocrText?: string;
   width?: number;
@@ -420,6 +422,14 @@ export async function updatePage(id: string, input: UpdatePageInput): Promise<Do
   const setClauses: string[] = [];
   const params: (string | number | null)[] = [];
 
+  if (input.pageNumber !== undefined) {
+    setClauses.push('page_number = ?');
+    params.push(input.pageNumber);
+  }
+  if (input.originalImageUri !== undefined) {
+    setClauses.push('original_image_uri = ?');
+    params.push(input.originalImageUri);
+  }
   if (input.processedImageUri !== undefined) {
     setClauses.push('processed_image_uri = ?');
     params.push(input.processedImageUri);
