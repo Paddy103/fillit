@@ -35,8 +35,17 @@ export class GoogleTokenVerifier implements TokenVerifier {
           email: payload.email,
         },
       };
-    } catch {
-      // Token is not a valid Google token — let the next verifier try
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      const isValidationError =
+        message.includes('Token used too late') ||
+        message.includes('Invalid token') ||
+        message.includes('Wrong recipient') ||
+        message.includes('Invalid value');
+
+      if (!isValidationError) {
+        console.warn('[auth:google] Verification error (possible infra issue):', message);
+      }
       return null;
     }
   }

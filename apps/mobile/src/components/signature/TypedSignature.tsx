@@ -88,6 +88,7 @@ export function TypedSignature({
         placeholder="Type your name"
         variant="outlined"
         autoCapitalize="words"
+        maxLength={100}
         testID="typed-signature-input"
       />
 

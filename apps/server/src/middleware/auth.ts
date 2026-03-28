@@ -37,6 +37,10 @@ export function createAuthMiddleware(verifiers: TokenVerifier[]) {
       throw new UnauthorizedError('Empty bearer token');
     }
 
+    if (token.length > 8192) {
+      throw new UnauthorizedError('Token exceeds maximum length');
+    }
+
     for (const verifier of verifiers) {
       const result = await verifier.verify(token);
       if (result) {
