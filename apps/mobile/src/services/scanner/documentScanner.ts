@@ -1,11 +1,11 @@
 /**
  * Document Scanner Service
  *
- * Wraps @infinitered/react-native-mlkit-document-scanner to provide a
- * typed, result-oriented API for launching the native document scanner.
- * Handles auto-edge detection, perspective correction, and multi-page scanning.
+ * Platform-aware document scanning:
+ * - iOS: Uses react-native-document-scanner-plugin (Apple VisionKit)
+ * - Android: Uses @infinitered/react-native-mlkit-document-scanner (Google ML Kit)
  *
- * Supports iOS (VisionKit) and Android (ML Kit) via the native module.
+ * Both provide auto-edge detection, perspective correction, and multi-page scanning.
  */
 
 import { Platform } from 'react-native';
@@ -43,29 +43,50 @@ export type ScanResult =
 const DEFAULT_PAGE_LIMIT = 20;
 
 // ---------------------------------------------------------------------------
-// Public API
+// Platform-specific scanners
 // ---------------------------------------------------------------------------
 
 /**
- * Launch the native ML Kit document scanner.
- *
- * Opens a fullscreen camera UI with automatic document edge detection and
- * perspective correction. Returns cropped, corrected JPEG images for each
- * scanned page.
- *
- * @param config - Optional scanner configuration overrides.
- * @returns A discriminated result: success with page URIs, canceled, or error.
+ * iOS scanner using react-native-document-scanner-plugin (Apple VisionKit).
  */
-export async function scanDocument(config?: ScanConfig): Promise<ScanResult> {
-  if (Platform.OS === 'web') {
+async function scanIOS(config?: ScanConfig): Promise<ScanResult> {
+  try {
+    const DocumentScanner = (await import('react-native-document-scanner-plugin')).default;
+
+    const { scannedImages, status } = await DocumentScanner.scanDocument({
+      maxNumDocuments: config?.pageLimit ?? DEFAULT_PAGE_LIMIT,
+      croppedImageQuality: 100,
+    });
+
+    if (status === 'cancel') {
+      return { status: 'canceled' };
+    }
+
+    const pages = scannedImages ?? [];
+    if (pages.length === 0) {
+      return {
+        status: 'error',
+        error: new Error('Scanner returned no pages'),
+      };
+    }
+
+    return {
+      status: 'success',
+      data: { pages, pageCount: pages.length },
+    };
+  } catch (error) {
     return {
       status: 'error',
-      error: new Error('Document scanning is not supported on web'),
+      error: error instanceof Error ? error : new Error(String(error)),
     };
   }
+}
 
+/**
+ * Android scanner using @infinitered/react-native-mlkit-document-scanner (Google ML Kit).
+ */
+async function scanAndroid(config?: ScanConfig): Promise<ScanResult> {
   try {
-    // Dynamic import avoids crashing if the native module is missing
     const { launchDocumentScannerAsync, ResultFormatOptions, ScannerModeOptions } =
       await import('@infinitered/react-native-mlkit-document-scanner');
 
@@ -98,4 +119,33 @@ export async function scanDocument(config?: ScanConfig): Promise<ScanResult> {
       error: error instanceof Error ? error : new Error(String(error)),
     };
   }
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+
+/**
+ * Launch the native document scanner.
+ *
+ * Opens a fullscreen camera UI with automatic document edge detection and
+ * perspective correction. Returns cropped, corrected JPEG images for each
+ * scanned page.
+ *
+ * @param config - Optional scanner configuration overrides.
+ * @returns A discriminated result: success with page URIs, canceled, or error.
+ */
+export async function scanDocument(config?: ScanConfig): Promise<ScanResult> {
+  if (Platform.OS === 'web') {
+    return {
+      status: 'error',
+      error: new Error('Document scanning is not supported on web'),
+    };
+  }
+
+  if (Platform.OS === 'ios') {
+    return scanIOS(config);
+  }
+
+  return scanAndroid(config);
 }
