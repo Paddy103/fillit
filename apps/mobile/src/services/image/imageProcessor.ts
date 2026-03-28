@@ -11,6 +11,7 @@
 
 import * as ImageManipulator from 'expo-image-manipulator';
 import { SaveFormat } from 'expo-image-manipulator';
+import { readFile } from '../storage/fileStorage';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -42,6 +43,20 @@ export interface CompressOptions {
   format?: 'jpeg' | 'png';
 }
 
+/** Image prepared for API submission with base64 data. */
+export interface ApiImage {
+  /** Base64-encoded JPEG data (no data URI prefix). */
+  base64: string;
+  /** MIME type of the image. */
+  mimeType: 'image/jpeg';
+  /** Width in pixels. */
+  width: number;
+  /** Height in pixels. */
+  height: number;
+  /** Approximate size of the base64 payload in bytes. */
+  sizeBytes: number;
+}
+
 /** Options for the full image processing pipeline. */
 export interface ProcessPageOptions {
   /** Max dimension (width or height) for resizing. @default 2048 */
@@ -63,10 +78,13 @@ const DEFAULT_MAX_DIMENSION = 2048;
 const DEFAULT_QUALITY = 0.85;
 
 /** Max dimension for API submission (smaller for bandwidth). */
-const API_MAX_DIMENSION = 1024;
+const API_MAX_DIMENSION = 2048;
 
 /** JPEG quality for API submission. */
-const API_QUALITY = 0.7;
+const API_QUALITY = 0.85;
+
+/** Maximum base64 payload size in bytes (20 MB). */
+const MAX_API_PAYLOAD_BYTES = 20 * 1024 * 1024;
 
 // ---------------------------------------------------------------------------
 // Core operations
@@ -222,6 +240,58 @@ export async function optimizeForApi(uri: string): Promise<ProcessedImage> {
   );
 
   return { uri: result.uri, width: result.width, height: result.height };
+}
+
+/**
+ * Prepare an image for API submission.
+ *
+ * Resizes, compresses, encodes to base64, and validates the payload size.
+ * Returns a ready-to-send object with base64 data and metadata.
+ *
+ * @param uri - Source image file URI.
+ * @returns The API-ready image with base64 data.
+ * @throws {Error} If the resulting payload exceeds the size limit.
+ */
+export async function prepareImageForApi(uri: string): Promise<ApiImage> {
+  const optimized = await optimizeForApi(uri);
+  const base64 = await readFile(optimized.uri);
+  const sizeBytes = Math.ceil(base64.length * 0.75); // base64 → raw byte estimate
+
+  if (sizeBytes > MAX_API_PAYLOAD_BYTES) {
+    throw new Error(
+      `Image too large for API submission: ${Math.round(sizeBytes / 1024 / 1024)}MB exceeds ${MAX_API_PAYLOAD_BYTES / 1024 / 1024}MB limit`,
+    );
+  }
+
+  return {
+    base64,
+    mimeType: 'image/jpeg',
+    width: optimized.width,
+    height: optimized.height,
+    sizeBytes,
+  };
+}
+
+/**
+ * Prepare multiple page images for API submission.
+ *
+ * @param uris - Array of source image file URIs.
+ * @param onProgress - Optional progress callback (0 to 1).
+ * @returns Array of API-ready images.
+ */
+export async function preparePagesBatchForApi(
+  uris: string[],
+  onProgress?: (progress: number) => void,
+): Promise<ApiImage[]> {
+  const results: ApiImage[] = [];
+
+  for (let i = 0; i < uris.length; i++) {
+    const result = await prepareImageForApi(uris[i]!);
+    results.push(result);
+    onProgress?.((i + 1) / uris.length);
+  }
+
+  return results;
 }
 
 /**
