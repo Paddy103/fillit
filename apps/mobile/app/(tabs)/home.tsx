@@ -9,6 +9,7 @@
 import React, { useEffect } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useRouter } from 'expo-router';
 
 import { useTheme } from '../../src/theme';
 import { Button, DisplayMedium, BodyLarge } from '../../src/components/ui';
@@ -29,9 +30,10 @@ import {
 
 export default function HomeScreen() {
   useStoreInitialization();
+  const router = useRouter();
   const { scan, isScanning } = useScanDocument({
-    onSuccess: (_id, pageCount) => {
-      Alert.alert('Scan Complete', `Successfully scanned ${pageCount} page(s).`);
+    onSuccess: (id) => {
+      router.push(`/scan/${id}` as never);
     },
   });
 
