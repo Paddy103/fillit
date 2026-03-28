@@ -13,8 +13,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useDocumentStore, selectDocumentById } from '../stores/document-store';
 import { useProcessingStore } from '../stores/processing-store';
-import { performOcr, extractPlainText } from '../services/ocr';
-import type { OcrResult } from '../services/ocr';
+import { performOcr, extractPlainText, type OcrResult } from '../services/ocr';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -98,8 +97,6 @@ export function useOcrProgress({
     }));
     setPageInfos(initialInfos);
 
-    let successCount = 0;
-
     for (let i = 0; i < pages.length; i++) {
       if (cancelledRef.current) break;
 
@@ -128,7 +125,6 @@ export function useOcrProgress({
       const preview = text.slice(0, 100);
 
       if (result.status === 'success') {
-        successCount++;
         setPageInfos((prev) =>
           prev.map((p) =>
             p.pageId === page.id ? { ...p, status: 'success', textPreview: preview } : p,
