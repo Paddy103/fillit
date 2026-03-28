@@ -65,10 +65,25 @@ State management lives in `src/stores/` using Zustand with SQLite persistence.
 - **Processing store** (`processing-store.ts`) — Ephemeral state machine for the document processing pipeline (idle->scanning->reviewing->ocr->detecting->matching->signing->exporting->done). Not persisted to SQLite.
 - **Settings store** — App-level settings and preferences
 
+### Components
+
+Reusable UI components live in `src/components/`, organized by domain.
+
+#### Document Components (`src/components/document/`)
+
+- **DocumentViewer** — Zoomable document image viewer with pinch/pan gestures and detected field overlays (color-coded by confidence)
+- **FieldOverlay** — Positioned field rectangle on document image, color-coded green/yellow/red by match confidence
+- **FieldEditorSheet** — Slide-up bottom sheet for editing a detected field's value, selecting source (profile/manual/skip), viewing confidence, and saving
+
+#### Signature Components (`src/components/signature/`)
+
+- **SignaturePad** — Freehand drawing canvas using `react-native-svg` + `react-native-gesture-handler`. Pen color/width pickers, clear/undo, SVG path export
+- **TypedSignature** — Type-your-name signature with font selector (Dancing Script, Great Vibes, Print). Live preview with auto-sizing text
+
 ## Testing
 
 ```bash
 pnpm --filter mobile test
 ```
 
-Tests are in `src/__tests__/`. The secure store service has 88 tests covering initialization, key CRUD, rotation, fallback behavior, race conditions, and error paths.
+Tests are in `src/__tests__/` and co-located `__tests__/` directories within component folders.

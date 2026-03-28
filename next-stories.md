@@ -1,130 +1,110 @@
 # Stories Ready for Development
 
-## Completed
+## Completed (60 stories)
 
-S-01 through S-07 (foundation + server deployment + mobile build), S-08 (profile types), S-09 (document types), S-10 (SA ID validation), S-11 (field normalization), S-12 (provinces), S-13 (encryption), S-14 (secure key management), S-15 (SQLite schema), S-16 through S-20 (all CRUD operations), S-21 (file storage), S-22 (profile Zustand store), S-23 (settings store), S-24 (document Zustand store), S-25 (processing state machine store), S-26 (theme tokens), S-27 (custom fonts), S-28 (UI components), S-29 (navigation shell), S-30 (skeleton loading), S-46 (server middleware), S-55 (server deploy), S-96 (Maestro E2E infra), S-97 (app logo & brand identity) are all merged.
+**Phase 1 — Foundation (43 stories):** S-01 through S-38, S-46, S-55, S-96, S-97
+All foundation complete: monorepo, types, validation, theme, UI components, navigation, stores, database, encryption, profiles, home dashboard, server deploy.
+
+**Phase 2 — Scanning + OCR (7 stories):** S-39 through S-45
+All scanning complete: ML Kit scanner, scan review, file import, OCR service, platform abstraction, OCR progress, image processing.
+
+**Phase 3 — AI Detection + Backend (8 stories):** S-47, S-48, S-49, S-60, S-61, S-62, S-65, S-66
+OAuth middleware (PR #202), rate limiting (PR #205), Claude API service (PR #204), image optimization (PR #199), label dictionary (PR #121), fuzzy matching (PR #121), document viewer (PR #199), field editor bottom sheet (PR #200).
+
+**Phase 4 — Signatures (2 stories):** S-68, S-69
+Drawn signature canvas + typed signature component (PR #201).
 
 ## Unblocked Stories
 
 These stories have all dependencies satisfied and are ready to build **now**.
 
-### Phase 1 — Profile UI (newly unblocked by S-22)
+### Phase 3 — Backend (critical path)
 
-| Issue | Story                            | Description                                      | Unblocked by     |
-| ----- | -------------------------------- | ------------------------------------------------ | ---------------- |
-| #32   | **S-31**: Profile form component | Form fields with SA ID smart fill and validation | S-22, S-28, S-10 |
+| Issue | Story | Description | Unblocked by |
+|-------|-------|-------------|-------------|
+| #52 | **S-51**: Document fingerprinting | Hash documents for template cache matching | S-46 |
+| #54 | **S-53**: Analytics logging service | Server-side analytics and event logging | S-46 |
 
-### Phase 2 — Scanning
+### Phase 3 — Mobile Auth
 
-| Issue | Story                                | Description                                           | Unblocked by |
-| ----- | ------------------------------------ | ----------------------------------------------------- | ------------ |
-| #40   | **S-39**: ML Kit document scanner    | Camera scanning with edge detection, multi-page       | S-21, S-19   |
-| #43   | **S-42**: ML Kit OCR service         | Text recognition with bounding boxes and confidence   | S-02         |
-| #46   | **S-45**: Image processing utilities | Resize, compress, rotate, contrast/brightness for OCR | S-02         |
-
-### Phase 3 — Backend
-
-| Issue | Story                               | Description                                    | Unblocked by |
-| ----- | ----------------------------------- | ---------------------------------------------- | ------------ |
-| #48   | **S-47**: OAuth token verification  | Verify Google/Apple OAuth tokens on API routes | S-46         |
-| #50   | **S-49**: Claude API service        | Claude integration with prompt engineering     | S-46, S-09   |
-| #52   | **S-51**: Document fingerprinting   | Fingerprint documents for template matching    | S-46         |
-| #54   | **S-53**: Analytics logging service | Server-side analytics and logging              | S-46         |
-
-### Phase 3 — AI Detection
-
-| Issue | Story                                         | Description                                     | Unblocked by |
-| ----- | --------------------------------------------- | ----------------------------------------------- | ------------ |
-| #62   | **S-61**: Label dictionary for SA forms       | Lookup dictionary for South African form labels | S-11         |
-| #66   | **S-65**: Document viewer with field overlays | View document with detected field overlay UI    | S-28         |
+| Issue | Story | Description | Unblocked by |
+|-------|-------|-------------|-------------|
+| #57 | **S-56**: Google Sign-In on mobile | Google OAuth sign-in flow | S-47 |
+| #58 | **S-57**: Apple Sign-In on mobile | Apple Sign-In flow | S-47 |
 
 ### Phase 4 — Signatures
 
-| Issue | Story                               | Description                          | Unblocked by     |
-| ----- | ----------------------------------- | ------------------------------------ | ---------------- |
-| #69   | **S-68**: Drawn signature canvas    | Freehand signature drawing component | S-20, S-28       |
-| #70   | **S-69**: Typed signature component | Type-to-sign with font selection     | S-27, S-20, S-28 |
+| Issue | Story | Description | Unblocked by |
+|-------|-------|-------------|-------------|
+| #71 | **S-70**: Signature preview component | Render drawn/typed signatures consistently | S-68, S-69 |
 
 ### Phase 4 — PDF
 
-| Issue | Story                                  | Description                            | Unblocked by |
-| ----- | -------------------------------------- | -------------------------------------- | ------------ |
-| #74   | **S-73**: PDF generation for form-fill | Generate filled PDFs using pdf-lib     | S-09         |
-| #76   | **S-75**: PDF rendering for preview    | Render PDF pages for on-screen preview | S-02         |
+| Issue | Story | Description | Unblocked by |
+|-------|-------|-------------|-------------|
+| #74 | **S-73**: PDF generation for form-fill | Fill AcroForm fields using pdf-lib | S-09 |
+| #76 | **S-75**: PDF rendering for preview | Render PDF pages for on-screen preview | S-02 |
+| #79 | **S-78**: Document history list screen | Document list with thumbnails, status, search | S-24, S-29 |
 
 ### Phase 5 — Security
 
-| Issue | Story                              | Description                  | Unblocked by |
-| ----- | ---------------------------------- | ---------------------------- | ------------ |
-| #80   | **S-79**: Biometric authentication | Face ID / fingerprint unlock | S-23         |
+| Issue | Story | Description | Unblocked by |
+|-------|-------|-------------|-------------|
+| #80 | **S-79**: Biometric authentication | Face ID / fingerprint unlock | S-23 |
 
 ### Phase 5 — Cloud Backup
 
-| Issue | Story                           | Description                    | Unblocked by |
-| ----- | ------------------------------- | ------------------------------ | ------------ |
-| #85   | **S-84**: iCloud backup service | Backup/restore data via iCloud | S-15         |
+| Issue | Story | Description | Unblocked by |
+|-------|-------|-------------|-------------|
+| #85 | **S-84**: iCloud backup service | Backup/restore data via iCloud | S-15 |
 
 ### Phase 5 — Polish
 
-| Issue | Story                                    | Description                      | Unblocked by |
-| ----- | ---------------------------------------- | -------------------------------- | ------------ |
-| #90   | **S-89**: Monetization abstraction layer | Payment/subscription abstraction | S-23         |
+| Issue | Story | Description | Unblocked by |
+|-------|-------|-------------|-------------|
+| #87 | **S-86**: First-time onboarding screens | 3-4 slide walkthrough for new users | S-29, S-32 |
+| #90 | **S-89**: Monetization abstraction layer | Tier system + feature gates | S-23 |
 
 ### Phase 6 — Web (future)
 
-| Issue | Story                               | Description                               | Unblocked by |
-| ----- | ----------------------------------- | ----------------------------------------- | ------------ |
-| #95   | **S-94**: Web Crypto API encryption | Browser-based encryption for web platform | S-13         |
-| #96   | **S-95**: Adapt UI for web viewport | Responsive layout for web browsers        | S-29         |
+| Issue | Story | Description | Unblocked by |
+|-------|-------|-------------|-------------|
+| #95 | **S-94**: Web Crypto API encryption | Browser-based encryption | S-13 |
+| #96 | **S-95**: Adapt UI for web viewport | Responsive layout for web | S-29 |
 
-## Recommended Parallel Groups
+## Blocked Stories (next wave)
 
-These stories are independent and can be built simultaneously. Prioritize by what unblocks the most downstream work.
+These become unblocked once their dependencies ship.
 
-### Group A — Profile UI (critical path)
+| Issue | Story | Blocked by | Unlocks |
+|-------|-------|-----------|---------|
+| #51 | **S-50**: Analyze API endpoint | **S-51** (fingerprinting) | S-59 (proxy client) |
+| #53 | **S-52**: Template cache service | **S-51** | — |
+| #55 | **S-54**: Usage stats endpoint | **S-53** | — |
+| #59 | **S-58**: Sign-in screen + auth guard | **S-56**, **S-57** | — |
+| #60 | **S-59**: Backend proxy API client | S-50 | S-63 (AI routing) |
+| #64 | **S-63**: Network-aware AI routing | S-59 | S-64 (progress screen) |
+| #65 | **S-64**: Field detection progress screen | S-63 | S-67 (matching/review) |
+| #68 | **S-67**: Field matching/review screen | S-64 | — |
+| #72 | **S-71**: Signature management screen | **S-70** | S-72 (consent) |
+| #73 | **S-72**: Signature consent screen | S-70, S-67 | S-76 (export preview) |
 
-| Story                            | Why                                                                     |
-| -------------------------------- | ----------------------------------------------------------------------- |
-| **S-31**: Profile form component | Gates S-32 (profile edit) → entire profile UI chain (S-33 through S-37) |
+## Critical Path
 
-### Group B — Scanning Pipeline
+The shortest path to end-to-end AI field detection:
 
-| Story                             | Why                                                |
-| --------------------------------- | -------------------------------------------------- |
-| **S-39**: ML Kit document scanner | Gates S-40 (scan review) → S-44 (OCR progress)     |
-| **S-42**: ML Kit OCR service      | Gates S-43 (OCR abstraction) → entire OCR pipeline |
-| **S-45**: Image processing        | Gates S-60 (image optimization for API)            |
+```
+S-51 (fingerprinting) → S-50 (analyze endpoint) → S-59 (proxy client)
+→ S-63 (AI routing) → S-64 (progress screen) → S-67 (matching/review)
+```
 
-### Group C — Backend API (critical path, unblocks auth + AI)
+**S-51 is the current blocker.** Everything else on this chain depends on it.
 
-| Story                             | Why                                                                     |
-| --------------------------------- | ----------------------------------------------------------------------- |
-| **S-47**: OAuth middleware        | Gates S-48 (rate limiting), S-56 (Google Sign-In), all protected routes |
-| **S-49**: Claude API service      | Gates S-50 (analyze endpoint) → AI detection pipeline                   |
-| **S-51**: Document fingerprinting | Gates S-52 (template cache)                                             |
-| **S-53**: Analytics logging       | Gates S-54 (usage stats)                                                |
+## Recommended Priority
 
-### Group D — AI Detection (independent)
-
-| Story                      | Why                                                 |
-| -------------------------- | --------------------------------------------------- |
-| **S-61**: Label dictionary | Gates S-62 (fuzzy matching) → field detection chain |
-| **S-65**: Document viewer  | Gates S-66 (field editor) → S-67 (matching/review)  |
-
-### Group E — Signatures + PDF (independent)
-
-| Story                     | Why                                                  |
-| ------------------------- | ---------------------------------------------------- |
-| **S-68**: Drawn signature | Gates S-70 (preview) → management screens            |
-| **S-69**: Typed signature | Gates S-70 (preview) → management screens            |
-| **S-73**: PDF form-fill   | Gates S-74 (scanned overlay) → S-76 (export preview) |
-| **S-75**: PDF preview     | Gates S-76 (export preview)                          |
-
-## Maximum Parallelism
-
-All 5 groups (A–E) are fully independent — **up to 20 stories** can be built in parallel. For practical prioritization:
-
-1. **Groups A + C** (5 stories) — critical path, unblocks the most downstream work
-2. **Group B** (3 stories) — unblocks the scanning/OCR pipeline
-3. **Groups D + E** (6 stories) — can run alongside once bandwidth allows
-4. **Phase 5/6 stories** (6 stories) — lower priority, no downstream blockers
+1. **S-51** — unblocks the entire AI detection pipeline (critical path)
+2. **S-53** — small backend story, unblocks usage stats
+3. **S-56 + S-57** — mobile sign-in, unblocks auth guard (S-58)
+4. **S-70** — continues signature chain (S-71, S-72)
+5. **S-73 + S-75** — PDF generation, independent track
+6. **Phase 5 stories** — polish, lower priority
