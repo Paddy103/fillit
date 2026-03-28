@@ -167,7 +167,7 @@ describe('ClaudeService', () => {
       const content = mockCreate.mock.calls[0]![0].messages[0].content;
       const fieldsBlock = content.find(
         (b: { type: string; text?: string }) =>
-          b.type === 'text' && b.text?.includes('Available profile fields'),
+          b.type === 'text' && b.text?.includes('<available_fields>'),
       );
       expect(fieldsBlock).toBeDefined();
       expect(fieldsBlock.text).toContain('firstName');

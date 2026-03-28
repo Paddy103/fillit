@@ -6,8 +6,8 @@
  * as SVG path data strings for compact, resolution-independent storage.
  */
 
-import { useCallback, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Svg, { Path } from 'react-native-svg';
 
@@ -65,6 +65,12 @@ function buildPathData(points: Array<{ x: number; y: number }>): string {
   return d;
 }
 
+const COLOR_NAMES: Record<string, string> = {
+  '#000000': 'Black',
+  '#1A237E': 'Dark Blue',
+  '#1B5E20': 'Dark Green',
+};
+
 // ─── Component ─────────────────────────────────────────────────────
 
 const DEFAULT_WIDTHS = [1.5, 2.5, 4];
@@ -87,7 +93,18 @@ export function SignaturePad({
   const [activeWidth, setActiveWidth] = useState(strokeWidth);
   const currentPoints = useRef<Array<{ x: number; y: number }>>([]);
 
+  // Refs for gesture callbacks to avoid stale closures
+  const activeColorRef = useRef(activeColor);
+  const activeWidthRef = useRef(activeWidth);
+  useEffect(() => {
+    activeColorRef.current = activeColor;
+  }, [activeColor]);
+  useEffect(() => {
+    activeWidthRef.current = activeWidth;
+  }, [activeWidth]);
+
   const isEmpty = strokes.length === 0;
+  const MAX_STROKES = 200;
 
   const handleClear = useCallback(() => {
     setStrokes([]);
@@ -116,11 +133,17 @@ export function SignaturePad({
         .onEnd(() => {
           const path = buildPathData(currentPoints.current);
           if (path) {
-            setStrokes((prev) => [...prev, { path, color: activeColor, width: activeWidth }]);
+            setStrokes((prev) => {
+              if (prev.length >= MAX_STROKES) return prev;
+              return [
+                ...prev,
+                { path, color: activeColorRef.current, width: activeWidthRef.current },
+              ];
+            });
           }
           currentPoints.current = [];
         }),
-    [activeColor, activeWidth],
+    [],
   );
 
   return (
@@ -162,7 +185,7 @@ export function SignaturePad({
         {/* Color picker */}
         <View style={styles.pickerRow}>
           {strokeColors.map((color) => (
-            <View
+            <Pressable
               key={color}
               style={[
                 styles.colorSwatch,
@@ -172,9 +195,9 @@ export function SignaturePad({
                   borderWidth: color === activeColor ? 2.5 : 0,
                 },
               ]}
-              onTouchEnd={() => setActiveColor(color)}
+              onPress={() => setActiveColor(color)}
               accessibilityRole="button"
-              accessibilityLabel={`Pen color ${color}`}
+              accessibilityLabel={`Pen color ${COLOR_NAMES[color] ?? color}`}
               accessibilityState={{ selected: color === activeColor }}
               testID={`signature-pad-color-${color}`}
             />
@@ -184,7 +207,7 @@ export function SignaturePad({
         {/* Width picker */}
         <View style={styles.pickerRow}>
           {strokeWidths.map((w) => (
-            <View
+            <Pressable
               key={w}
               style={[
                 styles.widthOption,
@@ -194,9 +217,9 @@ export function SignaturePad({
                   borderRadius: theme.radii.sm,
                 },
               ]}
-              onTouchEnd={() => setActiveWidth(w)}
+              onPress={() => setActiveWidth(w)}
               accessibilityRole="button"
-              accessibilityLabel={`Pen width ${w}`}
+              accessibilityLabel={`Pen width ${w === 1.5 ? 'thin' : w === 2.5 ? 'medium' : 'thick'}`}
               accessibilityState={{ selected: w === activeWidth }}
               testID={`signature-pad-width-${w}`}
             >
@@ -208,7 +231,7 @@ export function SignaturePad({
                   borderRadius: w / 2,
                 }}
               />
-            </View>
+            </Pressable>
           ))}
         </View>
       </View>

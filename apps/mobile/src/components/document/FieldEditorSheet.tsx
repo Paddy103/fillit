@@ -118,7 +118,7 @@ export function FieldEditorSheet({
     Keyboard.dismiss();
     onSave({
       fieldId: field.id,
-      value: source === 'skip' ? '' : editValue,
+      value: source === 'skip' ? '' : editValue.trim(),
       source,
       isConfirmed: source !== 'skip',
     });
@@ -162,7 +162,12 @@ export function FieldEditorSheet({
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none" testID="field-editor-sheet">
       {/* Backdrop */}
-      <Pressable style={StyleSheet.absoluteFill} onPress={handleBackdropPress}>
+      <Pressable
+        style={StyleSheet.absoluteFill}
+        onPress={handleBackdropPress}
+        accessibilityRole="button"
+        accessibilityLabel="Close field editor"
+      >
         <Animated.View
           style={[StyleSheet.absoluteFill, { backgroundColor: '#000' }, backdropStyle]}
           testID="field-editor-backdrop"
@@ -183,6 +188,8 @@ export function FieldEditorSheet({
           sheetStyle,
         ]}
         testID="field-editor-content"
+        accessibilityViewIsModal={true}
+        accessibilityRole="none"
       >
         {/* Handle */}
         <View style={styles.handleContainer}>
@@ -266,6 +273,7 @@ export function FieldEditorSheet({
               variant="outlined"
               disabled={source !== 'manual'}
               placeholder={source === 'profile' ? 'From profile' : 'Enter value'}
+              maxLength={500}
               testID="field-editor-value-input"
               containerStyle={{ marginBottom: 0 }}
             />

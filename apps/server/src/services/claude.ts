@@ -142,6 +142,15 @@ const DETECT_FIELDS_TOOL: Anthropic.Tool = {
   },
 };
 
+// ─── Helpers ───────────────────────────────────────────────────
+
+/** Strip control characters and limit length of OCR text to prevent prompt injection. */
+function sanitizeOcrText(text: string): string {
+  return text
+    .replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, '') // strip control chars
+    .slice(0, 500); // limit per-block length
+}
+
 // ─── Service ───────────────────────────────────────────────────────
 
 export interface ClaudeServiceConfig {
@@ -179,6 +188,7 @@ export class ClaudeService {
    * mapped to profile field paths.
    */
   async analyzeDocument(request: AnalyzeRequest): Promise<AnalyzeResponse> {
+    this.validateRequest(request);
     const userContent = this.buildUserMessage(request);
 
     const response = await this.client.messages.create({
@@ -210,6 +220,31 @@ export class ClaudeService {
 
   // ─── Private ───────────────────────────────────────────────────
 
+  private validateRequest(request: AnalyzeRequest): void {
+    if (request.pages.length === 0) {
+      throw new Error('At least one page is required');
+    }
+    if (request.pages.length > 20) {
+      throw new Error('Maximum 20 pages per request');
+    }
+    for (const page of request.pages) {
+      // ~10MB base64 limit per image
+      if (page.imageBase64.length > 14_000_000) {
+        throw new Error(`Page ${page.pageNumber}: image exceeds 10MB limit`);
+      }
+      if (page.ocrBlocks.length > 500) {
+        throw new Error(`Page ${page.pageNumber}: maximum 500 OCR blocks per page`);
+      }
+    }
+    // Validate field names — alphanumeric, dots, brackets, underscores only
+    const fieldNamePattern = /^[\w.[\]]{1,100}$/;
+    for (const field of request.availableFields) {
+      if (!fieldNamePattern.test(field)) {
+        throw new Error(`Invalid field name: ${field.slice(0, 50)}`);
+      }
+    }
+  }
+
   private buildUserMessage(
     request: AnalyzeRequest,
   ): Array<Anthropic.ImageBlockParam | Anthropic.TextBlockParam> {
@@ -218,7 +253,7 @@ export class ClaudeService {
     // Add available fields context
     content.push({
       type: 'text',
-      text: `Available profile fields for matching:\n${request.availableFields.join('\n')}\n\nAnalyze the following document pages:`,
+      text: `<available_fields>\n${request.availableFields.join('\n')}\n</available_fields>\n\nAnalyze the following document pages:`,
     });
 
     // Add each page's image and OCR data
@@ -236,13 +271,13 @@ export class ClaudeService {
         const ocrText = page.ocrBlocks
           .map(
             (b) =>
-              `"${b.text}" at (${b.bounds.x.toFixed(3)}, ${b.bounds.y.toFixed(3)}, ${b.bounds.width.toFixed(3)}, ${b.bounds.height.toFixed(3)}) conf=${b.confidence.toFixed(2)}`,
+              `"${sanitizeOcrText(b.text)}" at (${b.bounds.x.toFixed(3)}, ${b.bounds.y.toFixed(3)}, ${b.bounds.width.toFixed(3)}, ${b.bounds.height.toFixed(3)}) conf=${b.confidence.toFixed(2)}`,
           )
           .join('\n');
 
         content.push({
           type: 'text',
-          text: `Page ${page.pageNumber} OCR blocks (normalized 0-1 coordinates):\n${ocrText}`,
+          text: `<ocr_blocks page="${page.pageNumber}">\n${ocrText}\n</ocr_blocks>`,
         });
       }
     }

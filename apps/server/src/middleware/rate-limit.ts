@@ -19,7 +19,11 @@ import { TooManyRequestsError } from '../utils/errors.js';
 export function createRateLimitMiddleware(limiter: RateLimiter, tier?: RateLimitTier) {
   return createMiddleware<AppEnv>(async (c, next) => {
     const userId = c.get('userId');
-    const key = userId || c.req.header('X-Forwarded-For') || 'anonymous';
+    if (!userId) {
+      // Rate limiter requires auth middleware to run first
+      throw new TooManyRequestsError('Rate limiting requires authentication');
+    }
+    const key = userId;
 
     const result = limiter.check(key, tier);
 

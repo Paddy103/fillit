@@ -15,6 +15,7 @@
 import type { TokenVerifier, VerifyResult } from './types.js';
 
 const DEV_TOKEN_PREFIX = 'dev:';
+const USER_ID_PATTERN = /^[\w.@-]{1,128}$/;
 
 export class DevTokenVerifier implements TokenVerifier {
   readonly provider = 'dev' as const;
@@ -23,7 +24,7 @@ export class DevTokenVerifier implements TokenVerifier {
     if (!token.startsWith(DEV_TOKEN_PREFIX)) return null;
 
     const userId = token.slice(DEV_TOKEN_PREFIX.length).trim();
-    if (!userId) return null;
+    if (!userId || !USER_ID_PATTERN.test(userId)) return null;
 
     return {
       user: {

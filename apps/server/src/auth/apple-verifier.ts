@@ -35,8 +35,14 @@ export class AppleTokenVerifier implements TokenVerifier {
           email: payload.email,
         },
       };
-    } catch {
-      // Token is not a valid Apple token — let the next verifier try
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      const isValidationError =
+        message.includes('invalid') || message.includes('expired') || message.includes('audience');
+
+      if (!isValidationError) {
+        console.warn('[auth:apple] Verification error (possible infra issue):', message);
+      }
       return null;
     }
   }

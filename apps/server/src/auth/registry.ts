@@ -3,7 +3,7 @@
  *
  * Builds the chain of active verifiers based on environment configuration.
  * In production, only Google and Apple verifiers are registered (when their
- * credentials are present). In development, the dev verifier is also added.
+ * credentials are present). Dev tokens are NEVER available in production.
  */
 
 import type { TokenVerifier } from './types.js';
@@ -15,8 +15,8 @@ import { DevTokenVerifier } from './dev-verifier.js';
  * Create the list of active token verifiers from environment variables.
  *
  * Verifiers are registered when their credentials are available.
- * The dev verifier is included when AUTH_DEV_TOKENS is not explicitly "false".
- * In production (NODE_ENV=production), dev tokens are disabled by default.
+ * Dev tokens are enabled by default in non-production and hard-blocked
+ * in production regardless of env vars.
  */
 export function createVerifiers(): TokenVerifier[] {
   const verifiers: TokenVerifier[] = [];
@@ -34,12 +34,22 @@ export function createVerifiers(): TokenVerifier[] {
     verifiers.push(new AppleTokenVerifier({ clientId: appleClientId }));
   }
 
-  // Dev tokens — enabled by default in non-production, disabled in production
-  const devTokensSetting = process.env.AUTH_DEV_TOKENS;
-  const devTokensEnabled = devTokensSetting ? devTokensSetting === 'true' : !isProduction;
+  // Dev tokens — hard-blocked in production, enabled by default in dev
+  if (!isProduction) {
+    const devTokensSetting = process.env.AUTH_DEV_TOKENS;
+    const devTokensEnabled = devTokensSetting ? devTokensSetting === 'true' : true;
 
-  if (devTokensEnabled) {
-    verifiers.push(new DevTokenVerifier());
+    if (devTokensEnabled) {
+      verifiers.push(new DevTokenVerifier());
+      console.log('[auth] Dev token verifier enabled (non-production)');
+    }
+  }
+
+  // Warn if no verifiers are registered
+  if (verifiers.length === 0) {
+    console.warn(
+      '[auth] WARNING: No token verifiers registered. All authenticated requests will be rejected.',
+    );
   }
 
   return verifiers;

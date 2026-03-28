@@ -48,26 +48,36 @@ export class RateLimiter {
   /**
    * Check and consume a rate limit token for the given key.
    *
-   * Prunes expired timestamps, then checks if the request is within
-   * the limit. If allowed, records the new timestamp.
+   * Prunes expired timestamps and evicts empty records to prevent
+   * unbounded memory growth. Checks if the request is within the
+   * limit, and if allowed, records the new timestamp.
    */
   check(key: string, tier?: RateLimitTier): RateLimitResult {
     const { maxRequests, windowMs } = tier ?? this.defaultTier;
     const now = Date.now();
     const windowStart = now - windowMs;
 
-    let record = this.records.get(key);
-    if (!record) {
-      record = { timestamps: [] };
-      this.records.set(key, record);
+    const record = this.records.get(key);
+
+    if (record) {
+      // Prune expired timestamps
+      record.timestamps = record.timestamps.filter((t) => t > windowStart);
+
+      // Evict empty records to prevent unbounded memory growth
+      if (record.timestamps.length === 0) {
+        this.records.delete(key);
+      }
     }
 
-    // Prune expired timestamps
-    record.timestamps = record.timestamps.filter((t) => t > windowStart);
+    const active = this.records.get(key);
+    const currentCount = active?.timestamps.length ?? 0;
 
-    const resetAt = Math.ceil((now + windowMs) / 1000);
+    const resetAt =
+      active && active.timestamps.length > 0
+        ? Math.ceil((active.timestamps[0]! + windowMs) / 1000)
+        : Math.ceil((now + windowMs) / 1000);
 
-    if (record.timestamps.length >= maxRequests) {
+    if (currentCount >= maxRequests) {
       return {
         allowed: false,
         limit: maxRequests,
@@ -76,13 +86,17 @@ export class RateLimiter {
       };
     }
 
-    // Consume a token
-    record.timestamps.push(now);
+    // Consume a token — create record if needed
+    if (!active) {
+      this.records.set(key, { timestamps: [now] });
+    } else {
+      active.timestamps.push(now);
+    }
 
     return {
       allowed: true,
       limit: maxRequests,
-      remaining: maxRequests - record.timestamps.length,
+      remaining: maxRequests - (currentCount + 1),
       resetAt,
     };
   }
