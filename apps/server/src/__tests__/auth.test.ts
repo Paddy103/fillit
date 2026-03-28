@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import type { AppEnv } from '../types.js';
 import { createAuthMiddleware } from '../middleware/auth.js';
 import { DevTokenVerifier } from '../auth/dev-verifier.js';
-import type { TokenVerifier, VerifyResult } from '../auth/types.js';
+import type { TokenVerifier } from '../auth/types.js';
 
 // ─── DevTokenVerifier ──────────────────────────────────────────────
 
