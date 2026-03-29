@@ -6,10 +6,13 @@ import type { UseFieldDetectionReturn } from '../../../hooks/useFieldDetection';
 
 vi.mock('react-native', () => ({
   ActivityIndicator: 'ActivityIndicator',
+  FlatList: 'FlatList',
+  Keyboard: { dismiss: vi.fn() },
   Pressable: 'Pressable',
   StyleSheet: {
     create: (s: Record<string, unknown>) => s,
     flatten: (s: unknown) => s,
+    absoluteFill: {},
   },
   Text: 'Text',
   View: 'View',
@@ -17,6 +20,31 @@ vi.mock('react-native', () => ({
 
 vi.mock('@expo/vector-icons', () => ({
   Ionicons: 'Ionicons',
+}));
+
+vi.mock('react-native-reanimated', () => ({
+  default: { View: 'Animated.View' },
+  useAnimatedStyle: vi.fn((fn: () => unknown) => fn()),
+  useSharedValue: vi.fn((v: number) => ({ value: v })),
+  withTiming: vi.fn((v: number) => v),
+}));
+
+vi.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: vi.fn(() => ({ top: 0, right: 0, bottom: 0, left: 0 })),
+}));
+
+vi.mock('react-native-gesture-handler', () => ({
+  GestureDetector: 'GestureDetector',
+  GestureHandlerRootView: 'GestureHandlerRootView',
+  Gesture: {
+    Pinch: vi.fn(() => ({ onUpdate: vi.fn().mockReturnThis(), onEnd: vi.fn().mockReturnThis() })),
+    Pan: vi.fn(() => ({ onUpdate: vi.fn().mockReturnThis(), onEnd: vi.fn().mockReturnThis() })),
+    Tap: vi.fn(() => ({
+      numberOfTaps: vi.fn().mockReturnThis(),
+      onEnd: vi.fn().mockReturnThis(),
+    })),
+    Simultaneous: vi.fn(),
+  },
 }));
 
 vi.mock('../../../theme', async () => {
