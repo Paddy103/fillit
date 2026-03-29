@@ -43,7 +43,9 @@ describe('TemplateCache', () => {
 
       // Wait for expiry
       const start = Date.now();
-      while (Date.now() - start < 5) {} // busy wait 5ms
+      while (Date.now() - start < 5) {
+        // busy wait 5ms
+      }
 
       expect(shortCache.get('fp-1')).toBeNull();
     });

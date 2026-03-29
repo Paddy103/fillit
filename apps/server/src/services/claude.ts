@@ -146,9 +146,12 @@ const DETECT_FIELDS_TOOL: Anthropic.Tool = {
 
 /** Strip control characters and limit length of OCR text to prevent prompt injection. */
 function sanitizeOcrText(text: string): string {
-  return text
-    .replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, '') // strip control chars
-    .slice(0, 500); // limit per-block length
+  return (
+    text
+      // eslint-disable-next-line no-control-regex
+      .replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, '') // strip control chars
+      .slice(0, 500)
+  ); // limit per-block length
 }
 
 // ─── Service ───────────────────────────────────────────────────────
