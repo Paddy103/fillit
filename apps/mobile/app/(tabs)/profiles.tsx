@@ -211,6 +211,15 @@ function ManagementButtons() {
         style={{ marginTop: theme.spacing.sm }}
         testID="manage-emergency-button"
       />
+      <Button
+        label="Signatures"
+        variant="outline"
+        onPress={() => router.push('/profile/signature' as never)}
+        fullWidth
+        iconLeft={<Ionicons name="create-outline" size={18} color={theme.colors.primary} />}
+        style={{ marginTop: theme.spacing.sm }}
+        testID="manage-signatures-button"
+      />
     </View>
   );
 }

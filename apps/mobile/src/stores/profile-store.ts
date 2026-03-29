@@ -11,6 +11,7 @@ import type {
   EmergencyContact,
   IdentityDocument,
   ProfessionalRegistration,
+  StoredSignature,
   UserProfile,
 } from '@fillit/shared';
 import { create } from 'zustand';
@@ -49,6 +50,15 @@ import {
   type CreateEmergencyContactInput,
   type UpdateEmergencyContactInput,
 } from '../services/storage/profileCrud';
+import {
+  createSignature as createProfileSignature,
+  getSignaturesByProfile,
+  updateSignature as updateProfileSignature,
+  deleteSignature as deleteProfileSignature,
+  setDefaultSignature as setProfileDefaultSignature,
+  type CreateSignatureInput,
+  type UpdateSignatureInput,
+} from '../services/storage/signatureService';
 import { initializeDatabase } from '../services/storage/database';
 
 // ---------------------------------------------------------------------------
@@ -98,7 +108,11 @@ export type ProfileOperation =
   | 'deleteProfessionalRegistration'
   | 'createEmergencyContact'
   | 'updateEmergencyContact'
-  | 'deleteEmergencyContact';
+  | 'deleteEmergencyContact'
+  | 'createSignature'
+  | 'updateSignature'
+  | 'deleteSignature'
+  | 'setDefaultSignature';
 
 /** Actions available on the profile store */
 export interface ProfileActions {
@@ -148,6 +162,14 @@ export interface ProfileActions {
     input: UpdateEmergencyContactInput,
   ) => Promise<EmergencyContact | null>;
   deleteEmergencyContact: (id: string, profileId: string) => Promise<boolean>;
+  createSignature: (input: CreateSignatureInput) => Promise<StoredSignature>;
+  updateSignature: (
+    id: string,
+    profileId: string,
+    input: UpdateSignatureInput,
+  ) => Promise<StoredSignature>;
+  deleteSignature: (id: string, profileId: string) => Promise<void>;
+  setDefaultSignature: (id: string, profileId: string) => Promise<StoredSignature>;
   clearError: () => void;
   reset: () => void;
 }
@@ -602,6 +624,66 @@ function createEmergencyContactActions({
   };
 }
 
+function createSignatureActions({
+  startMutation,
+  endMutationWithError,
+  updateProfileChildren,
+}: ReturnType<typeof createMutationHelpers>) {
+  return {
+    createSignature: async (input: CreateSignatureInput) => {
+      startMutation();
+      try {
+        const sig = await createProfileSignature(input);
+        const signatures = await getSignaturesByProfile(input.profileId);
+        updateProfileChildren(input.profileId, () => ({ signatures }));
+        return sig;
+      } catch (err) {
+        endMutationWithError('createSignature', err);
+        throw err;
+      }
+    },
+
+    updateSignature: async (id: string, profileId: string, input: UpdateSignatureInput) => {
+      startMutation();
+      try {
+        const updated = await updateProfileSignature(id, input);
+        const signatures = await getSignaturesByProfile(profileId);
+        updateProfileChildren(profileId, () => ({ signatures }));
+        return updated;
+      } catch (err) {
+        endMutationWithError('updateSignature', err);
+        throw err;
+      }
+    },
+
+    deleteSignature: async (id: string, profileId: string) => {
+      startMutation();
+      try {
+        await deleteProfileSignature(id);
+        updateProfileChildren(profileId, (p) => ({
+          signatures: p.signatures.filter((s: StoredSignature) => s.id !== id),
+        }));
+      } catch (err) {
+        endMutationWithError('deleteSignature', err);
+        throw err;
+      }
+    },
+
+    setDefaultSignature: async (id: string, profileId: string) => {
+      startMutation();
+      try {
+        const updated = await setProfileDefaultSignature(id);
+        const signatures = await getSignaturesByProfile(profileId);
+        updateProfileChildren(profileId, () => ({ signatures }));
+        return updated;
+      } catch (err) {
+        endMutationWithError('setDefaultSignature', err);
+        throw err;
+      }
+    },
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Store
 // ---------------------------------------------------------------------------
@@ -620,6 +702,7 @@ function createProfileStore(set: SetFn, get: GetFn): ProfileStore {
     ...createIdentityDocumentActions(mutationHelpers),
     ...createProfessionalRegistrationActions(mutationHelpers),
     ...createEmergencyContactActions(mutationHelpers),
+    ...createSignatureActions(mutationHelpers),
     clearError: () => set({ error: null }),
     reset: () => set({ ...DEFAULT_PROFILE_STATE }),
   };
@@ -671,6 +754,10 @@ export const selectActiveProfileRegistrations = (state: ProfileStore): Professio
 /** Select emergency contacts for the active profile */
 export const selectActiveProfileEmergencyContacts = (state: ProfileStore): EmergencyContact[] =>
   state.profiles.find((p) => p.id === state.activeProfileId)?.emergencyContacts ?? [];
+
+/** Select signatures for the active profile */
+export const selectActiveProfileSignatures = (state: ProfileStore): StoredSignature[] =>
+  state.profiles.find((p) => p.id === state.activeProfileId)?.signatures ?? [];
 
 /** Select whether profiles are loading */
 export const selectIsLoading = (state: ProfileStore): boolean => state.isLoading;

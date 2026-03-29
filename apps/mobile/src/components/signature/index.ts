@@ -4,3 +4,5 @@ export { SignaturePreview } from './SignaturePreview';
 export type { SignaturePreviewProps, PreviewSize } from './SignaturePreview';
 export { TypedSignature } from './TypedSignature';
 export type { TypedSignatureProps, TypedSignatureResult, SignatureFont } from './TypedSignature';
+export { SignatureList } from './SignatureList';
+export type { SignatureListProps } from './SignatureList';
