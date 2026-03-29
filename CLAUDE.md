@@ -137,6 +137,11 @@ User kicks off story → Issue moved to "In Progress" on project board
 - `apps/mobile/src/services/storage/fileStorage.ts` — Local file storage service (expo-file-system SDK 55+)
 - `apps/mobile/src/services/scanner/documentScanner.ts` — ML Kit document scanner service (native camera scanning with edge detection)
 - `apps/mobile/src/hooks/useScanDocument.ts` — Document scanning hook (orchestrates scan → save → pipeline flow)
+- `apps/mobile/src/services/pdf/formFill.ts` — PDF form-fill service (AcroForm text, checkbox, radio, dropdown, SA date formatting)
+- `apps/mobile/src/services/pdf/scannedOverlay.ts` — Scanned document overlay PDF (text/signature at bounding box positions)
+- `apps/mobile/src/services/storage/signatureService.ts` — Signature CRUD service (SQLite-backed, file cleanup)
+- `apps/mobile/src/components/signature/` — Signature components (SignaturePad, TypedSignature, SignaturePreview, SignatureList)
+- `apps/mobile/app/profile/signature/` — Signature management screens (list + add)
 - `apps/mobile/.maestro/` — Maestro E2E test flows and config
 - `apps/mobile/src/e2e/` — E2E test suite runners (used by harness screen)
 - `apps/mobile/app/__e2e.tsx` — E2E test harness screen (Maestro interacts with this)

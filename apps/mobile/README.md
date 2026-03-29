@@ -60,7 +60,7 @@ AES-256-GCM encryption module that delegates key management to the secure store 
 
 State management lives in `src/stores/` using Zustand with SQLite persistence.
 
-- **Profile store** (`profile-store.ts`) — Manages profiles and child entities (addresses, dependants, etc.), synced to SQLite
+- **Profile store** (`profile-store.ts`) — Manages profiles and child entities (addresses, dependants, signatures, etc.), synced to SQLite
 - **Document store** (`document-store.ts`) — Manages documents, pages, and fields, synced to SQLite. Follows the same factory-function pattern as the profile store.
 - **Processing store** (`processing-store.ts`) — Ephemeral state machine for the document processing pipeline (idle->scanning->reviewing->ocr->detecting->matching->signing->exporting->done). Not persisted to SQLite.
 - **Settings store** — App-level settings and preferences
@@ -79,6 +79,17 @@ Reusable UI components live in `src/components/`, organized by domain.
 
 - **SignaturePad** — Freehand drawing canvas using `react-native-svg` + `react-native-gesture-handler`. Pen color/width pickers, clear/undo, SVG path export
 - **TypedSignature** — Type-your-name signature with font selector (Dancing Script, Great Vibes, Print). Live preview with auto-sizing text
+- **SignaturePreview** — Renders drawn (SVG) or typed (text+font) signatures in thumbnail or full-size mode with tap-to-expand
+- **SignatureList** — Signature management list with default badge, set-default/delete actions, empty state
+
+#### PDF Services (`src/services/pdf/`)
+
+- **formFill** — Fills AcroForm fields in existing PDFs using pdf-lib (text, checkbox, radio, dropdown). SA date formatting (DD/MM/YYYY). Optional form flattening.
+- **scannedOverlay** — Generates PDFs from scanned page images with text/signature overlays at bounding box positions. Auto-sizes fonts, supports drawn (PNG) and typed signatures. Multi-page support.
+
+### Screens
+
+- **Signature Management** (`app/profile/signature/`) — List, add (drawn or typed), delete, and set default signatures for the active profile
 
 ## Testing
 
