@@ -6,8 +6,7 @@
  * to detect fields without Claude API calls.
  */
 
-import { findBestMatch, type MatchResult } from '@fillit/shared';
-import type { DetectedFieldType } from '@fillit/shared';
+import { findBestMatch, type MatchResult, type DetectedFieldType } from '@fillit/shared';
 
 // ─── Types ─────────────────────────────────────────────────────────
 
