@@ -8,6 +8,7 @@
 import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { type ComponentProps } from 'react';
+import { router } from 'expo-router';
 
 import { useTheme } from '../../src/theme';
 
@@ -144,6 +145,7 @@ export default function SettingsScreen() {
         icon="shield-checkmark-outline"
         label="Security"
         description="Biometric lock and encryption"
+        onPress={() => router.push('/settings/security' as never)}
         testID="settings-security"
       />
       <View style={[styles.divider, { backgroundColor: theme.colors.divider }]} />
