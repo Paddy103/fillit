@@ -13,3 +13,5 @@ export type {
   OverlayOptions,
   OverlayResult,
 } from './scannedOverlay';
+export { savePdf, sharePdf, printPdf, ExportError } from './exportActions';
+export type { SaveResult, ExportActionsConfig } from './exportActions';
