@@ -1,6 +1,6 @@
 # Stories Ready for Development
 
-## Completed (75 stories)
+## Completed (79 stories)
 
 **Phase 1 — Foundation (43 stories):** S-01 through S-38, S-46, S-55, S-96, S-97
 All foundation complete: monorepo, types, validation, theme, UI components, navigation, stores, database, encryption, profiles, home dashboard, server deploy.
@@ -14,31 +14,26 @@ All AI/backend complete: OAuth, rate limiting, Claude API, analyze endpoint, tem
 **Phase 4 — Signatures (5 stories):** S-68, S-69, S-70, S-71, S-72
 Drawn signature canvas, typed signature, signature preview, signature management screen, signature consent screen — all complete.
 
-**Phase 4 — PDF + Export (5 stories):** S-73, S-74, S-75, S-76, S-77
-PDF form-fill, scanned overlay, PDF preview, export preview, share/save/print — all complete. **End-to-end export pipeline done!**
+**Phase 4 — PDF + Export + History (6 stories):** S-73, S-74, S-75, S-76, S-77, S-78
+PDF form-fill, scanned overlay, PDF preview, export preview, share/save/print, document history — all complete. **End-to-end export pipeline done!**
+
+**Phase 3 — Mobile Auth (2 stories):** S-56, S-57
+Google Sign-In and Apple Sign-In — complete. Unblocks S-58 (sign-in screen).
+
+**Phase 5 — Security (1 story):** S-79
+Biometric authentication (Face ID, fingerprint, device PIN fallback) — complete. Unblocks S-80, S-81.
 
 ## Unblocked Stories
 
 These stories have all dependencies satisfied and are ready to build **now**.
 
-### Phase 4 — History
+### Newly Unblocked!
 
-| Issue | Story                                  | Description                            | Unblocked by |
-| ----- | -------------------------------------- | -------------------------------------- | ------------ |
-| #79   | **S-78**: Document history list screen | Document list with thumbnails + search | S-24, S-29   |
-
-### Phase 3 — Mobile Auth
-
-| Issue | Story                              | Description               | Unblocked by |
-| ----- | ---------------------------------- | ------------------------- | ------------ |
-| #57   | **S-56**: Google Sign-In on mobile | Google OAuth sign-in flow | S-47         |
-| #58   | **S-57**: Apple Sign-In on mobile  | Apple Sign-In flow        | S-47         |
-
-### Phase 5 — Security
-
-| Issue | Story                              | Description                  | Unblocked by |
-| ----- | ---------------------------------- | ---------------------------- | ------------ |
-| #80   | **S-79**: Biometric authentication | Face ID / fingerprint unlock | S-23         |
+| Issue | Story                                 | Description                     | Unblocked by |
+| ----- | ------------------------------------- | ------------------------------- | ------------ |
+| #59   | **S-58**: Sign-in screen + auth guard | Sign-in UI + route protection   | S-56, S-57   |
+| #81   | **S-80**: Auto-lock on background     | Lock app when backgrounded      | S-79         |
+| #82   | **S-82**: Google Drive backup service | Backup/restore via Google Drive | S-56         |
 
 ### Phase 5 — Cloud Backup
 
@@ -50,28 +45,32 @@ These stories have all dependencies satisfied and are ready to build **now**.
 
 | Issue | Story                                    | Description                         | Unblocked by |
 | ----- | ---------------------------------------- | ----------------------------------- | ------------ |
+| #54   | **S-54**: Usage stats endpoint           | Server-side usage statistics        | S-53         |
 | #87   | **S-86**: First-time onboarding screens  | 3-4 slide walkthrough for new users | S-29, S-32   |
+| #88   | **S-87**: Lazy loading + memory mgmt     | Performance optimization            | —            |
+| #89   | **S-88**: Accessibility audit            | A11y remediation                    | —            |
 | #90   | **S-89**: Monetization abstraction layer | Tier system + feature gates         | S-23         |
 
 ### Phase 6 — Web (future)
 
 | Issue | Story                               | Description               | Unblocked by |
 | ----- | ----------------------------------- | ------------------------- | ------------ |
+| #93   | **S-92**: Tesseract.js web OCR      | Browser-based OCR         | —            |
 | #95   | **S-94**: Web Crypto API encryption | Browser-based encryption  | S-13         |
 | #96   | **S-95**: Adapt UI for web viewport | Responsive layout for web | S-29         |
 
 ## Blocked Stories (next wave)
 
-These become unblocked once their dependencies ship.
-
-| Issue | Story                                 | Blocked by         | Unlocks |
-| ----- | ------------------------------------- | ------------------ | ------- |
-| #55   | **S-54**: Usage stats endpoint        | **S-53** (done)    | —       |
-| #59   | **S-58**: Sign-in screen + auth guard | **S-56**, **S-57** | —       |
+| Issue | Story                                  | Blocked by         | Unlocks |
+| ----- | -------------------------------------- | ------------------ | ------- |
+| #81   | **S-81**: Security settings UI         | S-80               | —       |
+| #83   | **S-83**: Google Drive backup settings | S-82               | —       |
+| #85   | **S-85**: iCloud backup settings       | S-84               | —       |
+| #91   | **S-90**: Mobile analytics integration | S-53               | —       |
+| #92   | **S-91**: Complete settings screen     | S-79✅, S-82, S-84 | —       |
+| #94   | **S-93**: Web camera capture           | S-92               | —       |
 
 ## Critical Path
-
-The shortest path to end-to-end document completion:
 
 ```
 CRITICAL PATH COMPLETE! End-to-end document export is done.
@@ -80,36 +79,32 @@ Scan → OCR → AI Detection → Field Matching → Signatures → PDF → Expo
 
 ## Recommended Priority
 
-1. **S-78** — document history list (needed for usable app)
-2. **S-56 + S-57** — mobile sign-in (unblocks auth guard S-58)
-3. **S-79** — biometric auth (starts security chain → S-80 → S-81)
-4. **S-84** — iCloud backup (starts backup chain → S-85)
+1. **S-58** — sign-in screen + auth guard (just unblocked! needed for production)
+2. **S-80** — auto-lock on background (just unblocked, continues security chain)
+3. **S-82** — Google Drive backup (just unblocked by S-56)
+4. **S-84** — iCloud backup (starts iOS backup chain)
 5. **S-86** — onboarding screens (first-time user experience)
 6. **Phase 5+ stories** — polish, monetization, web
 
-## All Open Stories (25 remaining)
+## All Open Stories (21 remaining)
 
-| #    | Story                        | Phase | Status                      |
-| ---- | ---------------------------- | ----- | --------------------------- |
-| S-54 | Usage stats endpoint         | 3     | Unblocked (S-53 done)       |
-| S-56 | Google Sign-In               | 3     | Unblocked                   |
-| S-57 | Apple Sign-In                | 3     | Unblocked                   |
-| S-58 | Sign-in screen + auth guard  | 3     | Blocked by S-56, S-57       |
-| S-78 | Document history list        | 4     | Unblocked                   |
-| S-79 | Biometric authentication     | 5     | Unblocked                   |
-| S-80 | Auto-lock on background      | 5     | Blocked by S-79             |
-| S-81 | Security settings UI         | 5     | Blocked by S-79, S-80       |
-| S-82 | Google Drive backup          | 5     | Blocked by S-56             |
-| S-83 | Google Drive backup settings | 5     | Blocked by S-82             |
-| S-84 | iCloud backup service        | 5     | Unblocked                   |
-| S-85 | iCloud backup settings       | 5     | Blocked by S-84             |
-| S-86 | First-time onboarding        | 5     | Unblocked                   |
-| S-87 | Lazy loading + memory mgmt   | 5     | Unblocked                   |
-| S-88 | Accessibility audit          | 5     | Unblocked                   |
-| S-89 | Monetization abstraction     | 5     | Unblocked                   |
-| S-90 | Mobile analytics integration | 5     | Blocked by S-53             |
-| S-91 | Complete settings screen     | 5     | Blocked by S-79, S-82, S-84 |
-| S-92 | Tesseract.js web OCR         | 6     | Unblocked                   |
-| S-93 | Web camera capture           | 6     | Blocked by S-92             |
-| S-94 | Web Crypto API encryption    | 6     | Unblocked                   |
-| S-95 | Adapt UI for web viewport    | 6     | Unblocked                   |
+| #    | Story                        | Phase | Status                |
+| ---- | ---------------------------- | ----- | --------------------- |
+| S-54 | Usage stats endpoint         | 3     | Unblocked             |
+| S-58 | Sign-in screen + auth guard  | 3     | **Newly unblocked!**  |
+| S-80 | Auto-lock on background      | 5     | **Newly unblocked!**  |
+| S-81 | Security settings UI         | 5     | Blocked by S-80       |
+| S-82 | Google Drive backup          | 5     | **Newly unblocked!**  |
+| S-83 | Google Drive backup settings | 5     | Blocked by S-82       |
+| S-84 | iCloud backup service        | 5     | Unblocked             |
+| S-85 | iCloud backup settings       | 5     | Blocked by S-84       |
+| S-86 | First-time onboarding        | 5     | Unblocked             |
+| S-87 | Lazy loading + memory mgmt   | 5     | Unblocked             |
+| S-88 | Accessibility audit          | 5     | Unblocked             |
+| S-89 | Monetization abstraction     | 5     | Unblocked             |
+| S-90 | Mobile analytics integration | 5     | Blocked by S-53       |
+| S-91 | Complete settings screen     | 5     | Blocked by S-82, S-84 |
+| S-92 | Tesseract.js web OCR         | 6     | Unblocked             |
+| S-93 | Web camera capture           | 6     | Blocked by S-92       |
+| S-94 | Web Crypto API encryption    | 6     | Unblocked             |
+| S-95 | Adapt UI for web viewport    | 6     | Unblocked             |
