@@ -61,6 +61,7 @@ function RootNavigator() {
       <Stack.Screen name="profile/emergency/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="scan/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="ocr/[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="settings/security" options={{ headerShown: false }} />
       <Stack.Screen name="__e2e" options={{ headerShown: true, headerTitle: 'E2E Tests' }} />
     </Stack>
   );
