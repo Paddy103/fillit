@@ -16,4 +16,16 @@ export {
   AppleAuthError,
 } from './appleAuth';
 export type { AppleAuthUser } from './appleAuth';
+export {
+  getBiometricCapabilities,
+  authenticateWithBiometrics,
+  canUseBiometrics,
+  BiometricError,
+} from './biometricAuth';
+export type {
+  BiometricType,
+  BiometricCapabilities,
+  BiometricAuthResult,
+  BiometricPromptOptions,
+} from './biometricAuth';
 export { setAuthToken, getAuthToken, clearAuthToken } from './tokenStore';

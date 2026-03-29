@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__plugin_telegram_telegram__reply",
+      "Read(//c/Users/RichardKitching/fillit/**)",
+      "Bash(gh issue:*)",
+      "Bash(sed \"s/''''.*$//\")",
+      "Bash(xargs grep:*)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx|json\\)$\")",
+      "Bash(gh pr:*)"
+    ]
+  }
+}
