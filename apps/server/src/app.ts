@@ -12,6 +12,7 @@ import {
 import { createVerifiers } from './auth/index.js';
 import { RateLimiter, RATE_LIMIT_TIERS } from './services/rate-limiter.js';
 import { analyzeRoutes } from './routes/analyze.js';
+import { usageRoutes } from './routes/usage.js';
 
 const app = new Hono<AppEnv>();
 
@@ -51,6 +52,7 @@ app.get('/', (c) => {
 
 // API routes
 app.route('/api', analyzeRoutes);
+app.route('/api', usageRoutes);
 
 // Authenticated route: verify token and return user info
 app.get('/api/auth/me', (c) => {
