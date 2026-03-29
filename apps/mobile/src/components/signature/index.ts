@@ -6,3 +6,5 @@ export { TypedSignature } from './TypedSignature';
 export type { TypedSignatureProps, TypedSignatureResult, SignatureFont } from './TypedSignature';
 export { SignatureList } from './SignatureList';
 export type { SignatureListProps } from './SignatureList';
+export { SignatureConsentScreen } from './SignatureConsentScreen';
+export type { SignatureConsentScreenProps, SignatureFieldInfo } from './SignatureConsentScreen';
