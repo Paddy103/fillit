@@ -17,6 +17,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { ThemeProvider, useTheme } from '../src/theme';
 import { useFontsLoaded } from '../src/fonts';
 import { initializeDatabase } from '../src/services/storage/database';
+import { useAutoLock } from '../src/hooks/useAutoLock';
+import { LockScreen } from '../src/components/auth';
 
 // Prevent the splash screen from auto-hiding before fonts are loaded
 SplashScreen.preventAutoHideAsync();
@@ -24,6 +26,12 @@ SplashScreen.preventAutoHideAsync();
 function ThemedStatusBar() {
   const { isDark } = useTheme();
   return <StatusBar style={isDark ? 'light' : 'dark'} />;
+}
+
+function AutoLockOverlay() {
+  const { isLocked, isAuthenticating, unlock } = useAutoLock();
+  if (!isLocked) return null;
+  return <LockScreen isAuthenticating={isAuthenticating} onUnlock={unlock} />;
 }
 
 function RootNavigator() {
@@ -95,6 +103,7 @@ export default function RootLayout() {
       <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
         <ThemedStatusBar />
         <RootNavigator />
+        <AutoLockOverlay />
       </View>
     </ThemeProvider>
   );
