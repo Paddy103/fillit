@@ -86,9 +86,7 @@ export async function analyzeDocument(
 /**
  * Get template cache statistics from the backend.
  */
-export async function getCacheStats(
-  client: ApiClient,
-): Promise<{
+export async function getCacheStats(client: ApiClient): Promise<{
   success: boolean;
   data: { size: number; hits: number; misses: number; evictions: number };
 }> {
