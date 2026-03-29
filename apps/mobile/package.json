@@ -35,6 +35,7 @@
     "expo-font": "^55.0.4",
     "expo-image-manipulator": "55.0.12-canary-20260327-0789fbc",
     "expo-linking": "~55.0.9",
+    "expo-local-authentication": "^55.0.9",
     "expo-print": "^55.0.9",
     "expo-router": "~55.0.8",
     "expo-secure-store": "^55.0.9",
