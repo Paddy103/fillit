@@ -1,6 +1,6 @@
 # Stories Ready for Development
 
-## Completed (68 stories)
+## Completed (70 stories)
 
 **Phase 1 — Foundation (43 stories):** S-01 through S-38, S-46, S-55, S-96, S-97
 All foundation complete: monorepo, types, validation, theme, UI components, navigation, stores, database, encryption, profiles, home dashboard, server deploy.
@@ -11,8 +11,11 @@ All scanning complete: ML Kit scanner, scan review, file import, OCR service, pl
 **Phase 3 — AI Detection + Backend (16 stories):** S-47 through S-53, S-59 through S-67
 All AI/backend complete: OAuth, rate limiting, Claude API, analyze endpoint, template cache, fingerprinting, proxy client, image optimization, label dictionary, fuzzy matching, document viewer, field editor, field detection progress, network-aware routing, field matching/review.
 
-**Phase 4 — Signatures (3 stories):** S-68, S-69, S-70
-Drawn signature canvas, typed signature, signature preview — all complete.
+**Phase 4 — Signatures (4 stories):** S-68, S-69, S-70, S-71
+Drawn signature canvas, typed signature, signature preview, signature management screen — all complete.
+
+**Phase 4 — PDF (1 story):** S-73
+PDF form-fill generation with pdf-lib (text, checkbox, radio, dropdown, SA date formatting).
 
 ## Unblocked Stories
 
@@ -20,80 +23,77 @@ These stories have all dependencies satisfied and are ready to build **now**.
 
 ### Phase 4 — Signatures (continued)
 
-| Issue | Story | Description | Unblocked by |
-|-------|-------|-------------|-------------|
-| #72 | **S-71**: Signature management screen | Manage saved signatures (add/delete/select) | S-70 |
-| #73 | **S-72**: Signature consent screen | Consent + legal agreement before signing | S-70, S-67 |
+| Issue | Story                              | Description                              | Unblocked by |
+| ----- | ---------------------------------- | ---------------------------------------- | ------------ |
+| #73   | **S-72**: Signature consent screen | Consent + legal agreement before signing | S-70, S-67   |
 
 ### Phase 4 — PDF
 
-| Issue | Story | Description | Unblocked by |
-|-------|-------|-------------|-------------|
-| #74 | **S-73**: PDF generation for form-fill | Fill AcroForm fields using pdf-lib | S-09 |
-| #76 | **S-75**: PDF rendering for preview | Render PDF pages for on-screen preview | S-02 |
-| #79 | **S-78**: Document history list screen | Document list with thumbnails, status, search | S-24, S-29 |
+| Issue | Story                                        | Description                                   | Unblocked by |
+| ----- | -------------------------------------------- | --------------------------------------------- | ------------ |
+| #75   | **S-74**: PDF generation for scanned overlay | Overlay detected fields on scanned docs       | S-73         |
+| #76   | **S-75**: PDF rendering for preview          | Render PDF pages for on-screen preview        | S-02         |
+| #79   | **S-78**: Document history list screen       | Document list with thumbnails, status, search | S-24, S-29   |
 
 ### Phase 3 — Mobile Auth
 
-| Issue | Story | Description | Unblocked by |
-|-------|-------|-------------|-------------|
-| #57 | **S-56**: Google Sign-In on mobile | Google OAuth sign-in flow | S-47 |
-| #58 | **S-57**: Apple Sign-In on mobile | Apple Sign-In flow | S-47 |
+| Issue | Story                              | Description               | Unblocked by |
+| ----- | ---------------------------------- | ------------------------- | ------------ |
+| #57   | **S-56**: Google Sign-In on mobile | Google OAuth sign-in flow | S-47         |
+| #58   | **S-57**: Apple Sign-In on mobile  | Apple Sign-In flow        | S-47         |
 
 ### Phase 5 — Security
 
-| Issue | Story | Description | Unblocked by |
-|-------|-------|-------------|-------------|
-| #80 | **S-79**: Biometric authentication | Face ID / fingerprint unlock | S-23 |
+| Issue | Story                              | Description                  | Unblocked by |
+| ----- | ---------------------------------- | ---------------------------- | ------------ |
+| #80   | **S-79**: Biometric authentication | Face ID / fingerprint unlock | S-23         |
 
 ### Phase 5 — Cloud Backup
 
-| Issue | Story | Description | Unblocked by |
-|-------|-------|-------------|-------------|
-| #85 | **S-84**: iCloud backup service | Backup/restore data via iCloud | S-15 |
+| Issue | Story                           | Description                    | Unblocked by |
+| ----- | ------------------------------- | ------------------------------ | ------------ |
+| #85   | **S-84**: iCloud backup service | Backup/restore data via iCloud | S-15         |
 
 ### Phase 5 — Polish
 
-| Issue | Story | Description | Unblocked by |
-|-------|-------|-------------|-------------|
-| #87 | **S-86**: First-time onboarding screens | 3-4 slide walkthrough for new users | S-29, S-32 |
-| #90 | **S-89**: Monetization abstraction layer | Tier system + feature gates | S-23 |
+| Issue | Story                                    | Description                         | Unblocked by |
+| ----- | ---------------------------------------- | ----------------------------------- | ------------ |
+| #87   | **S-86**: First-time onboarding screens  | 3-4 slide walkthrough for new users | S-29, S-32   |
+| #90   | **S-89**: Monetization abstraction layer | Tier system + feature gates         | S-23         |
 
 ### Phase 6 — Web (future)
 
-| Issue | Story | Description | Unblocked by |
-|-------|-------|-------------|-------------|
-| #95 | **S-94**: Web Crypto API encryption | Browser-based encryption | S-13 |
-| #96 | **S-95**: Adapt UI for web viewport | Responsive layout for web | S-29 |
+| Issue | Story                               | Description               | Unblocked by |
+| ----- | ----------------------------------- | ------------------------- | ------------ |
+| #95   | **S-94**: Web Crypto API encryption | Browser-based encryption  | S-13         |
+| #96   | **S-95**: Adapt UI for web viewport | Responsive layout for web | S-29         |
 
 ## Blocked Stories (next wave)
 
 These become unblocked once their dependencies ship.
 
-| Issue | Story | Blocked by | Unlocks |
-|-------|-------|-----------|---------|
-| #55 | **S-54**: Usage stats endpoint | **S-53** (done) | — |
-| #59 | **S-58**: Sign-in screen + auth guard | **S-56**, **S-57** | — |
-| #75 | **S-74**: PDF generation for scanned overlay | **S-73** | S-76 (export preview) |
-| #77 | **S-76**: Export preview screen | **S-74**, S-72 | S-77 (share/save/print) |
-| #78 | **S-77**: Share, save, and print actions | **S-76** | — |
+| Issue | Story                                    | Blocked by         | Unlocks                 |
+| ----- | ---------------------------------------- | ------------------ | ----------------------- |
+| #55   | **S-54**: Usage stats endpoint           | **S-53** (done)    | —                       |
+| #59   | **S-58**: Sign-in screen + auth guard    | **S-56**, **S-57** | —                       |
+| #77   | **S-76**: Export preview screen          | **S-74**, S-72     | S-77 (share/save/print) |
+| #78   | **S-77**: Share, save, and print actions | **S-76**           | —                       |
 
 ## Critical Path
 
 The shortest path to end-to-end document completion:
 
 ```
-S-71 (signature mgmt) → S-72 (consent) ─┐
-S-73 (PDF gen) → S-74 (overlay) ─────────┼→ S-76 (export preview) → S-77 (share/print)
+S-72 (consent) ───────────────────────────┐
+S-74 (overlay) ───────────────────────────┼→ S-76 (export preview) → S-77 (share/print)
 S-75 (PDF render) ────────────────────────┘
 ```
 
 ## Recommended Priority
 
-1. **S-71** — signature management screen (continues signature chain → S-72 → export)
-2. **S-73** — PDF generation for form-fill (starts PDF chain → S-74 → S-76 → S-77)
+1. **S-74** — PDF generation for scanned overlay (just unblocked by S-73, continues PDF chain)
+2. **S-72** — signature consent screen (unblocked, needed before export)
 3. **S-75** — PDF rendering for preview (needed for export preview)
-4. **S-72** — signature consent (unblocked, needed before export)
-5. **S-56 + S-57** — mobile sign-in (unblocks auth guard S-58)
-6. **S-78** — document history list (independent, nice-to-have)
-7. **Phase 5+ stories** — polish, lower priority
+4. **S-56 + S-57** — mobile sign-in (unblocks auth guard S-58)
+5. **S-78** — document history list (independent, nice-to-have)
+6. **Phase 5+ stories** — polish, lower priority
