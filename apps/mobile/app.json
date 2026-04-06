@@ -40,7 +40,10 @@
             "backgroundColor": "#121212"
           }
         }
-      ]
+      ],
+      "expo-font",
+      "expo-sharing",
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true
