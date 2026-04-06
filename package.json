@@ -18,7 +18,13 @@
   },
   "pnpm": {
     "overrides": {
-      "@infinitered/react-native-mlkit-core": "5.0.0"
+      "@infinitered/react-native-mlkit-core": "5.0.0",
+      "flatted": ">=3.4.2",
+      "node-forge": ">=1.4.0",
+      "picomatch": ">=4.0.4",
+      "@xmldom/xmldom": ">=0.8.12",
+      "brace-expansion": ">=5.0.5",
+      "yaml": ">=2.8.3"
     }
   },
   "devDependencies": {
@@ -30,6 +36,6 @@
     "rimraf": "^6.0.0",
     "typescript": "^5.7.0",
     "vitest": "^4.1.0",
-    "yaml": "^2.8.2"
+    "yaml": "^2.8.3"
   }
 }

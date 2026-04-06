@@ -1,19 +1,20 @@
 /**
  * Google Sign-In service for mobile.
  *
- * Wraps @react-native-google-signin/google-signin to provide
- * sign-in, sign-out, token retrieval, and silent refresh.
+ * Uses expo-auth-session with Google's OAuth discovery document
+ * to provide sign-in, sign-out, and token retrieval via a web-based
+ * auth flow. No native GoogleSignIn pod required.
+ *
  * The ID token is used to authenticate with the backend proxy.
  */
 
-import {
-  GoogleSignin,
-  isSuccessResponse,
-  isErrorWithCode,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
+import * as AuthSession from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
 
 import { getAuthToken, setAuthToken, clearAuthToken } from './tokenStore';
+
+// Ensure the web browser auth session completes cleanly on iOS
+WebBrowser.maybeCompleteAuthSession();
 
 // ─── Types ─────────────────────────────────────────────────────────
 
@@ -47,78 +48,90 @@ export class GoogleAuthError extends Error {
   }
 }
 
+// ─── Constants ───────────────────────────────────────────────────
+
+const GOOGLE_DISCOVERY = AuthSession.useAutoDiscovery
+  ? undefined
+  : {
+      authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
+      tokenEndpoint: 'https://oauth2.googleapis.com/token',
+      revocationEndpoint: 'https://oauth2.googleapis.com/revoke',
+    };
+
 // ─── Service ──────────────────────────────────────────────────────
 
-let isConfigured = false;
+let storedConfig: GoogleAuthConfig | null = null;
 
 /**
- * Configure the Google Sign-In SDK.
+ * Configure the Google auth service.
  * Must be called once during app startup before any sign-in attempts.
  */
 export function configureGoogleAuth(config: GoogleAuthConfig): void {
-  GoogleSignin.configure({
-    webClientId: config.webClientId,
-    iosClientId: config.iosClientId,
-    offlineAccess: config.offlineAccess ?? false,
-  });
-  isConfigured = true;
+  storedConfig = config;
 }
 
 /**
  * Sign in with Google.
  *
- * Opens the Google Sign-In UI and returns the authenticated user
+ * Opens a web-based Google OAuth flow and returns the authenticated user
  * with an ID token. The token is stored securely for later use.
  *
  * @returns The authenticated user with ID token.
  * @throws {GoogleAuthError} On sign-in failure.
  */
 export async function signInWithGoogle(): Promise<GoogleAuthUser> {
-  ensureConfigured();
+  const config = ensureConfigured();
 
   try {
-    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-    const response = await GoogleSignin.signIn();
+    const redirectUri = AuthSession.makeRedirectUri();
 
-    if (!isSuccessResponse(response)) {
+    const request = new AuthSession.AuthRequest({
+      clientId: config.webClientId,
+      scopes: ['openid', 'profile', 'email'],
+      redirectUri,
+      responseType: AuthSession.ResponseType.IdToken,
+      extraParams: {
+        nonce: Math.random().toString(36).substring(2),
+      },
+    });
+
+    const discovery = GOOGLE_DISCOVERY ?? {
+      authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
+      tokenEndpoint: 'https://oauth2.googleapis.com/token',
+      revocationEndpoint: 'https://oauth2.googleapis.com/revoke',
+    };
+
+    const result = await request.promptAsync(discovery);
+
+    if (result.type === 'dismiss' || result.type === 'cancel') {
       throw new GoogleAuthError('Sign-in was cancelled', 'SIGN_IN_CANCELLED');
     }
 
-    const { data } = response;
-    const idToken = data.idToken;
+    if (result.type !== 'success') {
+      throw new GoogleAuthError(`Google Sign-In failed: ${result.type}`, 'AUTH_FAILED');
+    }
+
+    const idToken = result.params?.id_token ?? result.authentication?.idToken ?? null;
 
     if (!idToken) {
       throw new GoogleAuthError('No ID token received from Google');
     }
 
+    // Decode basic user info from the ID token JWT
+    const user = decodeIdToken(idToken);
+
     // Store the token securely
     await setAuthToken(idToken);
 
     return {
-      id: data.user.id,
-      email: data.user.email,
-      name: data.user.name,
-      photo: data.user.photo,
+      id: user.sub,
+      email: user.email,
+      name: user.name ?? null,
+      photo: user.picture ?? null,
       idToken,
     };
   } catch (error) {
     if (error instanceof GoogleAuthError) throw error;
-
-    if (isErrorWithCode(error)) {
-      switch (error.code) {
-        case statusCodes.SIGN_IN_CANCELLED:
-          throw new GoogleAuthError('Sign-in was cancelled', 'SIGN_IN_CANCELLED');
-        case statusCodes.IN_PROGRESS:
-          throw new GoogleAuthError('Sign-in already in progress', 'IN_PROGRESS');
-        case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-          throw new GoogleAuthError(
-            'Google Play Services is not available',
-            'PLAY_SERVICES_UNAVAILABLE',
-          );
-        default:
-          throw new GoogleAuthError(`Google Sign-In failed: ${error.message}`, error.code, error);
-      }
-    }
 
     throw new GoogleAuthError(
       error instanceof Error ? error.message : 'Google Sign-In failed',
@@ -131,35 +144,32 @@ export async function signInWithGoogle(): Promise<GoogleAuthUser> {
 /**
  * Attempt a silent sign-in (token refresh).
  *
- * Returns the current user if still signed in, or null if
- * the user needs to sign in again interactively.
+ * With expo-auth-session there's no true silent refresh — we check
+ * the stored token and return the cached user if it's still valid.
+ * Returns null if no stored session exists.
  */
 export async function silentSignIn(): Promise<GoogleAuthUser | null> {
-  ensureConfigured();
-
   try {
-    const response = await GoogleSignin.signInSilently();
+    const idToken = await getAuthToken();
+    if (!idToken) return null;
 
-    if (response.type !== 'success') {
+    const user = decodeIdToken(idToken);
+
+    // Check if the token is expired
+    if (user.exp && user.exp * 1000 < Date.now()) {
+      await clearAuthToken();
       return null;
     }
 
-    const { data } = response;
-    const idToken = data.idToken;
-
-    if (!idToken) return null;
-
-    await setAuthToken(idToken);
-
     return {
-      id: data.user.id,
-      email: data.user.email,
-      name: data.user.name,
-      photo: data.user.photo,
+      id: user.sub,
+      email: user.email,
+      name: user.name ?? null,
+      photo: user.picture ?? null,
       idToken,
     };
   } catch {
-    // Silent sign-in failed — user needs to sign in interactively
+    // Token decode failed — user needs to sign in interactively
     return null;
   }
 }
@@ -167,17 +177,9 @@ export async function silentSignIn(): Promise<GoogleAuthUser | null> {
 /**
  * Sign out from Google.
  *
- * Revokes the current session and clears the stored token.
+ * Clears the stored token. No native SDK state to clear.
  */
 export async function signOutGoogle(): Promise<void> {
-  ensureConfigured();
-
-  try {
-    await GoogleSignin.signOut();
-  } catch {
-    // Ignore sign-out errors — clear local state regardless
-  }
-
   await clearAuthToken();
 }
 
@@ -192,19 +194,61 @@ export async function getCurrentToken(): Promise<string | null> {
 
 /**
  * Check if the user is currently signed in.
+ *
+ * Checks for a stored, non-expired token.
  */
-export function isSignedIn(): boolean {
-  ensureConfigured();
-  return GoogleSignin.hasPreviousSignIn();
+export async function isSignedIn(): Promise<boolean> {
+  try {
+    const token = await getAuthToken();
+    if (!token) return false;
+
+    const user = decodeIdToken(token);
+    if (user.exp && user.exp * 1000 < Date.now()) return false;
+
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────
 
-function ensureConfigured(): void {
-  if (!isConfigured) {
+function ensureConfigured(): GoogleAuthConfig {
+  if (!storedConfig) {
     throw new GoogleAuthError(
       'Google Sign-In not configured. Call configureGoogleAuth() first.',
       'NOT_CONFIGURED',
     );
   }
+  return storedConfig;
+}
+
+interface DecodedIdToken {
+  sub: string;
+  email: string;
+  name?: string;
+  picture?: string;
+  exp?: number;
+}
+
+/**
+ * Decode the payload of a JWT ID token (no verification — the server does that).
+ */
+function decodeIdToken(token: string): DecodedIdToken {
+  const parts = token.split('.');
+  if (parts.length !== 3) {
+    throw new GoogleAuthError('Invalid ID token format');
+  }
+
+  // Base64url decode
+  const payload = parts[1]!;
+  const padded = payload.replace(/-/g, '+').replace(/_/g, '/');
+  const decoded = atob(padded);
+  const parsed = JSON.parse(decoded) as DecodedIdToken;
+
+  if (!parsed.sub || !parsed.email) {
+    throw new GoogleAuthError('ID token missing required claims');
+  }
+
+  return parsed;
 }
