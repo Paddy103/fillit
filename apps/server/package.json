@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.80.0",
+    "@anthropic-ai/sdk": "^0.82.0",
     "@fillit/shared": "workspace:*",
     "@hono/node-server": "^1.13.0",
     "apple-signin-auth": "^2.0.0",
